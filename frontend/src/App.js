@@ -1,5 +1,7 @@
 import axios from 'axios';
 import './App.css';
+import {Calendar} from "@nextui-org/calendar";
+import {parseDate} from '@internationalized/date';
 
 const apiCall = () => {
   axios.get('http://localhost:8080').then((data) => {
@@ -9,12 +11,9 @@ const apiCall = () => {
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        
-        <button onClick={apiCall}>Make API Call</button>
-
-      </header>
+    <div className="flex gap-x-4">
+      <Calendar aria-label="Date (No Selection)" />
+      <Calendar aria-label="Date (Uncontrolled)" defaultValue={parseDate("2020-02-03")} />
     </div>
   );
 }
