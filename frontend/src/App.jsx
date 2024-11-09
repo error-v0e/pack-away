@@ -1,18 +1,32 @@
-import axios from 'axios';
-import {Calendar} from "@nextui-org/calendar";
-import {parseDate} from '@internationalized/date';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, NavLink } from "react-router-dom";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/react";
+import Home from "./pages/Home";
+import Friends from "./pages/Friends";
 
-
-function App() {
-
+const App = () => {
   return (
-    <>
-    <div className="flex gap-x-4">
-      <Calendar aria-label="Date (No Selection)" />
-      <Calendar aria-label="Date (Uncontrolled)" defaultValue={parseDate("2020-02-03")} />
-    </div>
-    </>
-  )
-}
+    <Router>
+      <Navbar isBordered variant="floating">
+        <NavbarBrand>
+          <p>Pack Away</p>
+        </NavbarBrand>
+        <NavbarContent>
+          <NavbarItem as={NavLink} to="/" end>
+            Domovská stránka
+          </NavbarItem>
+          <NavbarItem as={NavLink} to="/pratele">
+            Přátelé
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
 
-export default App
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/pratele" element={<Friends />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;

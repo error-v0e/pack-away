@@ -1,13 +1,20 @@
 const express = require('express');
-const app = express();
 const cors = require('cors');
+const app = express();
 
-app.use(cors())
+app.use(cors());
+app.use(express.json());
 
-app.get('/', (req, res) => {
-      res.send('Hello from our server!')
-})
+app.get('/api/number', (req, res) => {
+  res.json({ number: 32 }); 
+});
 
-app.listen(8080, () => {
-      console.log('server listening on port 8080')
-})
+app.post('/api/send-text', (req, res) => {
+  const text = req.body.text;
+  const number = req.body.number;
+  res.json({ message: `Přijatý text: ${text} s číslem ${number}` });
+});
+
+app.listen(5000, () => {
+  console.log('Server běží na http://localhost:5000');
+});
