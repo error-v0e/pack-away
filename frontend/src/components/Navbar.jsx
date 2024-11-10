@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Navbar as NextUINavbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@nextui-org/react";
+import { Navbar as NextUINavbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link } from "@nextui-org/react";
 
 export default function CustomNavbar() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -11,13 +11,13 @@ export default function CustomNavbar() {
   ];
 
   return (
-    <NextUINavbar onMenuOpenChange={setIsMenuOpen} css={{ width: '100%', justifyContent: 'center' }}>
+    <NextUINavbar onMenuOpenChange={setIsMenuOpen}maxWidth="full">
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
         />
-        <NavbarBrand>
+        <NavbarBrand as={NavLink} to="/" end>
           <p className="font-bold text-inherit">Pack Away</p>
         </NavbarBrand>
       </NavbarContent>
@@ -33,14 +33,14 @@ export default function CustomNavbar() {
       <NavbarMenu>
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.name}-${index}`}>
-            <NavLink
+            <Link
               to={item.path}
               className="w-full"
               size="full"
               onClick={() => setIsMenuOpen(false)}
             >
               {item.name}
-            </NavLink>
+            </Link>
           </NavbarMenuItem>
         ))}
       </NavbarMenu>
