@@ -7,7 +7,7 @@ import './index.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <NextUIProvider>
-      <div className="w-screen h-screen p-8 flex items-start justify-center">
+      <div className="w-screen h-screen flex items-start justify-center">
         <App />
       </div>  
     </NextUIProvider>
