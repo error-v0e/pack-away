@@ -1,9 +1,8 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { Layout } from "antd";
 import CustomNavbar from "./components/Navbar.jsx";
-import Home from "./pages/Home";
-import Friends from "./pages/Friends";
+import Routers from "./Routers";
 
 const { Header, Content } = Layout;
 
@@ -12,7 +11,7 @@ function App() {
     <Router>
       <Layout className="min-h-screen">
         {/* Navigační lišta */}
-        <Header >
+        <Header>
           <CustomNavbar />
         </Header>
 
@@ -23,10 +22,7 @@ function App() {
             margin: "0 auto",
             width: "100%",
           }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/pratele" element={<Friends />} />
-          </Routes>
+          <Routers />
         </Content>
       </Layout>
     </Router>

@@ -11,24 +11,23 @@ export default function CustomNavbar() {
   ];
 
   return (
-    <NextUINavbar onMenuOpenChange={setIsMenuOpen}maxWidth="full">
+    <NextUINavbar onMenuOpenChange={setIsMenuOpen} css={{ width: '100%', justifyContent: 'center' }}>
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
         />
-        <NavbarBrand as={NavLink} to="/" end>
+        <NavbarBrand>
           <p className="font-bold text-inherit">Pack Away</p>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem as={NavLink} to="/" end>
-          Cesty
-        </NavbarItem>
-        <NavbarItem as={NavLink} to="/pratele">
-          Přátelé
-        </NavbarItem>
+        {menuItems.map((item, index) => (
+          <NavbarItem key={index} as={NavLink} to={item.path} end>
+            {item.name}
+          </NavbarItem>
+        ))}
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (
