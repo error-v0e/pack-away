@@ -5,6 +5,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const { User } = require('./models'); // Import User model
+const sequelize = require('./connection');
 
 const app = express();
 
@@ -56,6 +57,7 @@ app.post('/api/register', async (req, res) => {
     const newUser = await User.create({ username, email, password: hashedPassword, picture });
     res.json({ message: 'User registered successfully', user: newUser });
   } catch (err) {
+    console.error('Error registering user:', err);
     res.status(500).json({ message: 'Error registering user', error: err });
   }
 });
@@ -70,6 +72,11 @@ app.post('/api/send-text', (req, res) => {
   res.json({ message: `Přijatý text: ${text} s číslem ${number}` });
 });
 
-app.listen(5000, () => {
-  console.log('Server běží na http://localhost:5000');
+// Synchronize the models with the database
+sequelize.sync({ force: false }).then(() => {
+  app.listen(5000, () => {
+    console.log('Server běží na http://localhost:5000');
+  });
+}).catch(err => {
+  console.error('Unable to connect to the database:', err);
 });
