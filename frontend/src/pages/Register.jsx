@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link } from '@nextui-org/react';
-
+import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
+import { useNavigate } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";
 
@@ -11,12 +11,21 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [picture, setPicture] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     try {
       const response = await axios.post('http://localhost:5000/api/register', { username, email, password, picture });
+      if (response.data.redirect) {
+        navigate(response.data.redirect);
+      }
     } catch (error) {
-      console.error('Error registering:', error);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+      } else {
+        setErrors({ form: 'Error registering' });
+      }
     }
   };
 
@@ -29,21 +38,35 @@ const Register = () => {
           <h1>Register</h1>
         </CardHeader>
         <CardBody>
+          {errors.form && <Chip color="danger">{errors.form}</Chip>}
+          <Spacer y={2} />
           <Input
             clearable
             underlined
             placeholder="Username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setErrors((prev) => ({ ...prev, username: '' }));
+            }}
+            status={errors.username ? 'error' : 'default'}
           />
+          <Spacer y={1} />
+          {errors.username && <Chip color="danger">{errors.username}</Chip>}
           <Spacer y={2} />
           <Input
             clearable
             underlined
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setErrors((prev) => ({ ...prev, email: '' }));
+            }}
+            status={errors.email ? 'error' : 'default'}
           />
+          <Spacer y={1} />
+          {errors.email && <Chip color="danger">{errors.email}</Chip>}
           <Spacer y={2} />
           <Input
             clearable
@@ -60,8 +83,14 @@ const Register = () => {
               </button>
             }
             type={isVisible ? "text" : "password"}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setErrors((prev) => ({ ...prev, password: '' }));
+            }}
+            status={errors.password ? 'error' : 'default'}
           />
+          <Spacer y={1} />
+          {errors.password && <Chip color="danger">{errors.password}</Chip>}
           <Spacer y={2} />
           <Input
             clearable

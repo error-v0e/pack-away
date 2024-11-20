@@ -20,11 +20,11 @@ passport.use(new LocalStrategy(
     try {
       const user = await User.findOne({ where: { username } });
       if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
+        return done(null, false, { message: 'Účet neexistuje' });
       }
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        return done(null, false, { message: 'Incorrect password.' });
+        return done(null, false, { message: 'Špatné heslo' });
       }
       return done(null, user);
     } catch (err) {
@@ -46,19 +46,70 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-app.post('/api/login', passport.authenticate('local'), (req, res) => {
-  res.json({ message: 'Logged in successfully' });
+app.post('/api/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(400).json({ message: info.message });
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ message: 'Logged in successfully', redirect: '/' });
+    });
+  })(req, res, next);
 });
 
 app.post('/api/register', async (req, res) => {
   const { username, email, password, picture } = req.body;
+  const errors = {};
+
+  if (!username || username.trim() === '') {
+    errors.username = 'Username is required';
+  }
+
+  if (!email || email.trim() === '') {
+    errors.email = 'Email is required';
+  } else {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errors.email = 'Invalid email format';
+    }
+  }
+
+  if (!password || password.trim() === '') {
+    errors.password = 'Password is required';
+  } else {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      errors.password = 'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, and one number';
+    }
+  }
+
+  const existingUserByUsername = await User.findOne({ where: { username } });
+  if (existingUserByUsername) {
+    errors.username = 'Účet s tímto jménem již existuje';
+  }
+
+  const existingUserByEmail = await User.findOne({ where: { email } });
+  if (existingUserByEmail) {
+    errors.email = 'Účet s tímto emailem již existuje';
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json(errors);
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ username, email, password: hashedPassword, picture });
-    res.json({ message: 'User registered successfully', user: newUser });
+    res.json({ message: 'User registered successfully', user: newUser, redirect: '/' });
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).json({ message: 'Error registering user', error: err });
+    res.status(500).json({ form: 'Error registering user' });
   }
 });
 
