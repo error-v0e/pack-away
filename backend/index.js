@@ -11,7 +11,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }));
+app.use(session({
+  secret: 'secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set secure to true if using HTTPS
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -46,7 +51,23 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-app.post('/api/login', (req, res, next) => {
+// Middleware to check if user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+};
+
+// Middleware to check if user is not authenticated
+const isNotAuthenticated = (req, res, next) => {
+  if (!req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/');
+};
+
+app.post('/api/login', isNotAuthenticated, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
       return next(err);
@@ -63,7 +84,7 @@ app.post('/api/login', (req, res, next) => {
   })(req, res, next);
 });
 
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', isNotAuthenticated, async (req, res) => {
   const { username, email, password, picture } = req.body;
   const errors = {};
 
@@ -113,11 +134,22 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-app.get('/api/number', (req, res) => {
+// Logout endpoint
+app.post('/api/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error logging out' });
+    }
+    res.json({ message: 'Logged out successfully', redirect: '/login' });
+  });
+});
+
+// Protect routes that require authentication
+app.get('/api/number', isAuthenticated, (req, res) => {
   res.json({ number: 32 });
 });
 
-app.post('/api/send-text', (req, res) => {
+app.post('/api/send-text', isAuthenticated, (req, res) => {
   const text = req.body.text;
   const number = req.body.number;
   res.json({ message: `Přijatý text: ${text} s číslem ${number}` });

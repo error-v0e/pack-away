@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";
 
-const Register = () => {
+const Register = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +18,7 @@ const Register = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/register', { username, email, password, picture });
       if (response.data.redirect) {
+        setIsAuthenticated(true); // Update authentication status
         navigate(response.data.redirect);
       }
     } catch (error) {

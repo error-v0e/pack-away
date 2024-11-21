@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,6 +16,8 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5000/api/login', { username, password });
       if (response.data.redirect) {
+        localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
+        setIsAuthenticated(true); // Update authentication status
         navigate(response.data.redirect);
       }
     } catch (error) {
