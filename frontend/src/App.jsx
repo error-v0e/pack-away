@@ -20,9 +20,7 @@ function App() {
     <Router>
       <Layout className="min-h-screen">
         {/* Navigační lišta */}
-        <Header style={{ 
-            padding: "0",
-          }}>
+        <Header>
           <CustomNavbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
         </Header>
 

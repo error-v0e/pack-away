@@ -23,6 +23,18 @@ body {
   box-sizing: border-box;
 }
 
+header {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background: none !important;
+  background-color: transparent !important; 
+}
+header > nav {
+  padding-left: 20px;
+  padding-right: 20px;
+}
 h1 {
   font-size: 2rem;
   margin: 0;
