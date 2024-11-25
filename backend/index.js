@@ -6,20 +6,28 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const { User } = require('./models'); // Import User model
 const sequelize = require('./connection');
+const { Op } = require('sequelize'); // Import Sequelize operators
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // URL vašeho frontendu
+  credentials: true // Povolit cookies
+}));
 app.use(express.json());
 app.use(session({
   secret: 'secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set secure to true if using HTTPS
+  cookie: {
+    secure: false, // Nastavte na true, pokud používáte HTTPS
+    httpOnly: true
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Passport strategie
 passport.use(new LocalStrategy(
   async (username, password, done) => {
     try {
@@ -51,15 +59,15 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Middleware to check if user is authenticated
+// Middleware: ověření přihlášení
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/login');
+  res.status(401).json({ message: 'Unauthorized' });
 };
 
-// Middleware to check if user is not authenticated
+// Middleware: ověření nepřihlášení
 const isNotAuthenticated = (req, res, next) => {
   if (!req.isAuthenticated()) {
     return next();
@@ -67,6 +75,16 @@ const isNotAuthenticated = (req, res, next) => {
   res.redirect('/');
 };
 
+// Endpoint pro ověření stavu přihlášení
+app.get('/api/login-status', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ authenticated: true, user: req.user });
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+// Přihlášení
 app.post('/api/login', isNotAuthenticated, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -79,46 +97,38 @@ app.post('/api/login', isNotAuthenticated, (req, res, next) => {
       if (err) {
         return next(err);
       }
-      return res.json({ message: 'Logged in successfully', redirect: '/' });
+      return res.json({ message: 'Přihlášení úspěšné', user, redirect: '/' });
     });
   })(req, res, next);
 });
 
+// Registrace
 app.post('/api/register', isNotAuthenticated, async (req, res) => {
   const { username, email, password, picture } = req.body;
   const errors = {};
 
-  if (!username || username.trim() === '') {
-    errors.username = 'Username is required';
-  }
-
+  // Validace vstupů
+  if (!username || username.trim() === '') errors.username = 'Username is required';
   if (!email || email.trim() === '') {
     errors.email = 'Email is required';
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      errors.email = 'Invalid email format';
-    }
+    if (!emailRegex.test(email)) errors.email = 'Invalid email format';
   }
-
   if (!password || password.trim() === '') {
     errors.password = 'Password is required';
   } else {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if (!passwordRegex.test(password)) {
-      errors.password = 'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, and one number';
+      errors.password = 'Password must include one uppercase, one lowercase, one number, and be 8+ characters';
     }
   }
 
   const existingUserByUsername = await User.findOne({ where: { username } });
-  if (existingUserByUsername) {
-    errors.username = 'Účet s tímto jménem již existuje';
-  }
+  if (existingUserByUsername) errors.username = 'Účet s tímto jménem již existuje';
 
   const existingUserByEmail = await User.findOne({ where: { email } });
-  if (existingUserByEmail) {
-    errors.email = 'Účet s tímto emailem již existuje';
-  }
+  if (existingUserByEmail) errors.email = 'Účet s tímto emailem již existuje';
 
   if (Object.keys(errors).length > 0) {
     return res.status(400).json(errors);
@@ -127,39 +137,45 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ username, email, password: hashedPassword, picture });
-    res.json({ message: 'User registered successfully', user: newUser, redirect: '/' });
+    res.json({ message: 'Registrace úspěšná', user: newUser, redirect: '/' });
   } catch (err) {
     console.error('Error registering user:', err);
-    res.status(500).json({ form: 'Error registering user' });
+    res.status(500).json({ form: 'Chyba při registraci' });
   }
 });
 
-// Logout endpoint
+// Odhlášení
 app.post('/api/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
-      return res.status(500).json({ message: 'Error logging out' });
+      return res.status(500).json({ message: 'Chyba při odhlašování' });
     }
-    res.json({ message: 'Logged out successfully', redirect: '/login' });
+    res.json({ message: 'Odhlášení úspěšné', redirect: '/login' });
   });
 });
 
-// Protect routes that require authentication
-app.get('/api/number', isAuthenticated, (req, res) => {
-  res.json({ number: 32 });
+// Endpoint: Seznam uživatelů
+app.get('/api/users', isAuthenticated, async (req, res) => {
+  try {
+    const users = await User.findAll({
+      where: {
+        id_user: {
+          [Op.not]: req.user.id_user // Nezahrnujte aktuálního uživatele
+        }
+      }
+    });
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ message: 'Chyba při načítání uživatelů' });
+  }
 });
 
-app.post('/api/send-text', isAuthenticated, (req, res) => {
-  const text = req.body.text;
-  const number = req.body.number;
-  res.json({ message: `Přijatý text: ${text} s číslem ${number}` });
-});
-
-// Synchronize the models with the database
+// Synchronizace a spuštění serveru
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
   });
 }).catch(err => {
-  console.error('Unable to connect to the database:', err);
+  console.error('Nepodařilo se připojit k databázi:', err);
 });

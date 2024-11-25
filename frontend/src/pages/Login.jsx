@@ -18,7 +18,7 @@ const Login = ({ setIsAuthenticated }) => {
       if (response.data.redirect) {
         localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
         setIsAuthenticated(true); // Update authentication status
-        navigate(response.data.redirect);
+        navigate(response.data.redirect); // Redirect to the specified route
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
