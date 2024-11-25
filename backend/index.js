@@ -6,6 +6,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const { User } = require('./models'); // Import User model
 const sequelize = require('./connection');
+const { Op } = require('sequelize');
 
 const app = express();
 
@@ -15,7 +16,10 @@ app.use(session({
   secret: 'secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set secure to true if using HTTPS
+  cookie: { 
+    secure: false ,
+    maxAge: 24 * 60 * 60 * 1000
+  } // Set secure to true if using HTTPS
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -79,6 +83,7 @@ app.post('/api/login', isNotAuthenticated, (req, res, next) => {
       if (err) {
         return next(err);
       }
+      console.log('--------User logged in:', user.username);
       return res.json({ message: 'Logged in successfully', redirect: '/' });
     });
   })(req, res, next);
@@ -144,23 +149,13 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-// Protect routes that require authentication
-app.get('/api/number', isAuthenticated, (req, res) => {
-  res.json({ number: 32 });
-});
-
-app.post('/api/send-text', isAuthenticated, (req, res) => {
-  const text = req.body.text;
-  const number = req.body.number;
-  res.json({ message: `Přijatý text: ${text} s číslem ${number}` });
-});
-
 app.get('/api/users', isAuthenticated, async (req, res) => {
+  const { user_id } = req.query;
   try {
     const users = await User.findAll({
       where: {
-        id_user: {
-          [sequelize.Op.ne]: req.user.id_user // Exclude the currently authenticated user
+        user: {
+          [Op.ne]: req.user.id_user // Exclude the currently authenticated user
         }
       }
     });

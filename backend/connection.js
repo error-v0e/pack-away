@@ -5,7 +5,7 @@ const sequelize = new Sequelize('packaway', 'postgres', '123', {
   host: 'localhost',
   port: 5432, // Výchozí port PostgreSQL
   dialect: 'postgres',
-  logging: console.log, // Povolení logování SQL dotazů
+  logging: false, // Povolení logování SQL dotazů
   pool: {
     max: 5, // Maximální počet připojení
     min: 0,

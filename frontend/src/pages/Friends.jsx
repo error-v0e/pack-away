@@ -13,8 +13,14 @@ const Friends = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/users');
+        const user = JSON.parse(localStorage.getItem('user'));
+        const id_user = user.id_user;
+        console.log(localStorage) 
+        console.log(id_user)
+        const response = await axios.get('http://localhost:5000/api/users', {params: {id_user}, withCredentials: true} );
         setUsers(response.data);
+        console.log(users) 
+
       } catch (error) {
         if (error.response && error.response.status === 401) {
           navigate('/login'); // Redirect to login if unauthorized
