@@ -56,7 +56,7 @@ const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/login');
+  res.status(401).json({ message: 'Unauthorized' });
 };
 
 // Middleware to check if user is not authenticated
@@ -153,6 +153,22 @@ app.post('/api/send-text', isAuthenticated, (req, res) => {
   const text = req.body.text;
   const number = req.body.number;
   res.json({ message: `Přijatý text: ${text} s číslem ${number}` });
+});
+
+app.get('/api/users', isAuthenticated, async (req, res) => {
+  try {
+    const users = await User.findAll({
+      where: {
+        id_user: {
+          [sequelize.Op.ne]: req.user.id_user // Exclude the currently authenticated user
+        }
+      }
+    });
+    res.json(users);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ message: 'Error fetching users' });
+  }
 });
 
 // Synchronize the models with the database
