@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User } = require('./models'); // Import User model
+const { User, Friend} = require('./models'); // Import User model
 const sequelize = require('./connection');
 const { Op } = require('sequelize');
 
@@ -131,7 +131,7 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ username, email, password: hashedPassword, picture });
-    res.json({ message: 'User registered successfully', user: newUser, redirect: '/' });
+    res.json({ message: 'User registered successfully', id_user: newUser.id_user, user: newUser.username, redirect: '/' });
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ form: 'Error registering user' });
@@ -149,18 +149,28 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
-  console.log('--------');
   const { id_user } = req.query;
-  console.log(id_user);
   try {
+    const friends = await Friend.findAll({
+      attributes: ['id_user_two'],
+      where: {
+        id_user_one: id_user, // id aktuálně přihlášeného uživatele
+      },
+    });
+    
+    // Extrakce pouze id_user_two do pole
+    const friendIds = friends.map(friend => friend.id_user_two);
+    
+    // 2. Výběr uživatelů, kteří nejsou přátelé a nejsou aktuální uživatel
     const users = await User.findAll({
       where: {
         id_user: {
-          [Op.ne]: id_user // Exclude the currently authenticated user
-        }
-      }
+          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
+          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+        },
+      },
+      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
     });
-    console.log(users) 
     res.json(users);
   } catch (err) {
     console.error('Error fetching users:', err);
@@ -168,6 +178,35 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+app.post('/api/add_follow', async (req, res) => {
+  const { id_user_one, id_user_two } = req.body;
+  try {
+    await Friend.create({ id_user_one, id_user_two });
+    res.json({ message: 'Follow added successfully' });
+  } catch (err) {
+    console.error('Error adding follow:', err);
+    res.status(500).json({ message: 'Error adding follow' });
+  }
+});
+app.get('/api/friends', async (req, res) => {
+  const { id_user } = req.query;
+  try {
+    const friends = await Friend.findAll({
+      where: {
+        id_user_one: id_user
+      },
+      include: [{
+        model: User,
+        as: 'UserTwo',
+        attributes: ['id_user', 'username', 'picture']
+      }]
+    });
+    res.json(friends.map(friend => friend.UserTwo));
+  } catch (err) {
+    console.error('Error fetching friends:', err);
+    res.status(500).json({ message: 'Error fetching friends' });
+  }
+});
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {

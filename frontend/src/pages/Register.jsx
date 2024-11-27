@@ -18,6 +18,8 @@ const Register = ({ setIsAuthenticated }) => {
     try {
       const response = await axios.post('http://localhost:5000/api/register', { username, email, password, picture });
       if (response.data.redirect) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('id_user', JSON.stringify(response.data.id_user));
         setIsAuthenticated(true); // Update authentication status
         navigate(response.data.redirect);
       }
