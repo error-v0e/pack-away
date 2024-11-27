@@ -12,12 +12,13 @@ const Friends = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      console.log(localStorage) 
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const id_user = user.id_user;
+        const id_user = JSON.parse(localStorage.getItem('id_user'));
+        //const id_user = user.id_user;
         console.log(localStorage) 
         console.log(id_user)
-        const response = await axios.get('http://localhost:5000/api/users', {params: {id_user}, withCredentials: true} );
+        const response = await axios.get('http://localhost:5000/api/users', {params: {id_user}} );
         setUsers(response.data);
         console.log(users) 
 

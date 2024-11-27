@@ -16,7 +16,7 @@ const Login = ({ setIsAuthenticated }) => {
     try {
       const response = await axios.post('http://localhost:5000/api/login', { username, password });
       if (response.data.redirect) {
-        localStorage.setItem('user', JSON.stringify(response.data.user)); // Store user data in localStorage
+        localStorage.setItem('id_user', JSON.stringify(response.data.id_user)); // Store user data in localStorage
         setIsAuthenticated(true); // Update authentication status
         navigate(response.data.redirect);
       }

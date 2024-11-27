@@ -84,7 +84,7 @@ app.post('/api/login', isNotAuthenticated, (req, res, next) => {
         return next(err);
       }
       console.log('--------User logged in:', user.username);
-      return res.json({ message: 'Logged in successfully', redirect: '/' });
+      return res.json({ message: 'Logged in successfully', id_user: user.id_user, user: user.username, redirect: '/' });
     });
   })(req, res, next);
 });
