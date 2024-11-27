@@ -10,8 +10,11 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('id_user');
+    console.log(user);
+    
     if (user) {
+      console.log("--------------------------------");
       setIsAuthenticated(true);
     }
   }, []);

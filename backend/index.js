@@ -13,13 +13,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(session({
-  secret: 'secret',
+  secret: 'your_secret_key',
   resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: false ,
-    maxAge: 24 * 60 * 60 * 1000
-  } // Set secure to true if using HTTPS
+  saveUninitialized: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -57,9 +53,12 @@ passport.deserializeUser(async (id, done) => {
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
+  console.log('--------a1');
   if (req.isAuthenticated()) {
+    console.log('--------a2');
     return next();
   }
+  console.log('--------a3');
   res.status(401).json({ message: 'Unauthorized' });
 };
 
@@ -149,16 +148,19 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-app.get('/api/users', isAuthenticated, async (req, res) => {
-  const { user_id } = req.query;
+app.get('/api/users', async (req, res) => {
+  console.log('--------');
+  const { id_user } = req.query;
+  console.log(id_user);
   try {
     const users = await User.findAll({
       where: {
-        user: {
-          [Op.ne]: req.user.id_user // Exclude the currently authenticated user
+        id_user: {
+          [Op.ne]: id_user // Exclude the currently authenticated user
         }
       }
     });
+    console.log(users) 
     res.json(users);
   } catch (err) {
     console.error('Error fetching users:', err);
