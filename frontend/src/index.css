@@ -23,7 +23,7 @@ body {
   box-sizing: border-box;
 }
 
-header {
+.min-h-screen > header, nav > header{
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;

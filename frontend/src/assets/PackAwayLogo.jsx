@@ -2,8 +2,8 @@ export const PackAwayLogo = () => (
     <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 595.28 841.89"
-    width="36"
-    height="36"
+    width="50"
+    height="50"
   >
     <defs>
       <style>

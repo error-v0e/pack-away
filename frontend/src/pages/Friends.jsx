@@ -135,7 +135,7 @@ const Friends = () => {
       </Flex>
       <Flex wrap gap="small" justify="center">
         {friends.map(friend => (
-          <Card key={friend.id_user} className="max-w-[340px]">
+          <Card key={friend.id_user} className="max-w-[340px] min-w-[300px]">
             <CardHeader className="justify-between">
               <div className="flex gap-5">
                 <Avatar isBordered radius="full" size="md" src={friend.picture} />

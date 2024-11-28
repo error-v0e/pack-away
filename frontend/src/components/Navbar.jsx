@@ -46,7 +46,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
         <NavbarContent className="hidden sm:flex gap-4" justify="start">
           <NavbarBrand>
             <PackAwayLogo />
-            <p className="font-bold text-inherit">Pack Away</p>
+            <p className="font-bold ms-2 text-inherit">Pack Away</p>
           </NavbarBrand>
           {menuItems.map((item, index) => (
             <NavbarItem key={index} as={NavLink} to={item.path} end>
