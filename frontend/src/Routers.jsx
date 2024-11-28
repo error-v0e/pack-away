@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 const Routers = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
       <Route path="/pratele" element={isAuthenticated ? <Friends /> : <Navigate to="/login" />} />
       <Route path="/login" element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/" />} />
       <Route path="/register" element={!isAuthenticated ? <Register setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/" />} />

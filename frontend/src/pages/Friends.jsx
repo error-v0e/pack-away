@@ -6,7 +6,7 @@ import { SearchIcon } from "../assets/SearchIcon";
 import { useNavigate } from 'react-router-dom';
 
 const Friends = () => {
-  const [isFollowed, setIsFollowed] = useState(true);
+  const [isFollowed, setIsFollowed] = useState(false);
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const navigate = useNavigate();
@@ -41,14 +41,26 @@ const Friends = () => {
   }, [navigate]);
 
   const addFollow = async (id_user_two) => {
-    const id_user = JSON.parse(localStorage.getItem('id_user'));
     try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
       await axios.post('http://localhost:5000/api/add_follow', { id_user_one: id_user, id_user_two });
       console.log(`User ${id_user} followed user ${id_user_two}`);
-      fetchUsers(); // Reload the list of users after adding a follow
       fetchFriends(); // Reload the list of friends after adding a follow
+      fetchUsers(); // Reload the list of users after adding a follow
     } catch (error) {
       console.error('Error adding follow:', error);
+    }
+  };
+
+  const removeFollow = async (id_user_two) => {
+    const id_user = JSON.parse(localStorage.getItem('id_user'));
+    try {
+      await axios.delete('http://localhost:5000/api/remove_follow', { data: { id_user_one: id_user, id_user_two } });
+      console.log(`User ${id_user} unfollowed user ${id_user_two}`);
+      fetchFriends(); // Reload the list of friends after removing a follow
+      fetchUsers(); // Reload the list of users after adding a follow
+    } catch (error) {
+      console.error('Error removing follow:', error);
     }
   };
 
@@ -132,14 +144,14 @@ const Friends = () => {
                 </div>
               </div>
               <Button
-                className={isFollowed ? "bg-transparent text-foreground border-default-200" : ""}
+                className="bg-transparent text-foreground border-default-200"
                 color="primary"
                 radius="full"
                 size="sm"
-                variant={isFollowed ? "bordered" : "solid"}
-                onPress={() => setIsFollowed(!isFollowed)}
+                variant="bordered"
+                onClick={() => removeFollow(friend.id_user)}
               >
-                {isFollowed ? "Odebrat" : "Přidat"}
+                Odebrat
               </Button>
             </CardHeader>
           </Card>

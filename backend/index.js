@@ -207,6 +207,21 @@ app.get('/api/friends', async (req, res) => {
     res.status(500).json({ message: 'Error fetching friends' });
   }
 });
+app.delete('/api/remove_follow', async (req, res) => {
+  const { id_user_one, id_user_two } = req.body;
+  try {
+    await Friend.destroy({
+      where: {
+        id_user_one,
+        id_user_two
+      }
+    });
+    res.json({ message: 'Follow removed successfully' });
+  } catch (err) {
+    console.error('Error removing follow:', err);
+    res.status(500).json({ message: 'Error removing follow' });
+  }
+});
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
