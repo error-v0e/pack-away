@@ -1,10 +1,10 @@
-export const Users = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 640 512"
-      width="20"
-      height="20"
-    >
+export const Users = ({ width = 20, height = 20 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 640 512"
+    width={width}
+    height={height}
+  >
       <defs>
         <style>
           {`.st0 {

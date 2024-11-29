@@ -13,7 +13,7 @@ const Home = () => {
   return (
     <>
       <Flex wrap gap="small" justify="center" className="mb-5">
-        <Button onPress={onNewTripOpen} size="lg" className='ps-3 pe-3' startContent={<PackAwayLogo />}>
+        <Button onPress={onNewTripOpen} size="lg" className='ps-4 pe-4 min-h-[60px]' startContent={<PackAwayLogo />}>
           Začít novou cestu
         </Button>
         <Modal
@@ -34,9 +34,9 @@ const Home = () => {
                   />
                   <DateRangePicker
                     label="Stay duration"
-                    className="max-w-xs"
+                    className="w-full"
                   />
-                  <Button onPress={onInviteOpen} size="lg" className='ps-3 pe-3' startContent={<PackAwayLogo />}>
+                  <Button onPress={onInviteOpen} size="lg" className='ps-4 pe-4 min-h-[60px]' startContent={<Users width={50} height={50} />}>
                     Pozvat přátele
                   </Button>
                   <Modal
@@ -68,6 +68,12 @@ const Home = () => {
                       )}
                     </ModalContent>
                   </Modal>
+                  <Flex className="flex gap-3">
+                    <Mountain/>
+                    <Button onPress={onInviteOpen} size="lg" className='ps-4 pe-4 min-h-[50px] w-full'>
+                      Změnit ikonu
+                    </Button>
+                  </Flex>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>
