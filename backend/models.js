@@ -43,8 +43,20 @@ const Trip = sequelize.define('Trip', {
     primaryKey: true,
     autoIncrement: true,
   },
-  name: DataTypes.STRING,
-  icon: DataTypes.STRING,
+  name: {
+    type: DataTypes.STRING,
+  },
+  icon: {
+    type: DataTypes.STRING,
+  },
+  from_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  to_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
 });
 
 // Trip Members model

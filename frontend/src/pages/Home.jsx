@@ -1,28 +1,25 @@
 import React from 'react';
-import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Checkbox, Input, Link } from '@nextui-org/react';
+import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem, DateRangePicker, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Checkbox, Input, Link } from '@nextui-org/react';
 import { Flex } from 'antd';
 import {Mountain} from "../assets/Icons/Mountain";
 import {Users} from "../assets/Users";
-import {TriangleExclamation} from "../assets/TriangleExclamation";
+import {MissingInput} from "../assets/MissingInput";
 import {PackAwayLogo} from "../assets/PackAwayLogo";
 
 const Home = () => {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const { isOpen: isNewTripOpen, onOpen: onNewTripOpen, onOpenChange: onNewTripOpenChange } = useDisclosure();
+  const { isOpen: isInviteOpen, onOpen: onInviteOpen, onOpenChange: onInviteOpenChange } = useDisclosure();
+
   return (
-    <> 
+    <>
       <Flex wrap gap="small" justify="center" className="mb-5">
-        <Button onPress={onOpen} size="lg" className='ps-2 pe-3'>
-        <div>
-          <PackAwayLogo />
-        </div>
-        <div>
+        <Button onPress={onNewTripOpen} size="lg" className='ps-3 pe-3' startContent={<PackAwayLogo />}>
           Začít novou cestu
-        </div>
-        </Button> 
-        <Modal 
-        isOpen={isOpen} 
-        onOpenChange={onOpenChange}
-        placement="top-center"
+        </Button>
+        <Modal
+          isOpen={isNewTripOpen}
+          onOpenChange={onNewTripOpenChange}
+          placement="top-center"
         >
           <ModalContent>
             {(onClose) => (
@@ -31,35 +28,53 @@ const Home = () => {
                 <ModalBody>
                   <Input
                     autoFocus
-                    label="Email"
-                    placeholder="Enter your email"
+                    label="Název cesty"
+                    placeholder="Názvi novou cesty"
                     variant="bordered"
                   />
-                  <Input
-                    label="Password"
-                    placeholder="Enter your password"
-                    type="password"
-                    variant="bordered"
+                  <DateRangePicker
+                    label="Stay duration"
+                    className="max-w-xs"
                   />
-                  <div className="flex py-2 px-1 justify-between">
-                    <Checkbox
-                      classNames={{
-                        label: "text-small",
-                      }}
-                    >
-                      Remember me
-                    </Checkbox>
-                    <Link color="primary" href="#" size="sm">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <Button onPress={onInviteOpen} size="lg" className='ps-3 pe-3' startContent={<PackAwayLogo />}>
+                    Pozvat přátele
+                  </Button>
+                  <Modal
+                    isOpen={isInviteOpen}
+                    onOpenChange={onInviteOpenChange}
+                    placement="top-center"
+                  >
+                    <ModalContent>
+                      {(onCloseInvite) => (
+                        <>
+                          <ModalHeader className="flex flex-col gap-1">Pozvat přátele</ModalHeader>
+                          <ModalBody>
+                            <Input
+                              autoFocus
+                              label="Přítel"
+                              placeholder="Zadejte jméno přítele"
+                              variant="bordered"
+                            />
+                          </ModalBody>
+                          <ModalFooter>
+                            <Button color="danger" variant="flat" onPress={onCloseInvite}>
+                              Close
+                            </Button>
+                            <Button color="primary" onPress={onCloseInvite}>
+                              Invite
+                            </Button>
+                          </ModalFooter>
+                        </>
+                      )}
+                    </ModalContent>
+                  </Modal>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>
                     Close
                   </Button>
                   <Button color="primary" onPress={onClose}>
-                    Sign in
+                    Create
                   </Button>
                 </ModalFooter>
               </>
@@ -83,7 +98,7 @@ const Home = () => {
                     <p className="text-small text-foreground/50">4</p>
                   </div>
                   <div className="flex gap-1 justify-start">
-                    <TriangleExclamation/>
+                    <MissingInput/>
                     <p className="text-small text-foreground/50">4</p>
                   </div>
                 </div>
