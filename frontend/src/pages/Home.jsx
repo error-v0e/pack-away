@@ -1,14 +1,34 @@
-import React from 'react';
-import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem, DateRangePicker, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Checkbox, Input, Link } from '@nextui-org/react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, useDisclosure, Avatar, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { Flex } from 'antd';
-import {Mountain} from "../assets/Icons/Mountain";
-import {Users} from "../assets/Users";
-import {MissingInput} from "../assets/MissingInput";
-import {PackAwayLogo} from "../assets/PackAwayLogo";
+import { PackAwayLogo } from '../assets/PackAwayLogo';
+import { Users } from '../assets/Users';
 
 const Home = () => {
   const { isOpen: isNewTripOpen, onOpen: onNewTripOpen, onOpenChange: onNewTripOpenChange } = useDisclosure();
   const { isOpen: isInviteOpen, onOpen: onInviteOpen, onOpenChange: onInviteOpenChange } = useDisclosure();
+  const [friends, setFriends] = useState([]);
+  const [invitedFriends, setInvitedFriends] = useState([]);
+
+  const fetchFriends = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('http://localhost:5000/api/friends', { params: { id_user } });
+      setFriends(response.data);
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFriends();
+  }, []);
+
+  const inviteFriend = (friend) => {
+    setInvitedFriends([...invitedFriends, friend]);
+    setFriends(friends.filter(f => f.id_user !== friend.id_user));
+  };
 
   return (
     <>
@@ -49,69 +69,108 @@ const Home = () => {
                         <>
                           <ModalHeader className="flex flex-col gap-1">Pozvat přátele</ModalHeader>
                           <ModalBody>
-                            <Input
-                              autoFocus
-                              label="Přítel"
-                              placeholder="Zadejte jméno přítele"
+                            <Autocomplete
+                              justify="center"
+                              classNames={{
+                                base: "max-w-xs",
+                                listboxWrapper: "max-h-[320px]",
+                                selectorButton: "text-default-500"
+                              }}
+                              defaultItems={friends}
+                              inputProps={{
+                                classNames: {
+                                  input: "ml-1",
+                                  inputWrapper: "h-[48px]",
+                                },
+                              }}
+                              listboxProps={{
+                                hideSelectedIcon: true,
+                                itemClasses: {
+                                  base: [
+                                    "rounded-medium",
+                                    "text-default-500",
+                                    "transition-opacity",
+                                    "data-[hover=true]:text-foreground",
+                                    "dark:data-[hover=true]:bg-default-50",
+                                    "data-[pressed=true]:opacity-70",
+                                    "data-[hover=true]:bg-default-200",
+                                    "data-[selectable=true]:focus:bg-default-100",
+                                    "data-[focus-visible=true]:ring-default-500",
+                                  ],
+                                },
+                              }}
+                              aria-label="Select a friend"
+                              placeholder="Enter friend's name"
+                              popoverProps={{
+                                offset: 10,
+                                classNames: {
+                                  base: "rounded-large",
+                                  content: "p-1 border-small border-default-100 bg-background",
+                                },
+                              }}
+                              startContent={<Users className="text-default-400" strokeWidth={2.5} size={20} />}
+                              radius="full"
                               variant="bordered"
-                            />
+                            >
+                              {(item) => (
+                                <AutocompleteItem key={item.id_user} textValue={item.username}>
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex gap-2 items-center">
+                                      <Avatar alt={item.username} className="flex-shrink-0" size="sm" src={item.picture} />
+                                      <div className="flex flex-col">
+                                        <span className="text-small">{item.username}</span>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      className="border-small mr-0.5 font-medium shadow-small"
+                                      radius="full"
+                                      size="sm"
+                                      variant="bordered"
+                                      onClick={() => inviteFriend(item)}
+                                    >
+                                      Pozvat
+                                    </Button>
+                                  </div>
+                                </AutocompleteItem>
+                              )}
+                            </Autocomplete>
+                            <div className="mt-4">
+                              <h4 className="text-small font-semibold leading-none text-default-600">Pozvaní přátelé:</h4>
+                              {invitedFriends.map(friend => (
+                                <div key={friend.id_user} className="flex gap-2 items-center mt-2">
+                                  <Avatar alt={friend.username} className="flex-shrink-0" size="sm" src={friend.picture} />
+                                  <div className="flex flex-col">
+                                    <span className="text-small">{friend.username}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </ModalBody>
                           <ModalFooter>
                             <Button color="danger" variant="flat" onPress={onCloseInvite}>
-                              Close
+                              Zavřít
                             </Button>
                             <Button color="primary" onPress={onCloseInvite}>
-                              Invite
+                              Pozvat
                             </Button>
                           </ModalFooter>
                         </>
                       )}
                     </ModalContent>
                   </Modal>
-                  <Flex className="flex gap-3">
-                    <Mountain/>
-                    <Button onPress={onInviteOpen} size="lg" className='ps-4 pe-4 min-h-[50px] w-full'>
-                      Změnit ikonu
-                    </Button>
-                  </Flex>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>
-                    Close
+                    Zavřít
                   </Button>
                   <Button color="primary" onPress={onClose}>
-                    Create
+                    Vytvořit
                   </Button>
                 </ModalFooter>
               </>
             )}
           </ModalContent>
         </Modal>
-      </Flex>
-    
-      <Flex wrap gap="small" justify="center" className="mb-5">
-        <Card className="max-w-[340px] px-1 min-w-[240px]">
-          <CardBody className="justify-between">
-            <div className="flex gap-3">
-              <div>
-                <Mountain/>
-              </div>
-              <div className="flex flex-col gap-1 w-full items-start justify-center ">
-                <h4 className="text-base font-semibold leading-none text-default-600">Hory</h4>
-                <div className="flex justify-between w-[100%] gap-max">
-                  <div className="flex gap-1 justify-start">
-                    <Users/>
-                    <p className="text-small text-foreground/50">4</p>
-                  </div>
-                  <div className="flex gap-1 justify-start">
-                    <MissingInput/>
-                    <p className="text-small text-foreground/50">4</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
       </Flex>
     </>
   );

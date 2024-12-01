@@ -26,12 +26,12 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-});
+}, { timestamps: false });
 
 // Friends model
 const Friend = sequelize.define('Friend', {}, { timestamps: false });
-Friend.removeAttribute('id'); // Odstranění automatického id
-Friend.primaryKey = ['id_user_one', 'id_user_two']; // Složený primární klíč
+Friend.removeAttribute('id'); // Remove automatic id
+Friend.primaryKey = ['id_user_one', 'id_user_two']; // Composite primary key
 
 Friend.belongsTo(User, { as: 'UserOne', foreignKey: 'id_user_one' });
 Friend.belongsTo(User, { as: 'UserTwo', foreignKey: 'id_user_two' });
@@ -43,12 +43,8 @@ const Trip = sequelize.define('Trip', {
     primaryKey: true,
     autoIncrement: true,
   },
-  name: {
-    type: DataTypes.STRING,
-  },
-  icon: {
-    type: DataTypes.STRING,
-  },
+  name: DataTypes.STRING,
+  icon: DataTypes.STRING,
   from_date: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -57,39 +53,32 @@ const Trip = sequelize.define('Trip', {
     type: DataTypes.DATE,
     allowNull: false,
   },
-});
+}, { timestamps: false });
 
 // Trip Members model
-const TripMemberPermission = sequelize.define(
-  'TripMemberPermission',
-  {
-    view: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-    edit: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
+const TripMember = sequelize.define('TripMember', {}, { timestamps: false });
+TripMember.belongsTo(User, { foreignKey: 'id_user' });
+TripMember.belongsTo(Trip, { foreignKey: 'id_trip' });
+TripMember.removeAttribute('id'); // Remove automatic id
+TripMember.primaryKey = ['id_user', 'id_trip']; // Composite primary key
+
+// Trip Members Permission model
+const TripMemberPermission = sequelize.define('TripMemberPermission', {
+  view: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
-  { timestamps: false }
-);
+  edit: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+}, { timestamps: false });
 
-TripMemberPermission.removeAttribute('id'); // Odstranění automatického id
-TripMemberPermission.primaryKey = ['id_user', 'id_friend', 'id_trip']; // Složený primární klíč
-
-TripMemberPermission.belongsTo(User, { 
-  foreignKey: 'id_user',
-  targetKey: 'id_user',  // Explicitně definujeme targetKey
-});
-TripMemberPermission.belongsTo(User, { 
-  foreignKey: 'id_friend',
-  targetKey: 'id_user',  // Explicitně definujeme targetKey
-});
-TripMemberPermission.belongsTo(Trip, { 
-  foreignKey: 'id_trip',
-  targetKey: 'id_trip',  // Explicitně definujeme targetKey
-});
+TripMemberPermission.belongsTo(User, { foreignKey: 'id_user' });
+TripMemberPermission.belongsTo(User, { foreignKey: 'id_friend' });
+TripMemberPermission.belongsTo(Trip, { foreignKey: 'id_trip' });
+TripMemberPermission.removeAttribute('id'); // Remove automatic id
+TripMemberPermission.primaryKey = ['id_user', 'id_friend', 'id_trip']; // Composite primary key
 
 // Items model
 const Item = sequelize.define('Item', {
@@ -102,7 +91,7 @@ const Item = sequelize.define('Item', {
     type: DataTypes.STRING,
     unique: true,
   },
-});
+}, { timestamps: false });
 
 // Categories model
 const Category = sequelize.define('Category', {
@@ -112,7 +101,7 @@ const Category = sequelize.define('Category', {
     autoIncrement: true,
   },
   name: DataTypes.STRING,
-});
+}, { timestamps: false });
 
 // Lists model
 const List = sequelize.define('List', {
@@ -122,49 +111,45 @@ const List = sequelize.define('List', {
     autoIncrement: true,
   },
   name: DataTypes.STRING,
-});
+}, { timestamps: false });
 
 List.belongsTo(User, { foreignKey: 'id_user' });
 
 // List Categories model
 const ListCategory = sequelize.define('ListCategory', {}, { timestamps: false });
-ListCategory.removeAttribute('id'); // Odstranění automatického id
-ListCategory.primaryKey = ['id_list', 'id_category']; // Složený primární klíč
+ListCategory.removeAttribute('id'); // Remove automatic id
+ListCategory.primaryKey = ['id_list', 'id_category']; // Composite primary key
 
 ListCategory.belongsTo(List, { foreignKey: 'id_list' });
 ListCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
 // Category Items model
 const CategoryItem = sequelize.define('CategoryItem', {}, { timestamps: false });
-CategoryItem.removeAttribute('id'); // Odstranění automatického id
-CategoryItem.primaryKey = ['id_item', 'id_category']; // Složený primární klíč
+CategoryItem.removeAttribute('id'); // Remove automatic id
+CategoryItem.primaryKey = ['id_item', 'id_category']; // Composite primary key
 
 CategoryItem.belongsTo(Category, { foreignKey: 'id_category' });
 CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
 
 // Saved Items model
-const SavedItem = sequelize.define(
-  'SavedItem',
-  {
-    by_day: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
-    },
-    count: DataTypes.INTEGER,
+const SavedItem = sequelize.define('SavedItem', {
+  by_day: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
-  { timestamps: false }
-);
+  count: DataTypes.INTEGER,
+}, { timestamps: false });
 
-SavedItem.removeAttribute('id'); // Odstranění automatického id
-SavedItem.primaryKey = ['id_user', 'id_item']; // Složený primární klíč
+SavedItem.removeAttribute('id'); // Remove automatic id
+SavedItem.primaryKey = ['id_user', 'id_item']; // Composite primary key
 
 SavedItem.belongsTo(User, { foreignKey: 'id_user' });
 SavedItem.belongsTo(Item, { foreignKey: 'id_item' });
 
 // Saved Categories model
 const SavedCategory = sequelize.define('SavedCategory', {}, { timestamps: false });
-SavedCategory.removeAttribute('id'); // Odstranění automatického id
-SavedCategory.primaryKey = ['id_user', 'id_category']; // Složený primární klíč
+SavedCategory.removeAttribute('id'); // Remove automatic id
+SavedCategory.primaryKey = ['id_user', 'id_category']; // Composite primary key
 
 SavedCategory.belongsTo(User, { foreignKey: 'id_user' });
 SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
@@ -180,7 +165,7 @@ const UsingItem = sequelize.define('UsingItem', {
   count: DataTypes.INTEGER,
   check: DataTypes.BOOLEAN,
   dissent: DataTypes.BOOLEAN,
-});
+}, { timestamps: false });
 
 // Using Categories model
 const UsingCategory = sequelize.define('UsingCategory', {
@@ -190,12 +175,12 @@ const UsingCategory = sequelize.define('UsingCategory', {
     autoIncrement: true,
   },
   name: DataTypes.STRING,
-});
+}, { timestamps: false });
 
 // Using List Categories model
 const UsingListCategory = sequelize.define('UsingListCategory', {}, { timestamps: false });
-UsingListCategory.removeAttribute('id'); // Odstranění automatického id
-UsingListCategory.primaryKey = ['id_trip', 'id_user', 'id_category']; // Složený primární klíč
+UsingListCategory.removeAttribute('id'); // Remove automatic id
+UsingListCategory.primaryKey = ['id_trip', 'id_user', 'id_category']; // Composite primary key
 
 UsingListCategory.belongsTo(Trip, { foreignKey: 'id_trip' });
 UsingListCategory.belongsTo(User, { foreignKey: 'id_user' });
@@ -203,8 +188,8 @@ UsingListCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
 // Using Category Items model
 const UsingCategoryItem = sequelize.define('UsingCategoryItem', {}, { timestamps: false });
-UsingCategoryItem.removeAttribute('id'); // Odstranění automatického id
-UsingCategoryItem.primaryKey = ['id_item', 'id_category']; // Složený primární klíč
+UsingCategoryItem.removeAttribute('id'); // Remove automatic id
+UsingCategoryItem.primaryKey = ['id_item', 'id_category']; // Composite primary key
 
 UsingCategoryItem.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 UsingCategoryItem.belongsTo(UsingItem, { foreignKey: 'id_item' });
@@ -214,6 +199,7 @@ module.exports = {
   User,
   Friend,
   Trip,
+  TripMember,
   TripMemberPermission,
   Item,
   Category,
