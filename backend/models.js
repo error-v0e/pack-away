@@ -56,7 +56,17 @@ const Trip = sequelize.define('Trip', {
 }, { timestamps: false });
 
 // Trip Members model
-const TripMember = sequelize.define('TripMember', {}, { timestamps: false });
+const TripMember = sequelize.define('TripMember', {
+  joined: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  owner: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+}, { timestamps: false });
+
 TripMember.belongsTo(User, { foreignKey: 'id_user' });
 TripMember.belongsTo(Trip, { foreignKey: 'id_trip' });
 TripMember.removeAttribute('id'); // Remove automatic id
