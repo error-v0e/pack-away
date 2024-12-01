@@ -10,6 +10,9 @@ const Home = () => {
   const { isOpen: isInviteOpen, onOpen: onInviteOpen, onOpenChange: onInviteOpenChange } = useDisclosure();
   const [friends, setFriends] = useState([]);
   const [invitedFriends, setInvitedFriends] = useState([]);
+  const [tripName, setTripName] = useState('');
+  const [tripIcon, setTripIcon] = useState('');
+  const [tripDates, setTripDates] = useState({ start: null, end: null });
 
   const fetchFriends = async () => {
     try {
@@ -26,8 +29,33 @@ const Home = () => {
   }, []);
 
   const inviteFriend = (friend) => {
-    setInvitedFriends([...invitedFriends, friend]);
-    setFriends(friends.filter(f => f.id_user !== friend.id_user));
+    if (!invitedFriends.some(f => f.id_user === friend.id_user)) {
+      setInvitedFriends([...invitedFriends, friend]);
+      setFriends(friends.filter(f => f.id_user !== friend.id_user));
+    }
+  };
+
+  const createTrip = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.post('http://localhost:5000/api/create_trip', {
+        id_user,
+        name: tripName,
+        icon: tripIcon,
+        from_date: tripDates.start ? new Date(tripDates.start).toISOString() : null,
+        to_date: tripDates.end ? new Date(tripDates.end).toISOString() : null,
+        invitedFriends
+      });
+      console.log('Trip created successfully:', response.data);
+      // Reset state after creating the trip
+      setTripName('');
+      setTripIcon('');
+      setTripDates({ start: null, end: null });
+      setInvitedFriends([]);
+      onNewTripOpenChange(false);
+    } catch (error) {
+      console.error('Error creating trip:', error);
+    }
   };
 
   return (
@@ -51,10 +79,21 @@ const Home = () => {
                     label="Název cesty"
                     placeholder="Názvi novou cesty"
                     variant="bordered"
+                    value={tripName}
+                    onChange={(e) => setTripName(e.target.value)}
+                  />
+                  <Input
+                    label="Ikona cesty"
+                    placeholder="Ikona cesty"
+                    variant="bordered"
+                    value={tripIcon}
+                    onChange={(e) => setTripIcon(e.target.value)}
                   />
                   <DateRangePicker
                     label="Stay duration"
                     className="w-full"
+                    value={tripDates}
+                    onChange={(range) => setTripDates({ start: range.start, end: range.end })}
                   />
                   <Button onPress={onInviteOpen} size="lg" className='ps-4 pe-4 min-h-[60px]' startContent={<Users width={50} height={50} />}>
                     Pozvat přátele
@@ -163,7 +202,7 @@ const Home = () => {
                   <Button color="danger" variant="flat" onPress={onClose}>
                     Zavřít
                   </Button>
-                  <Button color="primary" onPress={onClose}>
+                  <Button color="primary" onPress={createTrip}>
                     Vytvořit
                   </Button>
                 </ModalFooter>

@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User, Friend} = require('./models'); // Import User model
+const { User, Friend, Trip, TripMember, TripMemberPermission} = require('./models'); // Import User model
 const sequelize = require('./connection');
 const { Op } = require('sequelize');
 
@@ -220,6 +220,31 @@ app.delete('/api/remove_follow', async (req, res) => {
   } catch (err) {
     console.error('Error removing follow:', err);
     res.status(500).json({ message: 'Error removing follow' });
+  }
+});
+app.post('/api/create_trip', async (req, res) => {
+  const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
+  console.log('--------id_user:', id_user);
+
+  try {
+    // Create the trip
+    const newTrip = await Trip.create({ name, icon, from_date, to_date });
+
+    // Add the creator as a trip member with both booleans set to true
+    await TripMember.create({ id_user, id_trip: newTrip.id_trip, joined: true, owner: true });
+
+    // Add trip member permissions for the creator
+    await TripMemberPermission.create({ id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: true });
+
+    // Add invited friends as trip members with default boolean values
+    for (const friend of invitedFriends) {
+      await TripMember.create({ id_user: friend.id_user, id_trip: newTrip.id_trip, joined: false, owner: false });
+    }
+
+    res.json({ message: 'Trip created successfully', trip: newTrip });
+  } catch (err) {
+    console.error('Error creating trip:', err);
+    res.status(500).json({ message: 'Error creating trip' });
   }
 });
 // Synchronize the models with the database
