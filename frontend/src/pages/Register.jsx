@@ -94,14 +94,6 @@ const Register = ({ setIsAuthenticated }) => {
           />
           <Spacer y={1} />
           {errors.password && <Chip color="danger">{errors.password}</Chip>}
-          <Spacer y={2} />
-          <Input
-            clearable
-            underlined
-            placeholder="Picture URL"
-            value={picture}
-            onChange={(e) => setPicture(e.target.value)}
-          />
           <Spacer y={3} />
           <Button color="primary" onPress={handleRegister}>
             Register

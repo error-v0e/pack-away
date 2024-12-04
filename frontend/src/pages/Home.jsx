@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, useDisclosure, Avatar, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { PackAwayLogo } from '../assets/PackAwayLogo';
 import { Users } from '../assets/Users';
@@ -29,12 +29,15 @@ const Home = () => {
   }, []);
 
   const inviteFriend = (friend) => {
-    if (!invitedFriends.some(f => f.id_user === friend.id_user)) {
-      setInvitedFriends([...invitedFriends, friend]);
-      setFriends(friends.filter(f => f.id_user !== friend.id_user));
-    }
+    setInvitedFriends((prevInvitedFriends) => [...prevInvitedFriends, friend]);
+    setFriends((prevFriends) => prevFriends.filter((f) => f.id_user !== friend.id_user));
   };
 
+  const removeInviteFriend = (friend) => {
+    setInvitedFriends((prevInvitedFriends) => prevInvitedFriends.filter((f) => f.id_user !== friend.id_user));
+    setFriends((prevFriends) => [...prevFriends, friend]);
+  };
+  
   const createTrip = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
@@ -174,23 +177,34 @@ const Home = () => {
                               )}
                             </Autocomplete>
                             <div className="mt-4">
-                              <h4 className="text-small font-semibold leading-none text-default-600">Pozvaní přátelé:</h4>
+                              <h4 className="text-small font-semibold leading-none mb-3 text-default-600">Pozvaní přátelé:</h4>
                               {invitedFriends.map(friend => (
-                                <div key={friend.id_user} className="flex gap-2 items-center mt-2">
-                                  <Avatar alt={friend.username} className="flex-shrink-0" size="sm" src={friend.picture} />
-                                  <div className="flex flex-col">
-                                    <span className="text-small">{friend.username}</span>
-                                  </div>
-                                </div>
+                                <Card key={friend.id_user} className="max-w-[340px] min-w-[300px] mb-3">
+                                  <CardHeader className="justify-between">
+                                    <div className="flex gap-5">
+                                      <Avatar isBordered radius="full" size="md" src={friend.picture} />
+                                      <div className="flex flex-col items-start justify-center mr-3">
+                                        <h4 className="text-small font-semibold leading-none text-default-600 ">{friend.username}</h4>
+                                      </div>
+                                    </div>
+                                    <Button
+                                      className="bg-transparent text-foreground border-default-200"
+                                      color="primary"
+                                      radius="full"
+                                      size="sm"
+                                      variant="bordered"
+                                      onClick={() => removeInviteFriend(friend)}
+                                    >
+                                      Odebrat
+                                    </Button>
+                                  </CardHeader>
+                                </Card>
                               ))}
                             </div>
                           </ModalBody>
                           <ModalFooter>
-                            <Button color="danger" variant="flat" onPress={onCloseInvite}>
-                              Zavřít
-                            </Button>
                             <Button color="primary" onPress={onCloseInvite}>
-                              Pozvat
+                              Zavřít
                             </Button>
                           </ModalFooter>
                         </>

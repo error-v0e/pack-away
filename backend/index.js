@@ -89,7 +89,7 @@ app.post('/api/login', isNotAuthenticated, (req, res, next) => {
 });
 
 app.post('/api/register', isNotAuthenticated, async (req, res) => {
-  const { username, email, password, picture } = req.body;
+  const { username, email, password } = req.body;
   const errors = {};
 
   if (!username || username.trim() === '') {
@@ -130,7 +130,7 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ username, email, password: hashedPassword, picture });
+    const newUser = await User.create({ username, email, password: hashedPassword });
     res.json({ message: 'User registered successfully', id_user: newUser.id_user, user: newUser.username, redirect: '/' });
   } catch (err) {
     console.error('Error registering user:', err);
