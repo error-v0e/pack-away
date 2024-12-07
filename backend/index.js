@@ -149,7 +149,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/users', async (req, res) => {
-  const { id_user } = req.query;
+  const { id_user, search } = req.query;
   try {
     const friends = await Friend.findAll({
       attributes: ['id_user_two'],
@@ -161,17 +161,57 @@ app.get('/api/users', async (req, res) => {
     // Extrakce pouze id_user_two do pole
     const friendIds = friends.map(friend => friend.id_user_two);
     
-    // 2. Výběr uživatelů, kteří nejsou přátelé a nejsou aktuální uživatel
-    const users = await User.findAll({
+    // Přesné shody
+    const exactMatches = await User.findAll({
       where: {
         id_user: {
           [Op.ne]: id_user, // Vyloučí aktuálního uživatele
           [Op.notIn]: friendIds, // Vyloučí všechny přátele
         },
+        username: search // Přesná shoda s vyhledávacím dotazem
       },
       attributes: { exclude: ['password'] }, // Vyloučí pole hesla
+      limit: 7 // Omezení na prvních deset výsledků
     });
-    res.json(users);
+
+    // Výsledky začínající na vyhledávací dotaz
+    const startsWithMatches = await User.findAll({
+      where: {
+        id_user: {
+          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
+          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+        },
+        username: {
+          [Op.like]: `${search}%` // Filtrování podle vyhledávacího dotazu
+        }
+      },
+      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
+      limit: 7 // Omezení na prvních deset výsledků
+    });
+
+    // Výsledky obsahující vyhledávací dotaz
+    const containsMatches = await User.findAll({
+      where: {
+        id_user: {
+          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
+          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+        },
+        username: {
+          [Op.like]: `%${search}%` // Filtrování podle vyhledávacího dotazu
+        }
+      },
+      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
+      limit: 7 // Omezení na prvních deset výsledků
+    });
+
+    // Kombinace výsledků, odstranění duplicit a omezení na prvních deset výsledků
+    const combinedResults = [
+      ...exactMatches,
+      ...startsWithMatches.filter(user => !exactMatches.some(exact => exact.id_user === user.id_user)),
+      ...containsMatches.filter(user => !exactMatches.some(exact => exact.id_user === user.id_user) && !startsWithMatches.some(start => start.id_user === user.id_user))
+    ].slice(0, 7);
+
+    res.json(combinedResults);
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ message: 'Error fetching users' });

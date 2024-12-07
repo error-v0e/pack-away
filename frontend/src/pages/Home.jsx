@@ -11,7 +11,6 @@ const Home = () => {
   const [friends, setFriends] = useState([]);
   const [invitedFriends, setInvitedFriends] = useState([]);
   const [tripName, setTripName] = useState('');
-  const [tripIcon, setTripIcon] = useState('');
   const [tripDates, setTripDates] = useState({ start: null, end: null });
 
   const fetchFriends = async () => {
@@ -44,7 +43,6 @@ const Home = () => {
       const response = await axios.post('http://localhost:5000/api/create_trip', {
         id_user,
         name: tripName,
-        icon: tripIcon,
         from_date: tripDates.start ? new Date(tripDates.start).toISOString() : null,
         to_date: tripDates.end ? new Date(tripDates.end).toISOString() : null,
         invitedFriends
@@ -84,13 +82,6 @@ const Home = () => {
                     variant="bordered"
                     value={tripName}
                     onChange={(e) => setTripName(e.target.value)}
-                  />
-                  <Input
-                    label="Ikona cesty"
-                    placeholder="Ikona cesty"
-                    variant="bordered"
-                    value={tripIcon}
-                    onChange={(e) => setTripIcon(e.target.value)}
                   />
                   <DateRangePicker
                     label="Stay duration"

@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { SearchIcon } from "../assets/SearchIcon";
 import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 
 const Friends = () => {
   const [isFollowed, setIsFollowed] = useState(false);
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
+  const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (searchQuery = '') => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('http://localhost:5000/api/users', { params: { id_user } });
+      const response = await axios.get('http://localhost:5000/api/users', { params: { id_user, search: searchQuery } });
       setUsers(response.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -40,13 +42,21 @@ const Friends = () => {
     fetchFriends();
   }, [navigate]);
 
+  const debouncedFetchUsers = useCallback(debounce((query) => fetchUsers(query), 300), []);
+
+  const handleSearchChange = (e) => {
+    const searchQuery = e.target.value;
+    setSearch(searchQuery);
+    debouncedFetchUsers(searchQuery);
+  };
+
   const addFollow = async (id_user_two) => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       await axios.post('http://localhost:5000/api/add_follow', { id_user_one: id_user, id_user_two });
       console.log(`User ${id_user} followed user ${id_user_two}`);
       fetchFriends(); // Reload the list of friends after adding a follow
-      fetchUsers(); // Reload the list of users after adding a follow
+      fetchUsers(search); // Reload the list of users after adding a follow
     } catch (error) {
       console.error('Error adding follow:', error);
     }
@@ -58,7 +68,7 @@ const Friends = () => {
       await axios.delete('http://localhost:5000/api/remove_follow', { data: { id_user_one: id_user, id_user_two } });
       console.log(`User ${id_user} unfollowed user ${id_user_two}`);
       fetchFriends(); // Reload the list of friends after removing a follow
-      fetchUsers(); // Reload the list of users after adding a follow
+      fetchUsers(search); // Reload the list of users after adding a follow
     } catch (error) {
       console.error('Error removing follow:', error);
     }
@@ -80,6 +90,8 @@ const Friends = () => {
               input: "ml-1",
               inputWrapper: "h-[48px]",
             },
+            onChange: handleSearchChange, // Přidání obslužné funkce pro změnu vyhledávacího dotazu
+            value: search // Nastavení hodnoty vyhledávacího pole
           }}
           listboxProps={{
             hideSelectedIcon: true,
