@@ -262,6 +262,7 @@ app.delete('/api/remove_follow', async (req, res) => {
     res.status(500).json({ message: 'Error removing follow' });
   }
 });
+
 app.post('/api/create_trip', async (req, res) => {
   const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
   console.log('--------id_user:', id_user);

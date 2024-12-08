@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from '@nextui-org/react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, Accordion, AccordionItem, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { PackAwayLogo } from '../assets/PackAwayLogo';
+import { MissingInput } from '../assets/MissingInput';
 import { Users } from '../assets/Users';
 
 const Home = () => {
@@ -50,7 +51,6 @@ const Home = () => {
       console.log('Trip created successfully:', response.data);
       // Reset state after creating the trip
       setTripName('');
-      setTripIcon('');
       setTripDates({ start: null, end: null });
       setInvitedFriends([]);
       onNewTripOpenChange(false);
@@ -216,6 +216,21 @@ const Home = () => {
           </ModalContent>
         </Modal>
       </Flex>
+      <Accordion>
+      <AccordionItem key="1" aria-label="Pozvanky" title="Pozvanky">
+        
+      </AccordionItem>
+      <AccordionItem key="2" aria-label="Budouci" title="Naschazejici">
+        
+      </AccordionItem>
+      <AccordionItem key="3" aria-label="Aktualni" title="Porbihajici">
+        
+      </AccordionItem>
+      <AccordionItem key="4" aria-label="Minula" title="Minula">
+        
+      </AccordionItem>
+    </Accordion>
+      
     </>
   );
 };
