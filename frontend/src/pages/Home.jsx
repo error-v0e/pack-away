@@ -13,6 +13,7 @@ const Home = () => {
   const [invitedFriends, setInvitedFriends] = useState([]);
   const [tripName, setTripName] = useState('');
   const [tripDates, setTripDates] = useState({ start: null, end: null });
+  const [trips, setTrips] = useState({ upcoming: [], ongoing: [], past: [], invites: [] });
 
   const fetchFriends = async () => {
     try {
@@ -24,8 +25,19 @@ const Home = () => {
     }
   };
 
+  const fetchTrips = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('http://localhost:5000/api/trips', { params: { id_user } });
+      setTrips(response.data);
+    } catch (error) {
+      console.error('Error fetching trips:', error);
+    }
+  };
+
   useEffect(() => {
     fetchFriends();
+    fetchTrips();
   }, []);
 
   const inviteFriend = (friend) => {
@@ -37,7 +49,7 @@ const Home = () => {
     setInvitedFriends((prevInvitedFriends) => prevInvitedFriends.filter((f) => f.id_user !== friend.id_user));
     setFriends((prevFriends) => [...prevFriends, friend]);
   };
-  
+
   const createTrip = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
@@ -54,6 +66,7 @@ const Home = () => {
       setTripDates({ start: null, end: null });
       setInvitedFriends([]);
       onNewTripOpenChange(false);
+      fetchTrips(); // Refresh trips after creating a new one
     } catch (error) {
       console.error('Error creating trip:', error);
     }
@@ -217,20 +230,111 @@ const Home = () => {
         </Modal>
       </Flex>
       <Accordion>
-      <AccordionItem key="1" aria-label="Pozvanky" title="Pozvanky">
-        
-      </AccordionItem>
-      <AccordionItem key="2" aria-label="Budouci" title="Naschazejici">
-        
-      </AccordionItem>
-      <AccordionItem key="3" aria-label="Aktualni" title="Porbihajici">
-        
-      </AccordionItem>
-      <AccordionItem key="4" aria-label="Minula" title="Minula">
-        
-      </AccordionItem>
-    </Accordion>
-      
+        <AccordionItem key="1" aria-label="Pozvanky" title="Pozvanky">
+          <Flex wrap gap="small" justify="center">
+            {trips.invites.map(trip => (
+              <Card key={trip.id_trip} className="max-w-[340px]">
+                <CardHeader className="justify-between">
+                  <div className="flex gap-5">
+                    <PackAwayLogo />
+                    <div className="flex flex-col gap-1 items-start justify-center">
+                      <h5 className="text-small tracking-tight text-default-400">
+                        <span className='text-default-900'>{trip.owner}</span> vás zve na <span className='text-default-900'>{trip.name}</span> od <span className='text-default-900'>{trip.from_date}</span> do <span className='text-default-900'>{trip.to_date}</span>
+                      </h5>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button isIconOnly>
+                      Y
+                    </Button>
+                    <Button isIconOnly color="danger" variant="flat">
+                      N
+                    </Button>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </Flex>
+        </AccordionItem>
+        <AccordionItem key="2" aria-label="Budouci" title="Naschazejici">
+          <Flex wrap gap="small" justify="center">
+            {trips.upcoming.map(trip => (
+              <Card key={trip.id_trip} className="max-w-[340px]">
+                <CardHeader className="justify-between">
+                  <div className="flex gap-5">
+                    <PackAwayLogo />
+                    <div className="flex flex-col gap-1 items-start justify-center">
+                      <h4 className="text-small font-semibold leading-none text-default-600">{trip.name}</h4>
+                      <Flex gap="100px" justify='space-between'>
+                        <Flex gap="small">
+                          <Users />
+                          {trip.members_count}
+                        </Flex>
+                        <Flex gap="small">
+                          <MissingInput />
+                          {trip.missing_items_count}
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </Flex>
+        </AccordionItem>
+        <AccordionItem key="3" aria-label="Aktualni" title="Porbihajici">
+          <Flex wrap gap="small" justify="center">
+            {trips.ongoing.map(trip => (
+              <Card key={trip.id_trip} className="max-w-[340px]">
+                <CardHeader className="justify-between">
+                  <div className="flex gap-5">
+                    <PackAwayLogo />
+                    <div className="flex flex-col gap-1 items-start justify-center">
+                      <h4 className="text-small font-semibold leading-none text-default-600">{trip.name}</h4>
+                      <Flex gap="100px" justify='space-between'>
+                        <Flex gap="small">
+                          <Users />
+                          {trip.members_count}
+                        </Flex>
+                        <Flex gap="small">
+                          <MissingInput />
+                          {trip.missing_items_count}
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </Flex>
+        </AccordionItem>
+        <AccordionItem key="4" aria-label="Minula" title="Minula">
+          <Flex wrap gap="small" justify="center">
+            {trips.past.map(trip => (
+              <Card key={trip.id_trip} className="max-w-[340px]">
+                <CardHeader className="justify-between">
+                  <div className="flex gap-5">
+                    <PackAwayLogo />
+                    <div className="flex flex-col gap-1 items-start justify-center">
+                      <h4 className="text-small font-semibold leading-none text-default-600">{trip.name}</h4>
+                      <Flex gap="100px" justify='space-between'>
+                        <Flex gap="small">
+                          <Users />
+                          {trip.members_count}
+                        </Flex>
+                        <Flex gap="small">
+                          <MissingInput />
+                          {trip.missing_items_count}
+                        </Flex>
+                      </Flex>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </Flex>
+        </AccordionItem>
+      </Accordion>
     </>
   );
 };

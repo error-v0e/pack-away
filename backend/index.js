@@ -263,29 +263,69 @@ app.delete('/api/remove_follow', async (req, res) => {
   }
 });
 
-app.post('/api/create_trip', async (req, res) => {
-  const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
-  console.log('--------id_user:', id_user);
+app.get('/api/trips', async (req, res) => {
+  const { id_user } = req.query;
 
   try {
-    // Create the trip
-    const newTrip = await Trip.create({ name, icon, from_date, to_date });
+    const now = new Date();
 
-    // Add the creator as a trip member with both booleans set to true
-    await TripMember.create({ id_user, id_trip: newTrip.id_trip, joined: true, owner: true });
+    // Fetch all trips where the user is a member
+    const tripMembers = await TripMember.findAll({
+      where: { id_user },
+      include: [
+        {
+          model: Trip,
+          required: true,
+        },
+      ],
+    });
 
-    // Add trip member permissions for the creator
-    await TripMemberPermission.create({ id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: true });
+    const trips = {
+      upcoming: [],
+      ongoing: [],
+      past: [],
+      invites: [],
+    };
 
-    // Add invited friends as trip members with default boolean values
-    for (const friend of invitedFriends) {
-      await TripMember.create({ id_user: friend.id_user, id_trip: newTrip.id_trip, joined: false, owner: false });
-    }
+    tripMembers.forEach((tripMember) => {
+      const trip = tripMember.Trip;
+      const tripData = {
+        id_trip: trip.id_trip,
+        name: trip.name,
+        icon: trip.icon,
+        from_date: trip.from_date,
+        to_date: trip.to_date,
+        joined: tripMember.joined,
+        owner: tripMember.owner,
+        members_count: 0, // Placeholder, you can add logic to count members
+        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+      };
 
-    res.json({ message: 'Trip created successfully', trip: newTrip });
+      if (!tripMember.joined) {
+        if (new Date(trip.to_date) >= now) {
+          trips.invites.push(tripData);
+        }
+      } else {
+        if (new Date(trip.from_date) > now) {
+          trips.upcoming.push(tripData);
+        } else if (new Date(trip.to_date) >= now) {
+          trips.ongoing.push(tripData);
+        } else {
+          trips.past.push(tripData);
+        }
+      }
+    });
+
+    // Sort trips by date
+    trips.upcoming.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
+    trips.ongoing.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
+    trips.past.sort((a, b) => new Date(b.from_date) - new Date(a.from_date));
+    trips.invites.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
+
+    res.json(trips);
   } catch (err) {
-    console.error('Error creating trip:', err);
-    res.status(500).json({ message: 'Error creating trip' });
+    console.error('Error fetching trips:', err);
+    res.status(500).json({ message: 'Error fetching trips' });
   }
 });
 // Synchronize the models with the database
