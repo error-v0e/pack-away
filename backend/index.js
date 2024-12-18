@@ -4,9 +4,10 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User, Friend, Trip, TripMember, TripMemberPermission} = require('./models'); // Import User model
+const { User, Friend, Trip, TripMember, TripMemberPermission } = require('./models'); // Import User model
 const sequelize = require('./connection');
 const { Op } = require('sequelize');
+const { format } = require('date-fns');
 
 const app = express();
 
@@ -262,65 +263,147 @@ app.delete('/api/remove_follow', async (req, res) => {
     res.status(500).json({ message: 'Error removing follow' });
   }
 });
+app.post('/api/create_trip', async (req, res) => {
+  const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
+  console.log('--------id_user:', id_user);
 
+  try {
+    // Create the trip
+    const newTrip = await Trip.create({ name, icon, from_date, to_date });
+
+    // Add the creator as a trip member with both booleans set to true
+    await TripMember.create({ id_user, id_trip: newTrip.id_trip, joined: true, owner: true });
+
+    // Add trip member permissions for the creator
+    await TripMemberPermission.create({ id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: true });
+
+    // Add invited friends as trip members with default boolean values
+    for (const friend of invitedFriends) {
+      await TripMember.create({ id_user: friend.id_user, id_trip: newTrip.id_trip, joined: false, owner: false });
+    }
+
+    res.json({ message: 'Trip created successfully', trip: newTrip });
+  } catch (err) {
+    console.error('Error creating trip:', err);
+    res.status(500).json({ message: 'Error creating trip' });
+  }
+});
 app.get('/api/trips', async (req, res) => {
   const { id_user } = req.query;
 
   try {
     const now = new Date();
 
-    // Fetch all trips where the user is a member
-    const tripMembers = await TripMember.findAll({
-      where: { id_user },
-      include: [
-        {
-          model: Trip,
-          required: true,
+    // Fetch trips where the user is invited but hasn't joined yet (limit 20)
+    const invites = await TripMember.findAll({
+      where: { id_user, joined: false },
+      include: [{
+        model: Trip,
+        required: true,
+        where: {
+          to_date: { [Op.gte]: now }, // Only include trips that are ongoing or upcoming
         },
-      ],
+      }],
+      limit: 20,
     });
 
-    const trips = {
-      upcoming: [],
-      ongoing: [],
-      past: [],
-      invites: [],
-    };
+    // Fetch upcoming trips (limit 20)
+    const upcoming = await TripMember.findAll({
+      where: {
+        id_user,
+        joined: true,
+      },
+      include: [{
+        model: Trip,
+        required: true,
+        where: {
+          from_date: { [Op.gt]: now },
+        },
+      }],
+      limit: 20,
+    });
 
-    tripMembers.forEach((tripMember) => {
-      const trip = tripMember.Trip;
-      const tripData = {
-        id_trip: trip.id_trip,
-        name: trip.name,
-        icon: trip.icon,
-        from_date: trip.from_date,
-        to_date: trip.to_date,
+    // Fetch ongoing trips (limit 20)
+    const ongoing = await TripMember.findAll({
+      where: {
+        id_user,
+        joined: true,
+      },
+      include: [{
+        model: Trip,
+        required: true,
+        where: {
+          from_date: { [Op.lte]: now },
+          to_date: { [Op.gte]: now },
+        },
+      }],
+      limit: 20,
+    });
+
+    // Fetch past trips (limit 10)
+    const past = await TripMember.findAll({
+      where: {
+        id_user,
+        joined: true,
+      },
+      include: [{
+        model: Trip,
+        required: true,
+        where: {
+          to_date: { [Op.lt]: now },
+        },
+      }],
+      limit: 10,
+    });
+
+    const formatDate = (date) => format(new Date(date), 'dd.MM.yyyy');
+
+    const trips = {
+      upcoming: upcoming.map(tripMember => ({
+        id_trip: tripMember.Trip.id_trip,
+        name: tripMember.Trip.name,
+        icon: tripMember.Trip.icon,
+        from_date: formatDate(tripMember.Trip.from_date),
+        to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
         owner: tripMember.owner,
         members_count: 0, // Placeholder, you can add logic to count members
         missing_items_count: 0, // Placeholder, you can add logic to count missing items
-      };
-
-      if (!tripMember.joined) {
-        if (new Date(trip.to_date) >= now) {
-          trips.invites.push(tripData);
-        }
-      } else {
-        if (new Date(trip.from_date) > now) {
-          trips.upcoming.push(tripData);
-        } else if (new Date(trip.to_date) >= now) {
-          trips.ongoing.push(tripData);
-        } else {
-          trips.past.push(tripData);
-        }
-      }
-    });
-
-    // Sort trips by date
-    trips.upcoming.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
-    trips.ongoing.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
-    trips.past.sort((a, b) => new Date(b.from_date) - new Date(a.from_date));
-    trips.invites.sort((a, b) => new Date(a.from_date) - new Date(b.from_date));
+      })),
+      ongoing: ongoing.map(tripMember => ({
+        id_trip: tripMember.Trip.id_trip,
+        name: tripMember.Trip.name,
+        icon: tripMember.Trip.icon,
+        from_date: formatDate(tripMember.Trip.from_date),
+        to_date: formatDate(tripMember.Trip.to_date),
+        joined: tripMember.joined,
+        owner: tripMember.owner,
+        members_count: 0, // Placeholder, you can add logic to count members
+        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+      })),
+      past: past.map(tripMember => ({
+        id_trip: tripMember.Trip.id_trip,
+        name: tripMember.Trip.name,
+        icon: tripMember.Trip.icon,
+        from_date: formatDate(tripMember.Trip.from_date),
+        to_date: formatDate(tripMember.Trip.to_date),
+        joined: tripMember.joined,
+        owner: tripMember.owner,
+        members_count: 0, // Placeholder, you can add logic to count members
+        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+      })),
+      invites: invites.map(tripMember => ({
+        id_trip: tripMember.Trip.id_trip,
+        name: tripMember.Trip.name,
+        icon: tripMember.Trip.icon,
+        from_date: formatDate(tripMember.Trip.from_date),
+        to_date: formatDate(tripMember.Trip.to_date),
+        joined: tripMember.joined,
+        owner: tripMember.owner,
+        members_count: 0, // Placeholder, you can add logic to count members
+        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+      })),
+    };
 
     res.json(trips);
   } catch (err) {
@@ -328,6 +411,7 @@ app.get('/api/trips', async (req, res) => {
     res.status(500).json({ message: 'Error fetching trips' });
   }
 });
+
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
