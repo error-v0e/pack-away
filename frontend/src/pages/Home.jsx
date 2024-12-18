@@ -86,6 +86,26 @@ const Home = () => {
     }
   };
 
+  const handleJoinTrip = async (tripId) => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      await axios.post('http://localhost:5000/api/join_trip', { id_user, id_trip: tripId });
+      fetchTrips(); // Refresh trips after joining
+    } catch (error) {
+      console.error('Error joining trip:', error);
+    }
+  };
+
+  const handleDeclineTrip = async (tripId) => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      await axios.post('http://localhost:5000/api/decline_trip', { id_user, id_trip: tripId });
+      fetchTrips(); // Refresh trips after declining
+    } catch (error) {
+      console.error('Error declining trip:', error);
+    }
+  };
+
   return (
     <>
       <Flex wrap gap="small" justify="center" className="mb-5">
@@ -260,10 +280,10 @@ const Home = () => {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button isIconOnly>
+                        <Button isIconOnly onClick={() => handleJoinTrip(trip.id_trip)}>
                           Y
                         </Button>
-                        <Button isIconOnly color="danger" variant="flat">
+                        <Button isIconOnly color="danger" variant="flat" onClick={() => handleDeclineTrip(trip.id_trip)}>
                           N
                         </Button>
                       </div>

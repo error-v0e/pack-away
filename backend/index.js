@@ -411,6 +411,32 @@ app.get('/api/trips', async (req, res) => {
     res.status(500).json({ message: 'Error fetching trips' });
   }
 });
+app.post('/api/join_trip', async (req, res) => {
+  const { id_user, id_trip } = req.body;
+  try {
+    await TripMember.update(
+      { joined: true },
+      { where: { id_user, id_trip } }
+    );
+    res.json({ message: 'Successfully joined the trip' });
+  } catch (err) {
+    console.error('Error joining trip:', err);
+    res.status(500).json({ message: 'Error joining trip' });
+  }
+});
+
+app.post('/api/decline_trip', async (req, res) => {
+  const { id_user, id_trip } = req.body;
+  try {
+    await TripMember.destroy({
+      where: { id_user, id_trip }
+    });
+    res.json({ message: 'Successfully declined the trip' });
+  } catch (err) {
+    console.error('Error declining trip:', err);
+    res.status(500).json({ message: 'Error declining trip' });
+  }
+});
 
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
