@@ -350,7 +350,7 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.past.length > 0 && (
-            <AccordionItem key="4" aria-label="Minula" title="Minula">
+            <AccordionItem key="4" aria-label="Minula" title="Minulé">
               <Flex wrap gap="small" justify="center">
                 {trips.past.map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]">
