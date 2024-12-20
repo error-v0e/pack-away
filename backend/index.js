@@ -305,6 +305,7 @@ app.get('/api/trips', async (req, res) => {
         },
       }],
       limit: 20,
+      order: [[Trip, 'from_date', 'DESC']],
     });
 
     // Fetch upcoming trips (limit 20)
@@ -321,6 +322,7 @@ app.get('/api/trips', async (req, res) => {
         },
       }],
       limit: 20,
+      order: [[Trip, 'from_date', 'DESC']],
     });
 
     // Fetch ongoing trips (limit 20)
@@ -338,6 +340,7 @@ app.get('/api/trips', async (req, res) => {
         },
       }],
       limit: 20,
+      order: [[Trip, 'from_date', 'DESC']],
     });
 
     // Fetch past trips (limit 10)
@@ -354,6 +357,7 @@ app.get('/api/trips', async (req, res) => {
         },
       }],
       limit: 10,
+      order: [[Trip, 'from_date', 'DESC']],
     });
 
     const formatDate = (date) => format(new Date(date), 'dd.MM.yyyy');
