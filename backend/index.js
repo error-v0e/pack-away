@@ -407,6 +407,7 @@ app.get('/api/trips', async (req, res) => {
         members_count: 0, // Placeholder, you can add logic to count members
         missing_items_count: 0, // Placeholder, you can add logic to count missing items
       })),
+      allPastTripsLoaded: past.length < 10
     };
 
     res.json(trips);
@@ -442,6 +443,67 @@ app.post('/api/decline_trip', async (req, res) => {
   }
 });
 
+app.get('/api/more_past_trips', async (req, res) => {
+  const { id_user, offset } = req.query;
+
+  try {
+    const now = new Date();
+
+    // Fetch additional past trips with offset
+    const past = await TripMember.findAll({
+      where: {
+        id_user,
+        joined: true,
+      },
+      include: [{
+        model: Trip,
+        required: true,
+        where: {
+          to_date: { [Op.lt]: now },
+        },
+      }],
+      limit: 10,
+      offset: parseInt(offset, 10),
+      order: [[Trip, 'from_date', 'DESC']],
+    });
+
+    // Count total past trips
+    const totalPastTrips = await sequelize.query(
+      `SELECT COUNT(*) AS count
+       FROM "TripMembers" AS "TripMember"
+       INNER JOIN "Trips" AS "Trip" ON "TripMember"."id_trip" = "Trip"."id_trip"
+       WHERE "TripMember"."id_user" = :id_user
+       AND "TripMember"."joined" = true
+       AND "Trip"."to_date" < :now`,
+      {
+        replacements: { id_user, now },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const formatDate = (date) => format(new Date(date), 'dd.MM.yyyy');
+
+    const pastTrips = past.map(tripMember => ({
+      id_trip: tripMember.Trip.id_trip,
+      name: tripMember.Trip.name,
+      icon: tripMember.Trip.icon,
+      from_date: formatDate(tripMember.Trip.from_date),
+      to_date: formatDate(tripMember.Trip.to_date),
+      joined: tripMember.joined,
+      owner: tripMember.owner,
+      members_count: 0, // Placeholder, you can add logic to count members
+      missing_items_count: 0, // Placeholder, you can add logic to count missing items
+    }));
+
+    res.json({
+      past: pastTrips,
+      allPastTripsLoaded: totalPastTrips[0].count <= parseInt(offset, 10) + 10
+    });
+  } catch (err) {
+    console.error('Error fetching more past trips:', err);
+    res.status(500).json({ message: 'Error fetching more past trips' });
+  }
+});
 // Synchronize the models with the database
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {

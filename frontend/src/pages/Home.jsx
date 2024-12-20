@@ -15,6 +15,8 @@ const Home = () => {
   const [tripDates, setTripDates] = useState({ start: null, end: null });
   const [trips, setTrips] = useState({ upcoming: [], ongoing: [], past: [], invites: [] });
   const [defaultOpenKey, setDefaultOpenKey] = useState(null);
+  const [pastTripsCount, setPastTripsCount] = useState(10);
+  const [allPastTripsLoaded, setAllPastTripsLoaded] = useState(false);
 
   const fetchFriends = async () => {
     try {
@@ -44,8 +46,26 @@ const Home = () => {
       } else {
         setDefaultOpenKey(null);
       }
+
+      // Check if all past trips are loaded
+      setAllPastTripsLoaded(response.data.allPastTripsLoaded);
     } catch (error) {
       console.error('Error fetching trips:', error);
+    }
+  };
+
+  const loadMorePastTrips = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('http://localhost:5000/api/more_past_trips', { params: { id_user, offset: pastTripsCount } });
+      setTrips(prevTrips => ({
+        ...prevTrips,
+        past: [...prevTrips.past, ...response.data.past]
+      }));
+      setPastTripsCount(prevCount => prevCount + 10);
+      setAllPastTripsLoaded(response.data.allPastTripsLoaded);
+    } catch (error) {
+      console.error('Error loading more past trips:', error);
     }
   };
 
@@ -75,6 +95,7 @@ const Home = () => {
         invitedFriends
       });
       console.log('Trip created successfully:', response.data);
+      setPastTripsCount(10);
       // Reset state after creating the trip
       setTripName('');
       setTripDates({ start: null, end: null });
@@ -350,9 +371,9 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.past.length > 0 && (
-            <AccordionItem key="4" aria-label="Minula" title="Minulé">
+            <AccordionItem key="4" aria-label="Minula" title="Minula">
               <Flex wrap gap="small" justify="center">
-                {trips.past.map(trip => (
+                {trips.past.slice(0, pastTripsCount).map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]">
                     <CardHeader className="justify-between">
                       <div className="flex gap-5">
@@ -375,6 +396,11 @@ const Home = () => {
                   </Card>
                 ))}
               </Flex>
+              {!allPastTripsLoaded && (
+                <div className="text-center mt-4">
+                  <Button onClick={loadMorePastTrips}>Načíst další</Button>
+                </div>
+              )}
             </AccordionItem>
           )}
         </Accordion>
