@@ -55,7 +55,6 @@ const Items = () => {
                     </div>
                 }
                 label="Počet"
-                labelPlacement="outside"
                 placeholder="2"
                 type="number"
             />
