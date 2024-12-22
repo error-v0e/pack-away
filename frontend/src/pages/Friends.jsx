@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import config from '../../config';
 import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { SearchIcon } from "../assets/SearchIcon";
@@ -16,7 +17,7 @@ const Friends = () => {
   const fetchUsers = async (searchQuery = '') => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('http://localhost:5000/api/users', { params: { id_user, search: searchQuery } });
+      const response = await axios.get(`${config.apiUrl}/api/users`, { params: { id_user, search: searchQuery } });
       setUsers(response.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
@@ -30,7 +31,7 @@ const Friends = () => {
   const fetchFriends = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('http://localhost:5000/api/friends', { params: { id_user } });
+      const response = await axios.get(`${config.apiUrl}/api/friends`, { params: { id_user } });
       setFriends(response.data);
     } catch (error) {
       console.error('Error fetching friends:', error);
@@ -53,7 +54,7 @@ const Friends = () => {
   const addFollow = async (id_user_two) => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      await axios.post('http://localhost:5000/api/add_follow', { id_user_one: id_user, id_user_two });
+      await axios.post(`${config.apiUrl}/api/add_follow`, { id_user_one: id_user, id_user_two });
       console.log(`User ${id_user} followed user ${id_user_two}`);
       fetchFriends(); // Reload the list of friends after adding a follow
       fetchUsers(search); // Reload the list of users after adding a follow
@@ -65,7 +66,7 @@ const Friends = () => {
   const removeFollow = async (id_user_two) => {
     const id_user = JSON.parse(localStorage.getItem('id_user'));
     try {
-      await axios.delete('http://localhost:5000/api/remove_follow', { data: { id_user_one: id_user, id_user_two } });
+      await axios.delete(`${config.apiUrl}/api/remove_follow`, { data: { id_user_one: id_user, id_user_two } });
       console.log(`User ${id_user} unfollowed user ${id_user_two}`);
       fetchFriends(); // Reload the list of friends after removing a follow
       fetchUsers(search); // Reload the list of users after adding a follow

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from '../../config';
 import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
 import { useNavigate } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
@@ -14,7 +15,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { username, password });
+      const response = await axios.post(`${config.apiUrl}/api/login`, { username, password });
       if (response.data.redirect) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));

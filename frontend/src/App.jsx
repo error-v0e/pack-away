@@ -11,10 +11,7 @@ function App() {
 
   useEffect(() => {
     const user = localStorage.getItem('id_user');
-    console.log(user);
-    
     if (user) {
-      console.log("--------------------------------");
       setIsAuthenticated(true);
     }
   }, []);
