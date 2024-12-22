@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User, Friend, Trip, TripMember, TripMemberPermission, Item } = require('./models'); // Import User model
+const { User, Friend, Trip, TripMember, TripMemberPermission, Item, Category } = require('./models'); // Import User model
 const sequelize = require('./connection');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
@@ -511,7 +511,7 @@ app.get('/api/items', async (req, res) => {
     const items = await Item.findAll({
       where: {
         name: {
-          [Op.like]: `%${search}%`
+          [Op.iLike]: `%${search}%`
         }
       },
       limit: 5
@@ -523,7 +523,36 @@ app.get('/api/items', async (req, res) => {
     res.status(500).json({ message: 'Error fetching items' });
   }
 });
+app.get('/api/search-categories', async (req, res) => {
+  const { search } = req.query;
 
+  try {
+    const categories = await Category.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${search}%` // Case-insensitive search
+        }
+      },
+      limit: 3 // Limit to first 3 results
+    });
+
+    res.json(categories);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    res.status(500).json({ message: 'Error fetching categories' });
+  }
+});
+
+app.post('/api/categories', async (req, res) => {
+  const { name } = req.body;
+  try {
+    const newCategory = await Category.create({ name });
+    res.json(newCategory);
+  } catch (err) {
+    console.error('Error creating category:', err);
+    res.status(500).json({ message: 'Error creating category' });
+  }
+});
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
