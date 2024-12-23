@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User, Friend, Trip, TripMember, TripMemberPermission, Item, Category } = require('./models'); // Import User model
+const { User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models'); // Import User model
 const sequelize = require('./connection');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
@@ -542,15 +542,48 @@ app.get('/api/search-categories', async (req, res) => {
     res.status(500).json({ message: 'Error fetching categories' });
   }
 });
+app.post('/api/add-item-category', async (req, res) => {
+  const { itemName, categoryName, userId, count, by_day } = req.body;
 
-app.post('/api/categories', async (req, res) => {
-  const { name } = req.body;
   try {
-    const newCategory = await Category.create({ name });
-    res.json(newCategory);
+    // Find or create item
+    let item = await Item.findOne({ where: { name: itemName } });
+    if (!item) {
+      item = await Item.create({ name: itemName });
+    }
+
+    // Find or create category
+    let category = await Category.findOne({ where: { name: categoryName } });
+    if (!category) {
+      category = await Category.create({ name: categoryName });
+    }
+
+    // Create or update CategoryItem association
+    let categoryItem = await CategoryItem.findOne({ where: { id_item: item.id_item, id_category: category.id_category, id_user: userId } });
+    if (!categoryItem) {
+      categoryItem = await CategoryItem.create({ id_item: item.id_item, id_category: category.id_category, id_user: userId });
+    }
+
+    // Create or update SavedItem association
+    let savedItem = await SavedItem.findOne({ where: { id_user: userId, id_item: item.id_item } });
+    if (!savedItem) {
+      savedItem = await SavedItem.create({ id_user: userId, id_item: item.id_item, count, by_day });
+    } else {
+      savedItem.count = count;
+      savedItem.by_day = by_day;
+      await savedItem.save();
+    }
+
+    // Create or update SavedCategory association
+    let savedCategory = await SavedCategory.findOne({ where: { id_user: userId, id_category: category.id_category } });
+    if (!savedCategory) {
+      savedCategory = await SavedCategory.create({ id_user: userId, id_category: category.id_category });
+    }
+
+    res.json({ item, category, categoryItem, savedItem, savedCategory });
   } catch (err) {
-    console.error('Error creating category:', err);
-    res.status(500).json({ message: 'Error creating category' });
+    console.error('Error adding item and category:', err);
+    res.status(500).json({ message: 'Error adding item and category' });
   }
 });
 sequelize.sync({ force: false }).then(() => {

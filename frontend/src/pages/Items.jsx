@@ -9,6 +9,8 @@ const Items = () => {
   const [items, setItems] = useState([]);
   const [categorySearchTerm, setCategorySearchTerm] = useState('');
   const [categories, setCategories] = useState([]);
+  const [count, setCount] = useState('');
+  const [byDay, setByDay] = useState(true);
 
   const fetchItems = async (search) => {
     try {
@@ -28,12 +30,19 @@ const Items = () => {
     }
   };
 
-  const createCategory = async (name) => {
+  const addItemAndCategory = async () => {
     try {
-      const response = await axios.post(`${config.apiUrl}/api/categories`, { name });
-      setCategories([...categories, response.data]);
+      const userId = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.post(`${config.apiUrl}/api/add-item-category`, {
+        itemName: searchTerm,
+        categoryName: categorySearchTerm,
+        userId,
+        count,
+        by_day: byDay
+      });
+      console.log('Item and category added:', response.data);
     } catch (error) {
-      console.error('Error creating category:', error);
+      console.error('Error adding item and category:', error);
     }
   };
 
@@ -61,6 +70,22 @@ const Items = () => {
     setCategorySearchTerm(e.target.value);
   };
 
+  const handleCountChange = (e) => {
+    setCount(e.target.value);
+  };
+
+  const handleByDayChange = (e) => {
+    setByDay(e.target.value === 'true');
+  };
+
+  const handleItemSelect = (item) => {
+    setSearchTerm(item.name);
+  };
+
+  const handleCategorySelect = (category) => {
+    setCategorySearchTerm(category.name);
+  };
+
   return (
     <>
       <Flex wrap gap="small" justify="center" className="mb-5">
@@ -80,7 +105,7 @@ const Items = () => {
               }}
             >
               {items.map(item => (
-                <AutocompleteItem key={item.id_item} textValue={item.name}>
+                <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item)}>
                   {item.name}
                 </AutocompleteItem>
               ))}
@@ -90,17 +115,21 @@ const Items = () => {
                 <div className="flex items-center">
                   <select
                     className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
-                    id="count"
-                    name="count"
+                    id="by_day"
+                    name="by_day"
+                    onChange={handleByDayChange}
+                    value={byDay}
                   >
-                    <option>na den</option>
-                    <option>na celou cestu</option>
+                    <option value="true">na den</option>
+                    <option value="false">na celou cestu</option>
                   </select>
                 </div>
               }
               label="Počet"
-              placeholder="2"
+              placeholder="Zadejte počet"
               type="number"
+              onChange={handleCountChange}
+              value={count}
             />
             <Autocomplete
               className="max-w-xs mt-3"
@@ -113,15 +142,12 @@ const Items = () => {
               }}
             >
               {categories.map(category => (
-                <AutocompleteItem key={category.id_category} textValue={category.name}>
+                <AutocompleteItem key={category.id_category} textValue={category.name} onClick={() => handleCategorySelect(category)}>
                   {category.name}
                 </AutocompleteItem>
               ))}
-              <AutocompleteItem key="create-new" textValue={`Vytvořit kategorii ${categorySearchTerm}`} onClick={() => createCategory(categorySearchTerm)}>
-                Vytvořit kategorii {categorySearchTerm}
-              </AutocompleteItem>
             </Autocomplete>
-            <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]'>
+            <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItemAndCategory}>
               Přidat položku
             </Button>
           </CardBody>
