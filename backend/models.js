@@ -113,7 +113,7 @@ const Category = sequelize.define('Category', {
   name: {
     type: DataTypes.STRING,
     unique: true,
-    },
+  },
 }, { timestamps: false });
 
 // Lists model
@@ -208,6 +208,12 @@ UsingCategoryItem.primaryKey = ['id_item', 'id_category']; // Composite primary 
 
 UsingCategoryItem.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 UsingCategoryItem.belongsTo(UsingItem, { foreignKey: 'id_item' });
+
+
+
+// Add missing associations
+Item.hasMany(CategoryItem, { foreignKey: 'id_item' });
+Category.hasMany(CategoryItem, { foreignKey: 'id_category' });
 
 module.exports = {
   sequelize,

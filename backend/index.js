@@ -4,10 +4,11 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const { User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models'); // Import User model
-const sequelize = require('./connection');
+const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models'); // Import User model
+//const sequelize = require('./connection');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
+
 
 const app = express();
 
@@ -586,6 +587,69 @@ app.post('/api/add-item-category', async (req, res) => {
     res.status(500).json({ message: 'Error adding item and category' });
   }
 });
+
+app.get('/api/saved-items', async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  try {
+    const query = `
+      SELECT
+        "SavedItems".id_item, -- Pokud existuje sloupec id_saved_item
+        "Items".id_item,
+        "Items".name AS item_name,
+        "SavedItems".count AS count,
+        "SavedItems".by_day AS by_day,
+        "CategoryItems".id_category AS category_item_id,
+        "Categories".id_category AS category_id,
+        "Categories".name AS category_name
+      FROM "SavedItems"
+      INNER JOIN "Items" ON "SavedItems".id_item = "Items".id_item
+      INNER JOIN "CategoryItems" ON "Items".id_item = "CategoryItems".id_item
+        AND "CategoryItems".id_user = 1
+      INNER JOIN "Categories" ON "CategoryItems".id_category = "Categories".id_category
+      WHERE "SavedItems".id_user = 1;
+    `;  
+
+    const savedItems = await sequelize.query(query, {
+      replacements: { userId },
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    // Připravit strukturu pro vrácení dat
+    const categorizedItems = {};
+
+    savedItems.forEach(savedItem => {
+      const category = savedItem.category_name;
+      if (!categorizedItems[category]) {
+        categorizedItems[category] = {
+          id_category: savedItem.category_id,
+          name: category,
+          items: [],
+        };
+      }
+
+      categorizedItems[category].items.push({
+        id_item: savedItem.id_item,
+        name: savedItem.item_name,
+        count: savedItem.count,
+        by_day: savedItem.by_day,
+      });
+    });
+console.log('--------categorizedItems:', categorizedItems);
+    // Převést objekt na pole
+    const result = Object.values(categorizedItems);
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching saved items:', err);
+    res.status(500).json({ message: 'Error fetching saved items' });
+  }
+});
+
 sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
