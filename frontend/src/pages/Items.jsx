@@ -199,7 +199,7 @@ const Items = () => {
           <Accordion key={category.id_category} className="p-2 flex flex-col gap-1 w-full max-w-[300px]">
             <AccordionItem key={category.id_category} aria-label={category.name} title={category.name}>
               {category.items.map(item => (
-                <Card key={item.id_item} className="max-w-[400px]">
+                <Card key={item.id_item} className="max-w-[400px] mb-2">
                   <CardBody>
                     <Autocomplete
                       className="max-w-xs mb-3"
