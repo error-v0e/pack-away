@@ -16,12 +16,23 @@ function App() {
     }
   }, []);
 
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('id_user');
+  };
+
   return (
     <Router>
       <Layout className="min-h-screen">
         {/* Navigační lišta */}
         <Header>
-          <CustomNavbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+          <CustomNavbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} onLogout={handleLogout} />
         </Header>
 
         {/* Hlavní obsah */}
@@ -30,7 +41,7 @@ function App() {
             margin: "0 auto",
             width: "100%",
           }}>
-          <Routers isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+          <Routers isAuthenticated={isAuthenticated} setIsAuthenticated={handleLogin} />
         </Content>
       </Layout>
     </Router>

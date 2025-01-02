@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../../config';
-import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader } from '@nextui-org/react';
 import { Flex } from 'antd';
 
 const Items = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [items, setItems] = useState([]);
   const [categorySearchTerm, setCategorySearchTerm] = useState('');
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState({ savedCategories: [], unsavedCategories: [] });
   const [count, setCount] = useState('');
   const [byDay, setByDay] = useState(true);
   const [savedItems, setSavedItems] = useState([]);
@@ -24,7 +24,8 @@ const Items = () => {
 
   const fetchCategories = async (search) => {
     try {
-      const response = await axios.get(`${config.apiUrl}/api/search-categories`, { params: { search } });
+      const userId = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get(`${config.apiUrl}/api/search-categories`, { params: { search, userId } });
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -71,7 +72,7 @@ const Items = () => {
     if (categorySearchTerm) {
       fetchCategories(categorySearchTerm);
     } else {
-      setCategories([]);
+      setCategories({ savedCategories: [], unsavedCategories: [] });
     }
   }, [categorySearchTerm]);
 
@@ -79,12 +80,12 @@ const Items = () => {
     fetchSavedItems();
   }, []);
 
-  const handleItemSearchChange = (e, id_item) => {
-    setSearchTerm(e.target.value);
+  const handleItemSearchChange = (value) => {
+    setSearchTerm(value);
   };
 
-  const handleCategorySearchChange = (e, id_item) => {
-    setCategorySearchTerm(e.target.value);
+  const handleCategorySearchChange = (value) => {
+    setCategorySearchTerm(value);
   };
 
   const handleCountChange = (e, id_item) => {
@@ -140,10 +141,7 @@ const Items = () => {
               items={items}
               label="Název položky"
               placeholder="Názvi novou položku"
-              inputProps={{
-                onChange: handleItemSearchChange,
-                value: searchTerm
-              }}
+              onInputChange={(value) => handleItemSearchChange(value)}
             >
               {items.map(item => (
                 <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item)}>
@@ -174,19 +172,29 @@ const Items = () => {
             />
             <Autocomplete
               className="max-w-xs mt-3"
-              items={categories}
-              label="Vyber/vytvoř kategorii"
-              placeholder="Nazev kategorie"
-              inputProps={{
-                onChange: handleCategorySearchChange,
-                value: categorySearchTerm
+              label="Vyber kategorie"
+              placeholder="Vyhledej kategorii"
+              onInputChange={(value) => handleCategorySearchChange(value)}
+              inputValue={categorySearchTerm}
+              onSelectionChange={(key) => {
+                const selectedCategory = [...categories.savedCategories, ...categories.unsavedCategories].find(cat => cat.id_category === key);
+                if (selectedCategory) handleCategorySelect(selectedCategory);
               }}
             >
-              {categories.map(category => (
-                <AutocompleteItem key={category.id_category} textValue={category.name} onClick={() => handleCategorySelect(category)}>
-                  {category.name}
-                </AutocompleteItem>
-              ))}
+              <AutocompleteSection title="Vaše uložené">
+                {categories.savedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+              <AutocompleteSection title="Návrhy">
+                {categories.unsavedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
             </Autocomplete>
             <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItemAndCategory}>
               Přidat položku
@@ -194,9 +202,9 @@ const Items = () => {
           </CardBody>
         </Card>
       </Flex>
-      <Flex>
+      <Flex wrap justify="center">
         {savedItems.map(category => (
-          <Accordion key={category.id_category} className="p-2 flex flex-col gap-1 w-full max-w-[300px]">
+          <Accordion key={category.id_category} className="p-2 flex flex-col gap-1 w-full max-w-[300px] min-w-[280px]">
             <AccordionItem key={category.id_category} aria-label={category.name} title={category.name}>
               {category.items.map(item => (
                 <Card key={item.id_item} className="max-w-[400px] mb-2">
@@ -206,10 +214,8 @@ const Items = () => {
                       items={items}
                       label="Název položky"
                       placeholder="Názvi novou položku"
-                      inputProps={{
-                        onChange: (e) => handleItemSearchChange(e, item.id_item),
-                        value: item.name
-                      }}
+                      onInputChange={(value) => handleItemSearchChange(value)}
+                      inputValue={item.name}
                     >
                       {items.map(i => (
                         <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i)}>
@@ -240,19 +246,29 @@ const Items = () => {
                     />
                     <Autocomplete
                       className="max-w-xs mt-3"
-                      items={categories}
                       label="Vyber kategorie"
                       placeholder="Vyhledej kategorii"
-                      inputProps={{
-                        onChange: (e) => handleCategorySearchChange(e, item.id_item),
-                        value: category.name
+                      onInputChange={(value) => handleCategorySearchChange(value)}
+                      inputValue={categorySearchTerm}
+                      onSelectionChange={(key) => {
+                        const selectedCategory = [...categories.savedCategories, ...categories.unsavedCategories].find(cat => cat.id_category === key);
+                        if (selectedCategory) handleCategorySelect(selectedCategory);
                       }}
                     >
-                      {categories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat)}>
-                          {cat.name}
-                        </AutocompleteItem>
-                      ))}
+                      <AutocompleteSection title="Vaše uložené">
+                        {categories.savedCategories.map(cat => (
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                            {cat.name}
+                          </AutocompleteItem>
+                        ))}
+                      </AutocompleteSection>
+                      <AutocompleteSection title="Návrhy">
+                        {categories.unsavedCategories.map(cat => (
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                            {cat.name}
+                          </AutocompleteItem>
+                        ))}
+                      </AutocompleteSection>
                     </Autocomplete>
                   </CardBody>
                 </Card>

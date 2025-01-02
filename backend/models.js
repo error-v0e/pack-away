@@ -209,11 +209,17 @@ UsingCategoryItem.primaryKey = ['id_item', 'id_category']; // Composite primary 
 UsingCategoryItem.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 UsingCategoryItem.belongsTo(UsingItem, { foreignKey: 'id_item' });
 
-
+// Define associations
+Item.belongsToMany(Category, { through: CategoryItem, foreignKey: 'id_item' });
+Category.belongsToMany(Item, { through: CategoryItem, foreignKey: 'id_category' });
 
 // Add missing associations
 Item.hasMany(CategoryItem, { foreignKey: 'id_item' });
 Category.hasMany(CategoryItem, { foreignKey: 'id_category' });
+
+// Add missing associations for SavedCategory
+Category.hasMany(SavedCategory, { foreignKey: 'id_category' });
+SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
 module.exports = {
   sequelize,

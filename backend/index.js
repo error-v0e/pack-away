@@ -525,19 +525,49 @@ app.get('/api/items', async (req, res) => {
   }
 });
 app.get('/api/search-categories', async (req, res) => {
-  const { search } = req.query;
+  const { search, userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
 
   try {
-    const categories = await Category.findAll({
+    // Načíst kategorie, které má uživatel uložené
+    const savedCategories = await Category.findAll({
+      include: [{
+        model: SavedCategory,
+        where: { id_user: userId },
+        required: true
+      }],
       where: {
         name: {
-          [Op.iLike]: `%${search}%` // Case-insensitive search
+          [Op.iLike]: `%${search}%`
         }
       },
-      limit: 3 // Limit to first 3 results
+      limit: 5
     });
 
-    res.json(categories);
+    // Načíst kategorie, které uživatel nemá uložené
+    const unsavedCategories = await Category.findAll({
+      include: [{
+        model: SavedCategory,
+        where: { id_user: {
+          [Op.ne]: userId 
+        } },
+        required: true
+      }],
+      where: {
+        name: {
+          [Op.iLike]: `%${search}%`
+        }
+      },
+      limit: 5
+    });
+    
+    res.json({
+      savedCategories,
+      unsavedCategories
+    });
   } catch (err) {
     console.error('Error fetching categories:', err);
     res.status(500).json({ message: 'Error fetching categories' });
@@ -639,7 +669,6 @@ app.get('/api/saved-items', async (req, res) => {
         by_day: savedItem.by_day,
       });
     });
-console.log('--------categorizedItems:', categorizedItems);
     // Převést objekt na pole
     const result = Object.values(categorizedItems);
 
