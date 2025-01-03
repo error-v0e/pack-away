@@ -287,7 +287,8 @@ const Home = () => {
         </Modal>
       </Flex>
       {defaultOpenKey ? (
-        <Accordion defaultExpandedKeys={[defaultOpenKey]}>
+        <Accordion defaultExpandedKeys={[defaultOpenKey]} 
+        selectionMode="multiple" >
           {trips.invites.length > 0 && (
             <AccordionItem key="1" aria-label="Pozvanky" title="Pozvanky">
               <Flex wrap gap="small" justify="center">
