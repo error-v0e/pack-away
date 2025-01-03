@@ -12,21 +12,31 @@ const Items = () => {
   const [count, setCount] = useState('');
   const [byDay, setByDay] = useState(true);
   const [savedItems, setSavedItems] = useState([]);
+  const [categorySearchResults, setCategorySearchResults] = useState({});
+  const [itemSearchTerms, setItemSearchTerms] = useState({});
+  const [categorySearchTerms, setCategorySearchTerms] = useState({});
+  const [itemSearchResults, setItemSearchResults] = useState({});
 
-  const fetchItems = async (search) => {
+  const fetchItems = async (search, id_item = null) => {
     try {
       const response = await axios.get(`${config.apiUrl}/api/items`, { params: { search } });
-      setItems(response.data);
+      setItemSearchResults(prevState => ({
+        ...prevState,
+        [id_item]: response.data
+      }));
     } catch (error) {
       console.error('Error fetching items:', error);
     }
   };
 
-  const fetchCategories = async (search) => {
+  const fetchCategories = async (search, id_item = null) => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
       const response = await axios.get(`${config.apiUrl}/api/search-categories`, { params: { search, userId } });
-      setCategories(response.data);
+      setCategorySearchResults(prevState => ({
+        ...prevState,
+        [id_item]: response.data
+      }));
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -69,63 +79,145 @@ const Items = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (categorySearchTerm) {
-      fetchCategories(categorySearchTerm);
-    } else {
-      setCategories({ savedCategories: [], unsavedCategories: [] });
-    }
-  }, [categorySearchTerm]);
-
-  useEffect(() => {
     fetchSavedItems();
   }, []);
 
-  const handleItemSearchChange = (value) => {
-    setSearchTerm(value);
+  const handleItemSearchChange = (e, id_item) => {
+    const value = e.target.value;
+    if (id_item === null) {
+      setSearchTerm(value);
+      fetchItems(value);
+    } else {
+      setItemSearchTerms(prevState => ({
+        ...prevState,
+        [id_item]: value
+      }));
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(category => ({
+          ...category,
+          items: category.items.map(item => {
+            if (item.id_item === id_item) {
+              return { ...item, name: value };
+            }
+            return item;
+          })
+        }));
+        return updatedItems;
+      });
+      fetchItems(value, id_item);
+    }
   };
 
-  const handleCategorySearchChange = (value) => {
-    setCategorySearchTerm(value);
+  const handleCategorySearchChange = (e, id_item) => {
+    const value = e.target.value;
+    if (id_item === null) {
+      setCategorySearchTerm(value);
+      fetchCategories(value);
+    } else {
+      setCategorySearchTerms(prevState => ({
+        ...prevState,
+        [id_item]: value
+      }));
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(category => ({
+          ...category,
+          items: category.items.map(item => {
+            if (item.id_item === id_item) {
+              return { ...item, categoryTerm: value };
+            }
+            return item;
+          })
+        }));
+        return updatedItems;
+      });
+      fetchCategories(value, id_item);
+    }
   };
 
   const handleCountChange = (e, id_item) => {
-    setSavedItems(prevState => {
-      const updatedItems = prevState.map(category => ({
-        ...category,
-        items: category.items.map(item => {
-          if (item.id_item === id_item) {
-            return { ...item, count: e.target.value };
-          }
-          return item;
-        })
-      }));
-      return updatedItems;
-    });
-    setCount(e.target.value);
+    const value = e.target.value;
+    if (id_item === null) {
+      setCount(value);
+    } else {
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(category => ({
+          ...category,
+          items: category.items.map(item => {
+            if (item.id_item === id_item) {
+              return { ...item, count: value };
+            }
+            return item;
+          })
+        }));
+        return updatedItems;
+      });
+    }
   };
 
   const handleByDayChange = (e, id_item) => {
-    setSavedItems(prevState => {
-      const updatedItems = prevState.map(category => ({
-        ...category,
-        items: category.items.map(item => {
-          if (item.id_item === id_item) {
-            return { ...item, by_day: e.target.value === 'true' };
-          }
-          return item;
-        })
+    const value = e.target.value === 'true';
+    if (id_item === null) {
+      setByDay(value);
+    } else {
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(category => ({
+          ...category,
+          items: category.items.map(item => {
+            if (item.id_item === id_item) {
+              return { ...item, by_day: value };
+            }
+            return item;
+          })
+        }));
+        return updatedItems;
+      });
+    }
+  };
+
+  const handleItemSelect = (item, id_item) => {
+    if (id_item === null) {
+      setSearchTerm(item.name);
+    } else {
+      setItemSearchTerms(prevState => ({
+        ...prevState,
+        [id_item]: item.name
       }));
-      return updatedItems;
-    });
-    setByDay(e.target.value === 'true');
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(category => ({
+          ...category,
+          items: category.items.map(i => {
+            if (i.id_item === id_item) {
+              return { ...i, name: item.name };
+            }
+            return i;
+          })
+        }));
+        return updatedItems;
+      });
+    }
   };
 
-  const handleItemSelect = (item) => {
-    setSearchTerm(item.name);
-  };
-
-  const handleCategorySelect = (category) => {
-    setCategorySearchTerm(category.name);
+  const handleCategorySelect = (category, id_item) => {
+    if (id_item === null) {
+      setCategorySearchTerm(category.name);
+    } else {
+      setCategorySearchTerms(prevState => ({
+        ...prevState,
+        [id_item]: category.name
+      }));
+      setSavedItems(prevState => {
+        const updatedItems = prevState.map(cat => ({
+          ...cat,
+          items: cat.items.map(item => {
+            if (item.id_item === id_item) {
+              return { ...item, categoryTerm: category.name };
+            }
+            return item;
+          })
+        }));
+        return updatedItems;
+      });
+    }
   };
 
   return (
@@ -138,13 +230,16 @@ const Items = () => {
           <CardBody>
             <Autocomplete
               className="max-w-xs mb-3"
-              items={items}
+              items={itemSearchResults[null] || []}
               label="Název položky"
               placeholder="Názvi novou položku"
-              onInputChange={(value) => handleItemSearchChange(value)}
+              inputProps={{
+                onChange: (e) => handleItemSearchChange(e, null),
+                value: searchTerm || ''
+              }}
             >
-              {items.map(item => (
-                <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item)}>
+              {itemSearchResults[null]?.map(item => (
+                <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
                   {item.name}
                 </AutocompleteItem>
               ))}
@@ -168,29 +263,31 @@ const Items = () => {
               placeholder="Zadejte počet"
               type="number"
               onChange={(e) => handleCountChange(e, null)}
-              value={count}
+              value={count || ''}
             />
             <Autocomplete
               className="max-w-xs mt-3"
               label="Vyber kategorie"
               placeholder="Vyhledej kategorii"
-              onInputChange={(value) => handleCategorySearchChange(value)}
-              inputValue={categorySearchTerm}
+              inputProps={{
+                onChange: (e) => handleCategorySearchChange(e, null),
+                value: categorySearchTerm || ''
+              }}
               onSelectionChange={(key) => {
-                const selectedCategory = [...categories.savedCategories, ...categories.unsavedCategories].find(cat => cat.id_category === key);
-                if (selectedCategory) handleCategorySelect(selectedCategory);
+                const selectedCategory = categorySearchResults[null]?.savedCategories.concat(categorySearchResults[null]?.unsavedCategories).find(cat => cat.id_category === key);
+                if (selectedCategory) handleCategorySelect(selectedCategory, null);
               }}
             >
               <AutocompleteSection title="Vaše uložené">
-                {categories.savedCategories.map(cat => (
-                  <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                {categorySearchResults[null]?.savedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
                     {cat.name}
                   </AutocompleteItem>
                 ))}
               </AutocompleteSection>
               <AutocompleteSection title="Návrhy">
-                {categories.unsavedCategories.map(cat => (
-                  <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                {categorySearchResults[null]?.unsavedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
                     {cat.name}
                   </AutocompleteItem>
                 ))}
@@ -204,21 +301,23 @@ const Items = () => {
       </Flex>
       <Flex wrap justify="center">
         {savedItems.map(category => (
-          <Accordion key={category.id_category} className="p-2 flex flex-col gap-1 w-full max-w-[300px] min-w-[280px]">
+          <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
             <AccordionItem key={category.id_category} aria-label={category.name} title={category.name}>
               {category.items.map(item => (
                 <Card key={item.id_item} className="max-w-[400px] mb-2">
                   <CardBody>
                     <Autocomplete
                       className="max-w-xs mb-3"
-                      items={items}
+                      items={itemSearchResults[item.id_item] || []}
                       label="Název položky"
                       placeholder="Názvi novou položku"
-                      onInputChange={(value) => handleItemSearchChange(value)}
-                      inputValue={item.name}
+                      inputProps={{
+                        onChange: (e) => handleItemSearchChange(e, item.id_item),
+                        value: itemSearchTerms[item.id_item] || item.name || ''
+                      }}
                     >
-                      {items.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i)}>
+                      {itemSearchResults[item.id_item]?.map(i => (
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i, item.id_item)}>
                           {i.name}
                         </AutocompleteItem>
                       ))}
@@ -242,29 +341,31 @@ const Items = () => {
                       placeholder="Zadejte počet"
                       type="number"
                       onChange={(e) => handleCountChange(e, item.id_item)}
-                      value={item.count}
+                      value={item.count || ''}
                     />
                     <Autocomplete
                       className="max-w-xs mt-3"
                       label="Vyber kategorie"
                       placeholder="Vyhledej kategorii"
-                      onInputChange={(value) => handleCategorySearchChange(value)}
-                      inputValue={categorySearchTerm}
+                      inputProps={{
+                        onChange: (e) => handleCategorySearchChange(e, item.id_item),
+                        value: categorySearchTerms[item.id_item] || category.name || ''
+                      }}
                       onSelectionChange={(key) => {
-                        const selectedCategory = [...categories.savedCategories, ...categories.unsavedCategories].find(cat => cat.id_category === key);
-                        if (selectedCategory) handleCategorySelect(selectedCategory);
+                        const selectedCategory = categorySearchResults[item.id_item]?.savedCategories.concat(categorySearchResults[item.id_item]?.unsavedCategories).find(cat => cat.id_category === key);
+                        if (selectedCategory) handleCategorySelect(selectedCategory, item.id_item);
                       }}
                     >
                       <AutocompleteSection title="Vaše uložené">
-                        {categories.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                        {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
-                        {categories.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name}>
+                        {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}

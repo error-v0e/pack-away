@@ -639,9 +639,9 @@ app.get('/api/saved-items', async (req, res) => {
       FROM "SavedItems"
       INNER JOIN "Items" ON "SavedItems".id_item = "Items".id_item
       INNER JOIN "CategoryItems" ON "Items".id_item = "CategoryItems".id_item
-        AND "CategoryItems".id_user = 1
+        AND "CategoryItems".id_user = :userId
       INNER JOIN "Categories" ON "CategoryItems".id_category = "Categories".id_category
-      WHERE "SavedItems".id_user = 1;
+      WHERE "SavedItems".id_user = :userId;
     `;  
 
     const savedItems = await sequelize.query(query, {
