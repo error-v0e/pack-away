@@ -544,7 +544,7 @@ app.get('/api/search-categories', async (req, res) => {
           [Op.iLike]: `%${search}%`
         }
       },
-      limit: 5
+      limit: 7
     });
 
     // Načíst kategorie, které uživatel nemá uložené

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../../config';
-import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader, Popover, PopoverTrigger, PopoverContent } from '@nextui-org/react';
+import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter ,useDisclosure } from '@nextui-org/react';
 import { Flex } from 'antd';
 
 const Items = () => {
@@ -16,6 +16,9 @@ const Items = () => {
   const [itemSearchTerms, setItemSearchTerms] = useState({});
   const [categorySearchTerms, setCategorySearchTerms] = useState({});
   const [itemSearchResults, setItemSearchResults] = useState({});
+
+  
+  const {isOpen, onOpen, onClose} = useDisclosure();
 
   const fetchItems = async (search, id_item = null) => {
     try {
@@ -433,6 +436,20 @@ const Items = () => {
           </Accordion>
         ))}
       </Flex>
+      <Button className="fixed bottom-4 right-4 z-50" onPress={onOpen}>Správa kategorii</Button>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader>Správa kategorii</ModalHeader>
+          <ModalBody>
+            {/* Zde můžete přidat vaše menu položky */}
+          </ModalBody>
+          <ModalFooter>
+            <Button onPress={onClose}>
+              Zavřít
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
