@@ -548,22 +548,20 @@ app.get('/api/search-categories', async (req, res) => {
     });
 
     // Načíst kategorie, které uživatel nemá uložené
+    const savedCategoryIds = savedCategories.map(sc => sc.id_category);
+
+    // Get categories excluding the saved ones
     const unsavedCategories = await Category.findAll({
-      include: [{
-        model: SavedCategory,
-        where: { id_user: {
-          [Op.ne]: userId 
-        } },
-        required: true
-      }],
       where: {
+        id_category: {
+          [Op.notIn]: savedCategoryIds
+        },
         name: {
           [Op.iLike]: `%${search}%`
         }
       },
       limit: 5
     });
-    
     res.json({
       savedCategories,
       unsavedCategories
