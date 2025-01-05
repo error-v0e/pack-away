@@ -679,7 +679,94 @@ app.get('/api/saved-items', async (req, res) => {
   }
 });
 
+app.put('/api/update-item', async (req, res) => {
+  const { id_item, itemName, categoryName, userId, count, by_day } = req.body;
 
+  try {
+    // Find or create item
+    let item = await Item.findByPk(id_item);
+    if (item && item.name !== itemName) {
+      let existingItem = await Item.findOne({ where: { name: itemName } });
+      if (!existingItem) {
+        existingItem = await Item.create({ name: itemName });
+      }
+      item = existingItem;
+    } else if (!item) {
+      item = await Item.create({ name: itemName });
+    }
+
+    // Find or create category
+    let category;
+    if (categoryName) {
+      category = await Category.findOne({ where: { name: categoryName } });
+      if (!category) {
+        category = await Category.create({ name: categoryName });
+      }
+    }
+
+    // Remove old CategoryItem associations if category has changed
+    if (category) {
+      await CategoryItem.destroy({ where: { id_item: item.id_item, id_user: userId, id_list: null } });
+      await CategoryItem.create({ id_item: item.id_item, id_category: category.id_category, id_user: userId, id_list: null });
+    }
+
+    // Create or update SavedItem association
+    let savedItem = await SavedItem.findOne({ where: { id_user: userId, id_item: item.id_item } });
+    if (!savedItem) {
+      savedItem = await SavedItem.create({ id_user: userId, id_item: item.id_item, count, by_day });
+    } else {
+      if (savedItem.count !== count || savedItem.by_day !== by_day) {
+        savedItem.count = count;
+        savedItem.by_day = by_day;
+        await savedItem.save();
+      }
+    }
+
+    // Create or update SavedCategory association
+    if (category) {
+      let savedCategory = await SavedCategory.findOne({ where: { id_user: userId, id_category: category.id_category } });
+      if (!savedCategory) {
+        savedCategory = await SavedCategory.create({ id_user: userId, id_category: category.id_category });
+      }
+    }
+
+    res.json({ item, category, savedItem });
+  } catch (err) {
+    console.error('Error updating item:', err);
+    res.status(500).json({ message: 'Error updating item' });
+  }
+});
+
+app.delete('/api/delete-item', async (req, res) => {
+  const { userId, id_item } = req.body;
+
+  try {
+    // Find all saved items for the given item
+    const savedItems = await SavedItem.findAll({ where: { id_item } });
+
+    if (savedItems.length === 1) {
+      // If there is only one saved item, delete the item itself
+      await Item.destroy({ where: { id_item } });
+    }
+
+    // Delete CategoryItem associations
+    await CategoryItem.destroy({ where: { id_item, id_user: userId, id_list: null } });
+
+    // Delete SavedItem association
+    await SavedItem.destroy({ where: { id_user: userId, id_item } });
+
+    // Delete SavedCategory association if no other items are using the category
+    const categoryItems = await CategoryItem.findAll({ where: { id_item } });
+    if (categoryItems.length === 0) {
+      await SavedCategory.destroy({ where: { id_user: userId, id_category: categoryItems.id_category } });
+    }
+
+    res.json({ message: 'Item deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting item:', err);
+    res.status(500).json({ message: 'Error deleting item' });
+  }
+});
 
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {

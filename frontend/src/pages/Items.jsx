@@ -77,7 +77,7 @@ const Items = () => {
       const response = await axios.put(`${config.apiUrl}/api/update-item`, {
         id_item,
         itemName: item.name,
-        categoryName: item.categoryTerm,
+        categoryName: item.categoryTerm || item.category_name,
         userId,
         count: item.count,
         by_day: item.by_day
@@ -86,6 +86,19 @@ const Items = () => {
       fetchSavedItems(); // Refresh saved items after updating
     } catch (error) {
       console.error('Error updating item:', error);
+    }
+  };
+
+  const deleteItem = async (id_item) => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.delete(`${config.apiUrl}/api/delete-item`, {
+        data: { userId, id_item }
+      });
+      console.log('Item deleted:', response.data);
+      fetchSavedItems(); // Refresh saved items after deleting
+    } catch (error) {
+      console.error('Error deleting item:', error);
     }
   };
 
@@ -369,7 +382,7 @@ const Items = () => {
                       placeholder="Vyhledej kategorii"
                       inputProps={{
                         onChange: (e) => handleCategorySearchChange(e, item.id_item),
-                        value: categorySearchTerms[item.id_item] || category.name || ''
+                        value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
                       }}
                       onSelectionChange={(key) => {
                         const selectedCategory = categorySearchResults[item.id_item]?.savedCategories.concat(categorySearchResults[item.id_item]?.unsavedCategories).find(cat => cat.id_category === key);
@@ -406,7 +419,7 @@ const Items = () => {
                           <Button className='me-3 b' color="success" variant="flat">
                           Zrusit
                           </Button>
-                          <Button color="danger" variant="flat">
+                          <Button color="danger" variant="flat" onClick={() => deleteItem(item.id_item)}>
                           Ano
                           </Button>
                         </div>
