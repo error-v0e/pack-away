@@ -679,6 +679,8 @@ app.get('/api/saved-items', async (req, res) => {
   }
 });
 
+
+
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');

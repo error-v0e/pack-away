@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../../config';
-import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader, Popover, PopoverTrigger, PopoverContent } from '@nextui-org/react';
 import { Flex } from 'antd';
 
 const Items = () => {
@@ -67,6 +67,25 @@ const Items = () => {
       fetchSavedItems(); // Refresh saved items after adding
     } catch (error) {
       console.error('Error adding item and category:', error);
+    }
+  };
+
+  const updateItem = async (id_item) => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('id_user'));
+      const item = savedItems.flatMap(category => category.items).find(item => item.id_item === id_item);
+      const response = await axios.put(`${config.apiUrl}/api/update-item`, {
+        id_item,
+        itemName: item.name,
+        categoryName: item.categoryTerm,
+        userId,
+        count: item.count,
+        by_day: item.by_day
+      });
+      console.log('Item updated:', response.data);
+      fetchSavedItems(); // Refresh saved items after updating
+    } catch (error) {
+      console.error('Error updating item:', error);
     }
   };
 
@@ -343,7 +362,7 @@ const Items = () => {
                       onChange={(e) => handleCountChange(e, item.id_item)}
                       value={item.count || ''}
                     />
-                    <Flex>
+                    <Flex gap="small" >
                     <Autocomplete
                       className="max-w-xs mt-3"
                       label="Vyber kategorie"
@@ -372,7 +391,27 @@ const Items = () => {
                         ))}
                       </AutocompleteSection>
                     </Autocomplete>
-                    
+                    <Button isIconOnly className='h-15 mt-3' color="success" variant="flat" onClick={() => updateItem(item.id_item)}>
+                      U
+                    </Button>
+                    <Popover placement="right">
+                      <PopoverTrigger>
+                        <Button isIconOnly className='h-15 mt-3' color="danger" variant="flat">
+                          S
+                        </Button>
+                        </PopoverTrigger>
+                      <PopoverContent>
+                        <div className="px-1 py-2">
+                          <div className="text-small font-bold">Opravdu to chcete smazat?</div>
+                          <Button className='me-3 b' color="success" variant="flat">
+                          Zrusit
+                          </Button>
+                          <Button color="danger" variant="flat">
+                          Ano
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     </Flex>
                   </CardBody>
                 </Card>
