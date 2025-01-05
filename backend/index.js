@@ -639,7 +639,7 @@ app.get('/api/saved-items', async (req, res) => {
       FROM "SavedItems"
       INNER JOIN "Items" ON "SavedItems".id_item = "Items".id_item
       INNER JOIN "CategoryItems" ON "Items".id_item = "CategoryItems".id_item
-        AND "CategoryItems".id_user = :userId
+        AND "CategoryItems".id_user = :userId AND "CategoryItems".id_list IS NULL
       INNER JOIN "Categories" ON "CategoryItems".id_category = "Categories".id_category
       WHERE "SavedItems".id_user = :userId;
     `;  
@@ -679,7 +679,7 @@ app.get('/api/saved-items', async (req, res) => {
   }
 });
 
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
   });

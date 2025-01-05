@@ -343,6 +343,7 @@ const Items = () => {
                       onChange={(e) => handleCountChange(e, item.id_item)}
                       value={item.count || ''}
                     />
+                    <Flex>
                     <Autocomplete
                       className="max-w-xs mt-3"
                       label="Vyber kategorie"
@@ -371,6 +372,8 @@ const Items = () => {
                         ))}
                       </AutocompleteSection>
                     </Autocomplete>
+                    
+                    </Flex>
                   </CardBody>
                 </Card>
               ))}

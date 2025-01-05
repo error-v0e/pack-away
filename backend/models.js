@@ -138,13 +138,24 @@ ListCategory.belongsTo(Category, { foreignKey: 'id_category' });
 ListCategory.belongsTo(User, { foreignKey: 'id_user' }); // Add foreign key to User
 
 // Category Items model
-const CategoryItem = sequelize.define('CategoryItem', {}, { timestamps: false });
-CategoryItem.removeAttribute('id'); // Remove automatic id
-CategoryItem.primaryKey = ['id_item', 'id_category', 'id_user']; // Composite primary key
+const CategoryItem = sequelize.define(
+  'CategoryItem',
+  {},
+  {
+    timestamps: false,
+    uniqueKeys: {
+      unique_category_item_user_list: {
+        fields: ['id_item', 'id_category', 'id_user', 'id_list'],
+      },
+    },
+  }
+);
 
+CategoryItem.removeAttribute('id'); // Remove automatic id
 CategoryItem.belongsTo(Category, { foreignKey: 'id_category' });
 CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
 CategoryItem.belongsTo(User, { foreignKey: 'id_user' }); 
+CategoryItem.belongsTo(List, { foreignKey: 'id_list' });
 
 // Saved Items model
 const SavedItem = sequelize.define('SavedItem', {
