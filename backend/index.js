@@ -680,6 +680,14 @@ app.get('/api/saved-items', async (req, res) => {
 app.put('/api/update-item', async (req, res) => {
   const { id_item, itemName, categoryName, userId, count, by_day } = req.body;
 
+  categoryN = categoryName;
+  if (!categoryN) {
+    let categoryItemOld = await CategoryItem.findOne({ where: { id_item } });
+    categoryOld = await Category.findOne({ where: { id_category: categoryItemOld.id_category } });
+    categoryN = categoryOld.name;
+    }
+
+  
   try {
     // Find or create item
     let item = await Item.findByPk(id_item);
@@ -688,38 +696,39 @@ app.put('/api/update-item', async (req, res) => {
       if (!existingItem) {
         existingItem = await Item.create({ name: itemName });
       }
+      const oldItem = await CategoryItem.findAll({ where: { id_item } })
+      if (oldItem.length === 1) {
+        await Item.destroy({ where: { id_item } });
+      }
       item = existingItem;
     } else if (!item) {
       item = await Item.create({ name: itemName });
     }
-
     // Find or create category
     let category;
-    if (categoryName) {
-      category = await Category.findOne({ where: { name: categoryName } });
+    if (categoryN) {
+      category = await Category.findOne({ where: { name: categoryN } });
       if (!category) {
-        category = await Category.create({ name: categoryName });
+        category = await Category.create({ name: categoryN });
       }
     }
-
     // Remove old CategoryItem associations if category has changed
     if (category) {
       await CategoryItem.destroy({ where: { id_item: item.id_item, id_user: userId, id_list: null } });
       await CategoryItem.create({ id_item: item.id_item, id_category: category.id_category, id_user: userId, id_list: null });
     }
-
     // Create or update SavedItem association
     let savedItem = await SavedItem.findOne({ where: { id_user: userId, id_item: item.id_item } });
     if (!savedItem) {
       savedItem = await SavedItem.create({ id_user: userId, id_item: item.id_item, count, by_day });
     } else {
       if (savedItem.count !== count || savedItem.by_day !== by_day) {
+        savedItem.id_item = item.id_item;
         savedItem.count = count;
         savedItem.by_day = by_day;
         await savedItem.save();
       }
     }
-
     // Create or update SavedCategory association
     if (category) {
       let savedCategory = await SavedCategory.findOne({ where: { id_user: userId, id_category: category.id_category } });
