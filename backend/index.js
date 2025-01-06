@@ -741,22 +741,21 @@ app.delete('/api/delete-item', async (req, res) => {
   try {
     // Find all saved items for the given item
     const savedItems = await SavedItem.findAll({ where: { id_item } });
+    const categoryItems = await CategoryItem.findAll({ where: { id_item } });
 
     if (savedItems.length === 1) {
       // If there is only one saved item, delete the item itself
       await Item.destroy({ where: { id_item } });
     }
 
+    
     // Delete CategoryItem associations
     await CategoryItem.destroy({ where: { id_item, id_user: userId, id_list: null } });
 
     // Delete SavedItem association
     await SavedItem.destroy({ where: { id_user: userId, id_item } });
-
-    // Delete SavedCategory association if no other items are using the category
-    const categoryItems = await CategoryItem.findAll({ where: { id_item } });
     if (categoryItems.length === 0) {
-      await SavedCategory.destroy({ where: { id_user: userId, id_category: categoryItems.id_category } });
+      await Category.destroy({ where: { id_category: categoryItems.id_category } });
     }
 
     res.json({ message: 'Item deleted successfully' });
