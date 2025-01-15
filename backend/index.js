@@ -12,12 +12,24 @@ const { format } = require('date-fns');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = ['http://192.168.50.100:5173', 'http://localhost:5173'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(session({
   secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: false
+  resave: false, 
+  saveUninitialized: false,  
+  cookie: { secure: false, httpOnly: true, sameSite: 'lax' } 
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -141,7 +153,7 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
 });
 
 // Logout endpoint
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', isAuthenticated, (req, res) => {
   req.logout((err) => {
     if (err) {
       return res.status(500).json({ message: 'Error logging out' });
