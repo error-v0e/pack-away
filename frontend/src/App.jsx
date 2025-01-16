@@ -10,10 +10,24 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const user = localStorage.getItem('id_user');
-    if (user) {
-      setIsAuthenticated(true);
-    }
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/check-session', {
+          method: 'GET',
+          credentials: 'include', // Include cookies in the request
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated) {
+            setIsAuthenticated(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      }
+    };
+  
+    checkSession();
   }, []);
 
   const handleLogin = () => {

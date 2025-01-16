@@ -15,7 +15,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${config.apiUrl}/api/login`, { username, password }, { withCredentials: true });
+      const response = await axios.post(`/api/login`, { username, password }, { withCredentials: true });
       if (response.data.redirect) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));

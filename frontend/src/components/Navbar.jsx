@@ -17,7 +17,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post(`${config.apiUrl}/api/logout`);
+      const response = await axios.post(`/api/logout`, {}, { withCredentials: true });
       if (response.data.redirect) {
         localStorage.removeItem('user'); // Remove user data from localStorage
         localStorage.removeItem('id_user'); // Remove user data from localStorage

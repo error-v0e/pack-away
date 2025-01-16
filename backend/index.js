@@ -29,7 +29,7 @@ app.use(session({
   secret: 'your_secret_key',
   resave: false, 
   saveUninitialized: false,  
-  cookie: { secure: false, httpOnly: true, sameSite: 'lax' } 
+  cookie: { secure: false, httpOnly: true, sameSite: 'lax', path: '/' , maxAge: 1000 * 60 * 60 * 24 * 7 } 
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -68,6 +68,7 @@ passport.deserializeUser(async (id, done) => {
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
   console.log('--------a1');
+  console.log('--------req:', req.session);
   if (req.isAuthenticated()) {
     console.log('--------a2');
     return next();
@@ -83,7 +84,13 @@ const isNotAuthenticated = (req, res, next) => {
   }
   res.redirect('/');
 };
-
+app.get('/api/check-session', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ isAuthenticated: true });
+  } else {
+    res.json({ isAuthenticated: false });
+  }
+});
 app.post('/api/login', isNotAuthenticated, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -158,6 +165,7 @@ app.post('/api/logout', isAuthenticated, (req, res) => {
     if (err) {
       return res.status(500).json({ message: 'Error logging out' });
     }
+    res.clearCookie('connect.sid'); 
     res.json({ message: 'Logged out successfully', redirect: '/login' });
   });
 });
