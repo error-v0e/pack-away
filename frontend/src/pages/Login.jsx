@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import config from '../../config';
 import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";
 
@@ -12,6 +12,8 @@ const Login = ({ setIsAuthenticated }) => {
   const [error, setError] = useState('');
   const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || localStorage.getItem('lastPath') || '/';
 
   const handleLogin = async () => {
     try {
@@ -20,7 +22,7 @@ const Login = ({ setIsAuthenticated }) => {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));
         setIsAuthenticated(true); 
-        navigate(response.data.redirect);
+        navigate(from); 
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@nextui-org/react";
 import axios from 'axios';
 import { PackAwayLogo } from "../assets/PackAwayLogo";
@@ -7,6 +7,7 @@ import { PackAwayLogo } from "../assets/PackAwayLogo";
 export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
     { name: "Cesty", path: "/" },
@@ -18,6 +19,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
     try {
       const response = await axios.post(`/api/logout`, {}, { withCredentials: true });
       if (response.data.redirect) {
+        localStorage.setItem('lastPath', location.pathname); // Uložení poslední navštívené cesty
         localStorage.removeItem('user'); // Remove user data from localStorage
         localStorage.removeItem('id_user'); // Remove user data from localStorage
         setIsAuthenticated(false); // Update authentication status

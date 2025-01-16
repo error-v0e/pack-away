@@ -12,6 +12,7 @@ export default defineConfig({
           secure: false
         }
       },
+      historyApiFallback: true,
       host: true, // nebo '0.0.0.0'
     },
 })
