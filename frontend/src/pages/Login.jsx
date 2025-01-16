@@ -19,7 +19,7 @@ const Login = ({ setIsAuthenticated }) => {
       if (response.data.redirect) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));
-        setIsAuthenticated(true); // Update authentication status
+        setIsAuthenticated(true); 
         navigate(response.data.redirect);
       }
     } catch (error) {

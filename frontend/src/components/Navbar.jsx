@@ -1,5 +1,4 @@
 import React from "react";
-import config from '../../config';
 import { NavLink, useNavigate } from "react-router-dom";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@nextui-org/react";
 import axios from 'axios';

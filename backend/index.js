@@ -67,13 +67,9 @@ passport.deserializeUser(async (id, done) => {
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
-  console.log('--------a1');
-  console.log('--------req:', req.session);
   if (req.isAuthenticated()) {
-    console.log('--------a2');
     return next();
   }
-  console.log('--------a3');
   res.status(401).json({ message: 'Unauthorized' });
 };
 
@@ -170,7 +166,7 @@ app.post('/api/logout', isAuthenticated, (req, res) => {
   });
 });
 
-app.get('/api/users', async (req, res) => {
+app.get('/api/users', isAuthenticated, async (req, res) => {
   const { id_user, search } = req.query;
   try {
     const friends = await Friend.findAll({
@@ -240,7 +236,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-app.post('/api/add_follow', async (req, res) => {
+app.post('/api/add_follow', isAuthenticated, async (req, res) => {
   const { id_user_one, id_user_two } = req.body;
   try {
     await Friend.create({ id_user_one, id_user_two });
@@ -250,7 +246,7 @@ app.post('/api/add_follow', async (req, res) => {
     res.status(500).json({ message: 'Error adding follow' });
   }
 });
-app.get('/api/friends', async (req, res) => {
+app.get('/api/friends', isAuthenticated, async (req, res) => {
   const { id_user } = req.query;
   try {
     const friends = await Friend.findAll({
@@ -269,7 +265,7 @@ app.get('/api/friends', async (req, res) => {
     res.status(500).json({ message: 'Error fetching friends' });
   }
 });
-app.delete('/api/remove_follow', async (req, res) => {
+app.delete('/api/remove_follow', isAuthenticated, async (req, res) => {
   const { id_user_one, id_user_two } = req.body;
   try {
     await Friend.destroy({
@@ -284,7 +280,7 @@ app.delete('/api/remove_follow', async (req, res) => {
     res.status(500).json({ message: 'Error removing follow' });
   }
 });
-app.post('/api/create_trip', async (req, res) => {
+app.post('/api/create_trip', isAuthenticated, async (req, res) => {
   const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
   console.log('--------id_user:', id_user);
 
@@ -309,7 +305,7 @@ app.post('/api/create_trip', async (req, res) => {
     res.status(500).json({ message: 'Error creating trip' });
   }
 });
-app.get('/api/trips', async (req, res) => {
+app.get('/api/trips', isAuthenticated, async (req, res) => {
   const { id_user } = req.query;
 
   try {
@@ -437,7 +433,7 @@ app.get('/api/trips', async (req, res) => {
     res.status(500).json({ message: 'Error fetching trips' });
   }
 });
-app.post('/api/join_trip', async (req, res) => {
+app.post('/api/join_trip', isAuthenticated, async (req, res) => {
   const { id_user, id_trip } = req.body;
   try {
     await TripMember.update(
@@ -451,7 +447,7 @@ app.post('/api/join_trip', async (req, res) => {
   }
 });
 
-app.post('/api/decline_trip', async (req, res) => {
+app.post('/api/decline_trip', isAuthenticated, async (req, res) => {
   const { id_user, id_trip } = req.body;
   try {
     await TripMember.destroy({
@@ -464,7 +460,7 @@ app.post('/api/decline_trip', async (req, res) => {
   }
 });
 
-app.get('/api/more_past_trips', async (req, res) => {
+app.get('/api/more_past_trips', isAuthenticated, async (req, res) => {
   const { id_user, offset } = req.query;
 
   try {
@@ -525,7 +521,7 @@ app.get('/api/more_past_trips', async (req, res) => {
     res.status(500).json({ message: 'Error fetching more past trips' });
   }
 });
-app.get('/api/items', async (req, res) => {
+app.get('/api/items', isAuthenticated, async (req, res) => {
   const { search } = req.query;
 
   try {
@@ -544,7 +540,7 @@ app.get('/api/items', async (req, res) => {
     res.status(500).json({ message: 'Error fetching items' });
   }
 });
-app.get('/api/search-categories', async (req, res) => {
+app.get('/api/search-categories', isAuthenticated, async (req, res) => {
   const { search, userId } = req.query;
 
   if (!userId) {
@@ -591,7 +587,7 @@ app.get('/api/search-categories', async (req, res) => {
     res.status(500).json({ message: 'Error fetching categories' });
   }
 });
-app.post('/api/add-item-category', async (req, res) => {
+app.post('/api/add-item-category', isAuthenticated, async (req, res) => {
   const { itemName, categoryName, userId, count, by_day } = req.body;
 
   try {
@@ -636,7 +632,7 @@ app.post('/api/add-item-category', async (req, res) => {
   }
 });
 
-app.get('/api/saved-items', async (req, res) => {
+app.get('/api/saved-items', isAuthenticated, async (req, res) => {
   const { userId } = req.query;
 
   if (!userId) {
@@ -697,7 +693,7 @@ app.get('/api/saved-items', async (req, res) => {
   }
 });
 
-app.put('/api/update-item', async (req, res) => {
+app.put('/api/update-item', isAuthenticated, async (req, res) => {
   const { id_item, itemName, categoryName, userId, count, by_day } = req.body;
 
   categoryN = categoryName;
@@ -764,7 +760,7 @@ app.put('/api/update-item', async (req, res) => {
   }
 });
 
-app.delete('/api/delete-item', async (req, res) => {
+app.delete('/api/delete-item', isAuthenticated, async (req, res) => {
   const { userId, id_item } = req.body;
 
   try {

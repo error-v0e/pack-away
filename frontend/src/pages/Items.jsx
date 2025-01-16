@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import config from '../../config';
 import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter ,useDisclosure } from '@nextui-org/react';
 import { Flex } from 'antd';
 
@@ -22,7 +21,7 @@ const Items = () => {
 
   const fetchItems = async (search, id_item = null) => {
     try {
-      const response = await axios.get(`${config.apiUrl}/api/items`, { params: { search } });
+      const response = await axios.get(`/api/items`, { params: { search } }, { withCredentials: true });
       setItemSearchResults(prevState => ({
         ...prevState,
         [id_item]: response.data
@@ -35,7 +34,7 @@ const Items = () => {
   const fetchCategories = async (search, id_item = null) => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get(`${config.apiUrl}/api/search-categories`, { params: { search, userId } });
+      const response = await axios.get(`/api/search-categories`, { params: { search, userId } }, { withCredentials: true });
       setCategorySearchResults(prevState => ({
         ...prevState,
         [id_item]: response.data
@@ -48,7 +47,7 @@ const Items = () => {
   const fetchSavedItems = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get(`${config.apiUrl}/api/saved-items`, { params: { userId } });
+      const response = await axios.get(`/api/saved-items`, { params: { userId } }, { withCredentials: true });
       console.log('Fetched saved items:', response.data);
       setSavedItems(response.data);
     } catch (error) {
@@ -59,13 +58,13 @@ const Items = () => {
   const addItemAndCategory = async () => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.post(`${config.apiUrl}/api/add-item-category`, {
+      const response = await axios.post(`/api/add-item-category`, {
         itemName: searchTerm,
         categoryName: categorySearchTerm,
         userId,
         count,
         by_day: byDay
-      });
+      }, { withCredentials: true });
       console.log('Item and category added:', response.data);
       fetchSavedItems(); // Refresh saved items after adding
     } catch (error) {
@@ -77,7 +76,7 @@ const Items = () => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
       const item = savedItems.flatMap(category => category.items).find(item => item.id_item === id_item);
-      const response = await axios.put(`${config.apiUrl}/api/update-item`, {
+      const response = await axios.put(`/api/update-item`, {
         id_item,
         itemName: item.name,
         categoryName: item.categoryTerm || item.category_name,
@@ -95,9 +94,9 @@ const Items = () => {
   const deleteItem = async (id_item) => {
     try {
       const userId = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.delete(`${config.apiUrl}/api/delete-item`, {
+      const response = await axios.delete(`/api/delete-item`, {
         data: { userId, id_item }
-      });
+      }, { withCredentials: true });
       console.log('Item deleted:', response.data);
       fetchSavedItems(); // Refresh saved items after deleting
     } catch (error) {

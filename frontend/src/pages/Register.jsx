@@ -17,7 +17,7 @@ const Register = ({ setIsAuthenticated }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post(`/api/register`, { username, email, password, picture });
+      const response = await axios.post(`/api/register`, { username, email, password, picture }, { withCredentials: true });
       if (response.data.redirect) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));

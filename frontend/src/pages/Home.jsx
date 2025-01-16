@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import config from '../../config';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, Accordion, AccordionItem, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { PackAwayLogo } from '../assets/PackAwayLogo';
@@ -22,7 +21,7 @@ const Home = () => {
   const fetchFriends = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get(`${config.apiUrl}/api/friends`, { params: { id_user } });
+      const response = await axios.get(`/api/friends`, { params: { id_user } }, { withCredentials: true });
       setFriends(response.data);
     } catch (error) {
       console.error('Error fetching friends:', error);
@@ -32,7 +31,7 @@ const Home = () => {
   const fetchTrips = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get(`${config.apiUrl}/api/trips`, { params: { id_user } });
+      const response = await axios.get(`/api/trips`, { params: { id_user } }, { withCredentials: true });
       setTrips(response.data);
 
       // Determine which accordion should be open by default
@@ -58,7 +57,7 @@ const Home = () => {
   const loadMorePastTrips = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get(`${config.apiUrl}/api/more_past_trips`, { params: { id_user, offset: pastTripsCount } });
+      const response = await axios.get(`/api/more_past_trips`, { params: { id_user, offset: pastTripsCount } }, { withCredentials: true });
       setTrips(prevTrips => ({
         ...prevTrips,
         past: [...prevTrips.past, ...response.data.past]
@@ -88,14 +87,14 @@ const Home = () => {
   const createTrip = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.post(`${config.apiUrl}/api/create_trip`, {
+      const response = await axios.post(`/api/create_trip`, {
         
         id_user,
         name: tripName,
         from_date: tripDates.start ? new Date(tripDates.start).toISOString() : null,
         to_date: tripDates.end ? new Date(tripDates.end).toISOString() : null,
         invitedFriends
-      });
+      }, { withCredentials: true });
       console.log('Trip created successfully:', response.data);
       setPastTripsCount(10);
       // Reset state after creating the trip
@@ -112,7 +111,7 @@ const Home = () => {
   const handleJoinTrip = async (tripId) => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      await axios.post(`${config.apiUrl}/api/join_trip`, { id_user, id_trip: tripId });
+      await axios.post(`/api/join_trip`, { id_user, id_trip: tripId });
       fetchTrips(); // Refresh trips after joining
     } catch (error) {
       console.error('Error joining trip:', error);
@@ -122,7 +121,7 @@ const Home = () => {
   const handleDeclineTrip = async (tripId) => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      await axios.post(`${config.apiUrl}/api/decline_trip`, { id_user, id_trip: tripId });
+      await axios.post(`/api/decline_trip`, { id_user, id_trip: tripId }, { withCredentials: true });
       fetchTrips(); // Refresh trips after declining
     } catch (error) {
       console.error('Error declining trip:', error);
