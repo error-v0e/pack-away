@@ -317,7 +317,7 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.upcoming.length > 0 && (
-            <AccordionItem key="2" aria-label="Budouci" title="Naschazejici">
+            <AccordionItem key="2" aria-label="Budouci" title="Nadchazejici">
               <Flex wrap gap="small" justify="center">
                 {trips.upcoming.map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]">

@@ -4,8 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models'); // Import User model
-//const sequelize = require('./connection');
+const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
 
@@ -155,7 +154,6 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
   }
 });
 
-// Logout endpoint
 app.post('/api/logout', isAuthenticated, (req, res) => {
   req.logout((err) => {
     if (err) {
@@ -172,27 +170,24 @@ app.get('/api/users', isAuthenticated, async (req, res) => {
     const friends = await Friend.findAll({
       attributes: ['id_user_two'],
       where: {
-        id_user_one: id_user, // id aktuálně přihlášeného uživatele
+        id_user_one: id_user,
       },
     });
     
-    // Extrakce pouze id_user_two do pole
     const friendIds = friends.map(friend => friend.id_user_two);
     
-    // Přesné shody
     const exactMatches = await User.findAll({
       where: {
         id_user: {
-          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
-          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+          [Op.ne]: id_user, 
+          [Op.notIn]: friendIds, 
         },
-        username: search // Přesná shoda s vyhledávacím dotazem
+        username: search 
       },
-      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
-      limit: 7 // Omezení na prvních deset výsledků
+      attributes: { exclude: ['password'] },
+      limit: 7 
     });
 
-    // Výsledky začínající na vyhledávací dotaz
     const startsWithMatches = await User.findAll({
       where: {
         id_user: {
