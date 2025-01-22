@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection } from '@nextui-org/react';
+import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, useDisclosure } from '@nextui-org/react';
 import { Flex } from 'antd';
 
 const Trip = () => {
@@ -12,32 +12,46 @@ const Trip = () => {
   const [categorySearchResults, setCategorySearchResults] = useState({});
   const [categorySearchTerms, setCategorySearchTerms] = useState({});
   const [error, setError] = useState('');
+  const [isUsingList, setIsUsingList] = useState(false);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const fetchSavedItems = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('/api/saved-items', { params: { userId: id_user } });
+      setSavedItems(response.data);
+    } catch (error) {
+      setError('Chyba při načítání uložených položek');
+    }
+  };
+
+  const fetchUsingListItems = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('/api/using-list-items', { params: { id_user, id_trip: ID_trip } });
+      setSavedItems(response.data);
+      setIsUsingList(true);
+    } catch (error) {
+      setError('Chyba při načítání položek seznamu');
+    }
+  };
+
+  const checkUsingListCategory = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('/api/check-using-list-category', { params: { id_user, id_trip: ID_trip } });
+      if (response.data.exists) {
+        fetchUsingListItems();
+      } else {
+        fetchSavedItems();
+      }
+    } catch (error) {
+      setError('Chyba při ověřování kategorie seznamu');
+    }
+  };
 
   useEffect(() => {
-    const fetchSavedItems = async () => {
-      try {
-        const id_user = JSON.parse(localStorage.getItem('id_user'));
-        const response = await axios.get('/api/saved-items', { params: { userId: id_user } });
-        setSavedItems(response.data);
-      } catch (error) {
-        setError('Chyba při načítání uložených položek');
-      }
-    };
-
-    const checkUsingListCategory = async () => {
-      try {
-        const id_user = JSON.parse(localStorage.getItem('id_user'));
-        const response = await axios.get('/api/check-using-list-category', { params: { id_user, id_trip: ID_trip } });
-        if (response.data.exists) {
-          setSavedItems([]);
-        } else {
-          fetchSavedItems();
-        }
-      } catch (error) {
-        setError('Chyba při ověřování kategorie seznamu');
-      }
-    };
-
     checkUsingListCategory();
   }, [ID_trip]);
 
@@ -63,6 +77,22 @@ const Trip = () => {
 
   const handleCategorySelect = (category, itemId) => {
     // Implementace výběru kategorie
+  };
+
+  const createList = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.post('/api/create-list', {
+        id_user,
+        id_trip: ID_trip,
+        items: savedItems
+      });
+      console.log('List created successfully:', response.data);
+      fetchUsingListItems(); // Načtení položek seznamu po vytvoření seznamu
+    } catch (error) {
+      console.error('Error creating list:', error);
+      setError('Chyba při vytváření seznamu');
+    }
   };
 
   if (error) {
@@ -152,6 +182,24 @@ const Trip = () => {
           </Accordion>
         ))}
       </Flex>
+      {!isUsingList && (
+        <Popover placement="right">
+          <PopoverTrigger>
+            <Button className="fixed bottom-4 right-4 z-50">Vytvořit seznam</Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="px-1 py-2">
+              <div className="text-small font-bold">Opravdu chcete vytvořit seznam?</div>
+              <Button className='me-3 b' color="success" variant="flat">
+                Pokračovat ve vytváření
+              </Button>
+              <Button color="warning" variant="flat" onClick={createList}>
+                Ano
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 };

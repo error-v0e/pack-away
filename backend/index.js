@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory } = require('./models');
+const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory, UsingCategory, UsingItem, UsingCategoryItem } = require('./models');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
 
@@ -822,6 +822,92 @@ app.get('/api/check-using-list-category', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error checking using list category:', error);
     res.status(500).json({ message: 'Error checking using list category' });
+  }
+});
+app.post('/api/create-list', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip, items } = req.body;
+
+  try {
+    for (const category of items) {
+      // Create or find UsingCategory
+      let usingCategory = await UsingCategory.findOne({ where: { name: category.name } });
+      if (!usingCategory) {
+        usingCategory = await UsingCategory.create({ name: category.name });
+      }
+
+      // Create UsingListCategory
+      await UsingListCategory.create({ id_trip, id_user, id_category: usingCategory.id_category });
+
+      for (const item of category.items) {
+        // Create or find UsingItem
+        let usingItem = await UsingItem.findOne({ where: { name: item.name } });
+        if (!usingItem) {
+          usingItem = await UsingItem.create({ name: item.name, count: item.count, check: false, dissent: false });
+        }
+
+        // Create UsingCategoryItem
+        await UsingCategoryItem.create({ id_item: usingItem.id_item, id_category: usingCategory.id_category });
+      }
+    }
+
+    res.json({ message: 'List created successfully' });
+  } catch (error) {
+    console.error('Error creating list:', error);
+    res.status(500).json({ message: 'Error creating list' });
+  }
+});
+app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip } = req.query;
+
+  try {
+    const query = `
+      SELECT
+        "UsingItems".id_item,
+        "UsingItems".name AS item_name,
+        "UsingItems".count AS count,
+        "UsingItems".by_day AS by_day,
+        "UsingCategories".id_category,
+        "UsingCategories".name AS category_name
+      FROM "UsingItems"
+      INNER JOIN "UsingCategoryItems" ON "UsingItems".id_item = "UsingCategoryItems".id_item
+      INNER JOIN "UsingCategories" ON "UsingCategoryItems".id_category = "UsingCategories".id_category
+      INNER JOIN "UsingListCategories" ON "UsingCategories".id_category = "UsingListCategories".id_category
+      WHERE "UsingListCategories".id_user = :id_user AND "UsingListCategories".id_trip = :id_trip;
+    `;
+
+    const usingListItems = await sequelize.query(query, {
+      replacements: { id_user, id_trip },
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    // Připravit strukturu pro vrácení dat
+    const categorizedItems = {};
+
+    usingListItems.forEach(item => {
+      const category = item.category_name;
+      if (!categorizedItems[category]) {
+        categorizedItems[category] = {
+          id_category: item.id_category,
+          name: category,
+          items: [],
+        };
+      }
+
+      categorizedItems[category].items.push({
+        id_item: item.id_item,
+        name: item.item_name,
+        count: item.count,
+        by_day: item.by_day,
+      });
+    });
+
+    // Převést objekt na pole
+    const result = Object.values(categorizedItems);
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching using list items:', err);
+    res.status(500).json({ message: 'Error fetching using list items' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {

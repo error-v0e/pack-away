@@ -187,6 +187,10 @@ const UsingItem = sequelize.define('UsingItem', {
     primaryKey: true,
     autoIncrement: true,
   },
+  by_day: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
   name: DataTypes.STRING,
   count: DataTypes.INTEGER,
   check: DataTypes.BOOLEAN,
