@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, Accordion, AccordionItem, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from '@nextui-org/react';
 import { Flex } from 'antd';
@@ -7,6 +8,7 @@ import { MissingInput } from '../assets/MissingInput';
 import { Users } from '../assets/Users';
 
 const Home = () => {
+  const navigate = useNavigate();
   const { isOpen: isNewTripOpen, onOpen: onNewTripOpen, onOpenChange: onNewTripOpenChange } = useDisclosure();
   const { isOpen: isInviteOpen, onOpen: onInviteOpen, onOpenChange: onInviteOpenChange } = useDisclosure();
   const [friends, setFriends] = useState([]);
@@ -126,6 +128,10 @@ const Home = () => {
     } catch (error) {
       console.error('Error declining trip:', error);
     }
+  };
+
+  const navigateToTripDetail = async (tripId) => {
+    navigate(`/trip/${tripId}`);
   };
 
   return (
@@ -320,7 +326,7 @@ const Home = () => {
             <AccordionItem key="2" aria-label="Budouci" title="Nadchazejici">
               <Flex wrap gap="small" justify="center">
                 {trips.upcoming.map(trip => (
-                  <Card key={trip.id_trip} className="max-w-[340px]">
+                  <Card key={trip.id_trip} className="max-w-[340px]" onPress={() => navigateToTripDetail(trip.id_trip)} isPressable>
                     <CardHeader className="justify-between">
                       <div className="flex gap-5">
                         <PackAwayLogo />
@@ -348,7 +354,7 @@ const Home = () => {
             <AccordionItem key="3" aria-label="Aktualni" title="Porbihajici">
               <Flex wrap gap="small" justify="center">
                 {trips.ongoing.map(trip => (
-                  <Card key={trip.id_trip} className="max-w-[340px]">
+                  <Card key={trip.id_trip} className="max-w-[340px]" onPress={() => navigateToTripDetail(trip.id_trip)} isPressable>
                     <CardHeader className="justify-between">
                       <div className="flex gap-5">
                         <PackAwayLogo />
@@ -376,7 +382,7 @@ const Home = () => {
             <AccordionItem key="4" aria-label="Minulé" title="Minulé">
               <Flex wrap gap="small" justify="center">
                 {trips.past.slice(0, pastTripsCount).map(trip => (
-                  <Card key={trip.id_trip} className="max-w-[340px]">
+                  <Card key={trip.id_trip} className="max-w-[340px]" onPress={() => navigateToTripDetail(trip.id_trip)} isPressable>
                     <CardHeader className="justify-between">
                       <div className="flex gap-5">
                         <PackAwayLogo />
