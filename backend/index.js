@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory } = require('./models');
+const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory } = require('./models');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
 
@@ -804,6 +804,24 @@ app.post('/api/check_trip', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Chyba při načítání detailů výletu:', error);
     res.status(500).json({ message: 'Chyba při načítání detailů výletu' });
+  }
+});
+app.get('/api/check-using-list-category', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip } = req.query;
+
+  try {
+    const usingListCategory = await UsingListCategory.findOne({
+      where: { id_user, id_trip }
+    });
+
+    if (usingListCategory) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Error checking using list category:', error);
+    res.status(500).json({ message: 'Error checking using list category' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {
