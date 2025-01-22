@@ -6,6 +6,7 @@ import Items from './pages/Items';
 import List from './pages/List';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Trip from './pages/Trip'; 
 
 const Routers = ({ isAuthenticated, setIsAuthenticated }) => {
   const location = useLocation();
@@ -17,6 +18,7 @@ const Routers = ({ isAuthenticated, setIsAuthenticated }) => {
       <Route path="/pratele" element={isAuthenticated ? <Friends /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/polozky" element={isAuthenticated ? <Items /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/seznam" element={isAuthenticated ? <List /> : <Navigate to="/login" state={{ from: location }} />} />
+      <Route path="/trip/:ID_trip&:ID_user" element={isAuthenticated ? <Trip /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/login" element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to={from} />} />
       <Route path="/register" element={!isAuthenticated ? <Register setIsAuthenticated={setIsAuthenticated} /> : <Navigate to={from} />} />
     </Routes>

@@ -302,7 +302,7 @@ const Home = () => {
                           </h5>
                         </div>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 ms-2">
                         <Button isIconOnly onClick={() => handleJoinTrip(trip.id_trip)}>
                           Y
                         </Button>
@@ -373,7 +373,7 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.past.length > 0 && (
-            <AccordionItem key="4" aria-label="Minula" title="Minula">
+            <AccordionItem key="4" aria-label="Minulé" title="Minulé">
               <Flex wrap gap="small" justify="center">
                 {trips.past.slice(0, pastTripsCount).map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]">

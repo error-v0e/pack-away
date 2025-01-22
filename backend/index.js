@@ -383,8 +383,8 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
         to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
         owner: tripMember.owner,
-        members_count: 0, // Placeholder, you can add logic to count members
-        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+        members_count: 0, 
+        missing_items_count: 0, 
       })),
       ongoing: ongoing.map(tripMember => ({
         id_trip: tripMember.Trip.id_trip,
@@ -394,8 +394,8 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
         to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
         owner: tripMember.owner,
-        members_count: 0, // Placeholder, you can add logic to count members
-        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+        members_count: 0, 
+        missing_items_count: 0, 
       })),
       past: past.map(tripMember => ({
         id_trip: tripMember.Trip.id_trip,
@@ -405,8 +405,8 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
         to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
         owner: tripMember.owner,
-        members_count: 0, // Placeholder, you can add logic to count members
-        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+        members_count: 0, 
+        missing_items_count: 0, 
       })),
       invites: invites.map(tripMember => ({
         id_trip: tripMember.Trip.id_trip,
@@ -416,8 +416,8 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
         to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
         owner: tripMember.owner,
-        members_count: 0, // Placeholder, you can add logic to count members
-        missing_items_count: 0, // Placeholder, you can add logic to count missing items
+        members_count: 0, 
+        missing_items_count: 0, 
       })),
       allPastTripsLoaded: past.length < 10
     };
@@ -769,10 +769,8 @@ app.delete('/api/delete-item', isAuthenticated, async (req, res) => {
     }
 
     
-    // Delete CategoryItem associations
     await CategoryItem.destroy({ where: { id_item, id_user: userId, id_list: null } });
 
-    // Delete SavedItem association
     await SavedItem.destroy({ where: { id_user: userId, id_item } });
     if (categoryItems.length === 0) {
       await Category.destroy({ where: { id_category: categoryItems.id_category } });
@@ -785,6 +783,29 @@ app.delete('/api/delete-item', isAuthenticated, async (req, res) => {
   }
 });
 
+app.post('/api/check_trip', isAuthenticated, async (req, res) => {
+  const { id_trip, id_user } = req.body;
+
+  try {
+    const trip = await Trip.findOne({
+      where: { id: id_trip },
+      include: [{
+        model: TripMember,
+        where: { id_user, joined: true },
+        required: true,
+      }],
+    });
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Výlet nenalezen nebo nemáte oprávnění k přístupu' });
+    }
+
+    res.json(trip);
+  } catch (error) {
+    console.error('Chyba při načítání detailů výletu:', error);
+    res.status(500).json({ message: 'Chyba při načítání detailů výletu' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
