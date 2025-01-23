@@ -95,6 +95,8 @@ const Trip = () => {
 
   return (
     <div>
+      {!isUsingList && (
+        <div>
       <Flex wrap justify="center">
         {savedItems.map(category => (
           <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
@@ -176,7 +178,6 @@ const Trip = () => {
           </Accordion>
         ))}
       </Flex>
-      {!isUsingList && (
         <Popover placement="right">
           <PopoverTrigger>
             <Button className="fixed bottom-4 right-4 z-50">Vytvořit seznam</Button>
@@ -193,6 +194,50 @@ const Trip = () => {
             </div>
           </PopoverContent>
         </Popover>
+        </div>
+      )}
+      {isUsingList && (
+        <div>
+      <Flex wrap justify="center">
+        {savedItems.map(category => (
+          <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
+            <AccordionItem key={category.id_category} aria-label={category.name} title={category.name}>
+              {category.items.map(item => (
+                <Card key={item.id_item} className="max-w-[400px] mb-2">
+                  <CardBody className="justify-between">
+                    <div className="flex gap-5">
+            
+                      <div className="flex flex-col gap-1 items-start justify-center">
+                        <h4 className="text-small font-semibold leading-none text-default-600">Zoey Lang</h4>
+                        <h5 className="text-small tracking-tight text-default-400">@zoeylang</h5>
+                      </div>
+                    </div>
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button
+                          startContent={<xx />}
+                        >
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                      <div className="px-1 py-2">
+                        <Button 
+                          startContent={<xx />}>
+                        </Button>
+                        <Button 
+                          startContent={<xx />}>
+                        </Button>
+                      </div>
+                      </PopoverContent>
+                    </Popover>
+                  </CardBody>
+                </Card>
+              ))}
+            </AccordionItem>
+          </Accordion>
+        ))}
+      </Flex>
+        </div>
       )}
     </div>
   );
