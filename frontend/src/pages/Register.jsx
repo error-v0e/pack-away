@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import config from '../../config';
 import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
 import { useNavigate } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
