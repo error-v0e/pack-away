@@ -60,19 +60,19 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
         {isAuthenticated ? (
           <NavbarItem>
             <Button onClick={handleLogout} color="primary" variant="flat">
-              Logout
+              Odhlásit se
             </Button>
           </NavbarItem>
         ) : (
           <>
             <NavbarItem>
               <Link as={NavLink} to="/login" end>
-                Login
+                Přihlášení
               </Link>
             </NavbarItem>
             <NavbarItem>
               <Button as={NavLink} to="/register" color="primary" variant="flat">
-                Register
+                Registrace
               </Button>
             </NavbarItem>
           </>
@@ -95,7 +95,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
         {isAuthenticated ? (
           <NavbarMenuItem>
             <Button onClick={handleLogout} className="w-full" color="danger">
-              Logout
+              Odhlásit se
             </Button>
           </NavbarMenuItem>
         ) : (
@@ -108,7 +108,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
                 size="full"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Login
+                Přihlášení
               </Link>
             </NavbarMenuItem>
             <NavbarMenuItem>
@@ -119,7 +119,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
                 size="full"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Register
+                Registrace
               </Link>
             </NavbarMenuItem>
           </>

@@ -38,7 +38,7 @@ const Login = ({ setIsAuthenticated }) => {
     <div>
       <Card>
         <CardHeader>
-          <h1>Login</h1>
+          <h1>Přihlášení</h1>
         </CardHeader>
         <CardBody>
           {error && <Chip color="danger">{error}</Chip>}
@@ -46,7 +46,7 @@ const Login = ({ setIsAuthenticated }) => {
           <Input
             clearable
             underlined
-            placeholder="Username"
+            placeholder="Jméno"
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
@@ -58,7 +58,7 @@ const Login = ({ setIsAuthenticated }) => {
           <Input
             clearable
             underlined
-            placeholder="Password"
+            placeholder="Heslo"
             value={password}
             endContent={
               <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
@@ -78,11 +78,11 @@ const Login = ({ setIsAuthenticated }) => {
           />
           <Spacer y={2} />
           <Button color="primary" onPress={handleLogin}>
-            Login
+            Přihlásit se
           </Button>
         </CardBody>
         <CardFooter>
-          <Link href="/register">Register</Link>
+          <Link href="/register">Registrace</Link>
         </CardFooter>
       </Card>
     </div>

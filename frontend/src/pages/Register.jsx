@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";
 
@@ -13,6 +13,8 @@ const Register = ({ setIsAuthenticated }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || localStorage.getItem('lastPath') || '/';
 
   const handleRegister = async () => {
     try {
@@ -21,7 +23,7 @@ const Register = ({ setIsAuthenticated }) => {
         localStorage.setItem('user', JSON.stringify(response.data.user));
         localStorage.setItem('id_user', JSON.stringify(response.data.id_user));
         setIsAuthenticated(true); 
-        navigate(response.data.redirect);
+        navigate(from); 
       }
     } catch (error) {
       if (error.response && error.response.data) {
@@ -38,7 +40,7 @@ const Register = ({ setIsAuthenticated }) => {
     <div>
       <Card>
         <CardHeader>
-          <h1>Register</h1>
+          <h1>Registrace</h1>
         </CardHeader>
         <CardBody>
           {errors.form && <Chip color="danger">{errors.form}</Chip>}
@@ -46,7 +48,7 @@ const Register = ({ setIsAuthenticated }) => {
           <Input
             clearable
             underlined
-            placeholder="Username"
+            placeholder="Jméno"
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
@@ -55,7 +57,7 @@ const Register = ({ setIsAuthenticated }) => {
             status={errors.username ? 'error' : 'default'}
           />
           <Spacer y={1} />
-          {errors.username && <Chip color="danger">{errors.username}</Chip>}
+          {errors.username && <Chip color="danger" style={{ wordBreak: 'break-word' }}>{errors.username}</Chip>}
           <Spacer y={2} />
           <Input
             clearable
@@ -74,7 +76,7 @@ const Register = ({ setIsAuthenticated }) => {
           <Input
             clearable
             underlined
-            placeholder="Password"
+            placeholder="Heslo"
             value={password}
             endContent={
               <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
@@ -93,14 +95,14 @@ const Register = ({ setIsAuthenticated }) => {
             status={errors.password ? 'error' : 'default'}
           />
           <Spacer y={1} />
-          {errors.password && <Chip color="danger">{errors.password}</Chip>}
+          {errors.password && <Chip color="danger" className='whitespace-normal h-auto'>{errors.password}</Chip>}
           <Spacer y={3} />
           <Button color="primary" onPress={handleRegister}>
-            Register
+            Registrovat se
           </Button>
         </CardBody>
         <CardFooter>
-          <Link href="/login">Prihaseni</Link>
+          <Link href="/login">Přihlášení</Link>
         </CardFooter>
       </Card>
     </div>

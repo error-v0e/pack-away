@@ -96,7 +96,6 @@ app.post('/api/login', isNotAuthenticated, (req, res, next) => {
       if (err) {
         return next(err);
       }
-      console.log('--------User logged in:', user.username);
       return res.json({ message: 'Logged in successfully', id_user: user.id_user, user: user.username, redirect: '/' });
     });
   })(req, res, next);
@@ -107,24 +106,36 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
   const errors = {};
 
   if (!username || username.trim() === '') {
-    errors.username = 'Username is required';
+    errors.username = 'Jmeno je povinné';
   }
 
   if (!email || email.trim() === '') {
-    errors.email = 'Email is required';
+    errors.email = 'Email je povinný';
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      errors.email = 'Invalid email format';
+      errors.email = 'Špatný format emailu';
     }
   }
 
   if (!password || password.trim() === '') {
-    errors.password = 'Password is required';
+    errors.password = 'Heslo je povinné';
   } else {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      errors.password = 'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, and one number';
+    const passwordErrors = [];
+    if (password.length < 8) {
+      passwordErrors.push('alespoň 8 znaků dlouhé');
+    }
+    if (!/[A-Z]/.test(password)) {
+      passwordErrors.push('jedno velké písmeno');
+    }
+    if (!/[a-z]/.test(password)) {
+      passwordErrors.push('jedno malé písmeno');
+    }
+    if (!/\d/.test(password)) {
+      passwordErrors.push('jedno číslo');
+    }
+    if (passwordErrors.length > 0) {
+      errors.password = `Heslo musí obsahovat ${passwordErrors.join(', ')}`;
     }
   }
 
@@ -145,7 +156,14 @@ app.post('/api/register', isNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ username, email, password: hashedPassword });
-    res.json({ message: 'User registered successfully', id_user: newUser.id_user, user: newUser.username, redirect: '/' });
+
+    req.login(newUser, (err) => {
+      if (err) {
+        console.error('Error logging in after registration:', err);
+        return res.status(500).json({ form: 'Error logging in after registration' });
+      }
+      res.json({ message: 'User registered successfully', id_user: newUser.id_user, user: newUser.username, redirect: '/' });
+    });
   } catch (err) {
     console.error('Error registering user:', err);
     res.status(500).json({ form: 'Error registering user' });
