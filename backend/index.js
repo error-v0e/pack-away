@@ -815,21 +815,27 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
   const { id_user, id_trip, items } = req.body;
 
   try {
-    for (const category of items) {
-      let usingCategory = await UsingCategory.findOne({ where: { name: category.name } });
-      if (!usingCategory) {
-        usingCategory = await UsingCategory.create({ name: category.name });
-      }
 
-      await UsingListCategory.create({ id_trip, id_user, id_category: usingCategory.id_category });
+    for (const category of items) {
+
+      const usingCategory = await UsingCategory.create({ name: category.name });
+      console.log('usingCategory:', usingCategory);
+      console.log('-------id:',usingCategory.id_category);
+
+      await UsingListCategory.create({
+        id_trip,
+        id_user,
+        id_category: usingCategory.id_category
+      });
+      console.log('usingCategory:', usingCategory);
 
       for (const item of category.items) {
-        let usingItem = await UsingItem.findOne({ where: { name: item.name } });
-        if (!usingItem) {
-          usingItem = await UsingItem.create({ name: item.name, count: item.count, check: false, dissent: false });
-        }
-
-        await UsingCategoryItem.create({ id_item: usingItem.id_item, id_category: usingCategory.id_category });
+        const usingItem = await UsingItem.create({ name: item.name, count: item.count,by_day: item.by_day, check: false, dissent: false });
+        console.log('usingItem:', usingItem);
+        await UsingCategoryItem.create({
+          id_item: usingItem.id_item,
+          id_category: usingCategory.id_category 
+        });
       }
     }
 
@@ -840,26 +846,31 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
   }
 });
 app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
-  const { id_user, id_trip } = req.query;
-
+  const { IDuser, IDtrip } = req.query;
+  console.log('id_user:', IDuser);
+  console.log('id_trip:', IDtrip);
   try {
     const query = `
       SELECT
         "UsingItems".id_item,
         "UsingItems".name AS item_name,
         "UsingItems".count AS count,
-        "UsingItems".by_day AS by_day,
+        "UsingItems".check AS check,
+        "UsingItems".by_day,
+        "UsingItems".dissent AS dissent,
         "UsingCategories".id_category,
-        "UsingCategories".name AS category_name
+        "UsingCategories".name AS category_name,
+        "UsingListCategories".id_user,
+        "UsingListCategories".id_trip
       FROM "UsingItems"
       INNER JOIN "UsingCategoryItems" ON "UsingItems".id_item = "UsingCategoryItems".id_item
       INNER JOIN "UsingCategories" ON "UsingCategoryItems".id_category = "UsingCategories".id_category
       INNER JOIN "UsingListCategories" ON "UsingCategories".id_category = "UsingListCategories".id_category
-      WHERE "UsingListCategories".id_user = :id_user AND "UsingListCategories".id_trip = :id_trip;
+      WHERE "UsingListCategories".id_user = :IDuser AND "UsingListCategories".id_trip = :IDtrip;
     `;
 
     const usingListItems = await sequelize.query(query, {
-      replacements: { id_user, id_trip },
+      replacements: { IDuser, IDtrip },
       type: sequelize.QueryTypes.SELECT,
     });
 
@@ -874,12 +885,13 @@ app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
           items: [],
         };
       }
-
       categorizedItems[category].items.push({
         id_item: item.id_item,
         name: item.item_name,
-        count: item.count,
         by_day: item.by_day,
+        count: item.count,
+        check: item.check,
+        dissent: item.dissent,
       });
     });
 
@@ -889,6 +901,26 @@ app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error fetching using list items:', err);
     res.status(500).json({ message: 'Error fetching using list items' });
+  }
+});
+app.get('/api/trip-details/', isAuthenticated, async (req, res) => {
+  const { id_trip } = req.query;
+
+  try {
+    const trip = await Trip.findOne({ where: { id_trip } });
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    const fromDate = new Date(trip.from_date);
+    const toDate = new Date(trip.to_date);
+    const tripDays = Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    res.json({ days: tripDays });
+  } catch (error) {
+    console.error('Error fetching trip details:', error);
+    res.status(500).json({ message: 'Error fetching trip details' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {

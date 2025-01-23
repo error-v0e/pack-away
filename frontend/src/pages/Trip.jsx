@@ -13,6 +13,7 @@ const Trip = () => {
   const [categorySearchTerms, setCategorySearchTerms] = useState({});
   const [error, setError] = useState('');
   const [isUsingList, setIsUsingList] = useState(false);
+  const [tripDays, setTripDays] = useState(1); 
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -29,8 +30,9 @@ const Trip = () => {
   const fetchUsingListItems = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('/api/using-list-items', { params: { id_user, id_trip: ID_trip } });
+      const response = await axios.get('/api/using-list-items', { params: { IDuser: id_user, IDtrip: ID_trip } });
       setSavedItems(response.data);
+      console.log('Using list items:', response.data);
       setIsUsingList(true);
     } catch (error) {
       setError('Chyba při načítání položek seznamu');
@@ -53,6 +55,16 @@ const Trip = () => {
 
   useEffect(() => {
     checkUsingListCategory();
+    const fetchTripDetails = async () => {
+      try {
+        const response = await axios.get('/api/trip-details/', { params: { id_trip: ID_trip } });
+        setTripDays(response.data.days);
+        console.log('Trip details:', response.data);
+      } catch (error) {
+        console.error('Error fetching trip details:', error);
+      }
+    };
+    fetchTripDetails();
   }, [ID_trip]);
 
   const handleItemSearchChange = (e, itemId) => {
@@ -184,11 +196,8 @@ const Trip = () => {
           </PopoverTrigger>
           <PopoverContent>
             <div className="px-1 py-2">
-              <div className="text-small font-bold">Opravdu chcete vytvořit seznam?</div>
-              <Button className='me-3 b' color="success" variant="flat">
-                Pokračovat ve vytváření
-              </Button>
-              <Button color="warning" variant="flat" onClick={createList}>
+              <div className="text-small font-bold mb-2">Opravdu chcete vytvořit seznam?</div>
+              <Button color="warning" variant="flat" className='w-full' onClick={createList}>
                 Ano
               </Button>
             </div>
@@ -208,28 +217,10 @@ const Trip = () => {
                     <div className="flex gap-5">
             
                       <div className="flex flex-col gap-1 items-start justify-center">
-                        <h4 className="text-small font-semibold leading-none text-default-600">Zoey Lang</h4>
-                        <h5 className="text-small tracking-tight text-default-400">@zoeylang</h5>
+                        <h4 className="text-small font-semibold leading-none text-default-600">{item.name}</h4>
+                        <h5 className="text-small tracking-tight text-default-400">{item.by_day ? `Počet (${item.count * tripDays})` : `Počet (${item.count})`}</h5>
                       </div>
                     </div>
-                    <Popover>
-                      <PopoverTrigger>
-                        <Button
-                          startContent={<xx />}
-                        >
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                      <div className="px-1 py-2">
-                        <Button 
-                          startContent={<xx />}>
-                        </Button>
-                        <Button 
-                          startContent={<xx />}>
-                        </Button>
-                      </div>
-                      </PopoverContent>
-                    </Popover>
                   </CardBody>
                 </Card>
               ))}

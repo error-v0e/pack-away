@@ -200,7 +200,7 @@ UsingListCategory.primaryKey = ['id_trip', 'id_user', 'id_category'];
 
 UsingListCategory.belongsTo(Trip, { foreignKey: 'id_trip' });
 UsingListCategory.belongsTo(User, { foreignKey: 'id_user' });
-UsingListCategory.belongsTo(Category, { foreignKey: 'id_category' });
+UsingListCategory.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 
 
 const UsingCategoryItem = sequelize.define('UsingCategoryItem', {}, { timestamps: false });
