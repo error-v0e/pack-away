@@ -57,7 +57,7 @@ const Register = ({ setIsAuthenticated }) => {
             status={errors.username ? 'error' : 'default'}
           />
           <Spacer y={1} />
-          {errors.username && <Chip color="danger" style={{ wordBreak: 'break-word' }}>{errors.username}</Chip>}
+          {errors.username && <Chip color="danger" className='whitespace-normal h-auto'>{errors.username}</Chip>}
           <Spacer y={2} />
           <Input
             clearable
@@ -71,7 +71,7 @@ const Register = ({ setIsAuthenticated }) => {
             status={errors.email ? 'error' : 'default'}
           />
           <Spacer y={1} />
-          {errors.email && <Chip color="danger">{errors.email}</Chip>}
+          {errors.email && <Chip color="danger" className='whitespace-normal h-auto'>{errors.email}</Chip>}
           <Spacer y={2} />
           <Input
             clearable

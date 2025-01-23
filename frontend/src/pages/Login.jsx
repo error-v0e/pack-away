@@ -41,7 +41,7 @@ const Login = ({ setIsAuthenticated }) => {
           <h1>Přihlášení</h1>
         </CardHeader>
         <CardBody>
-          {error && <Chip color="danger">{error}</Chip>}
+          {error && <Chip color="danger" className='whitespace-normal h-auto'>{error}</Chip>}
           <Spacer y={2} />
           <Input
             clearable
