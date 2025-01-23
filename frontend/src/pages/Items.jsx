@@ -16,7 +16,6 @@ const Items = () => {
   const [categorySearchTerms, setCategorySearchTerms] = useState({});
   const [itemSearchResults, setItemSearchResults] = useState({});
 
-  
   const {isOpen, onOpen, onClose} = useDisclosure();
 
   const fetchItems = async (search, id_item = null) => {
@@ -66,7 +65,7 @@ const Items = () => {
         by_day: byDay
       }, { withCredentials: true });
       console.log('Item and category added:', response.data);
-      fetchSavedItems(); // Refresh saved items after adding
+      fetchSavedItems(); 
     } catch (error) {
       console.error('Error adding item and category:', error);
     }
@@ -85,7 +84,7 @@ const Items = () => {
         by_day: item.by_day
       });
       console.log('Item updated:', response.data);
-      fetchSavedItems(); // Refresh saved items after updating
+      fetchSavedItems();
     } catch (error) {
       console.error('Error updating item:', error);
     }
@@ -98,7 +97,7 @@ const Items = () => {
         data: { userId, id_item }
       }, { withCredentials: true });
       console.log('Item deleted:', response.data);
-      fetchSavedItems(); // Refresh saved items after deleting
+      fetchSavedItems();
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -440,7 +439,6 @@ const Items = () => {
         <ModalContent>
           <ModalHeader>Správa kategorii</ModalHeader>
           <ModalBody>
-            {/* Zde můžete přidat vaše menu položky */}
           </ModalBody>
           <ModalFooter>
             <Button onPress={onClose}>

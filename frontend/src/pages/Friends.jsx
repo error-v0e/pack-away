@@ -20,7 +20,7 @@ const Friends = () => {
       setUsers(response.data);
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        navigate('/login'); // Redirect to login if unauthorized
+        navigate('/login'); 
       } else {
         console.error('Error fetching users:', error);
       }
@@ -55,8 +55,8 @@ const Friends = () => {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       await axios.post(`/api/add_follow`, { id_user_one: id_user, id_user_two }, { withCredentials: true });
       console.log(`User ${id_user} followed user ${id_user_two}`);
-      fetchFriends(); // Reload the list of friends after adding a follow
-      fetchUsers(search); // Reload the list of users after adding a follow
+      fetchFriends(); 
+      fetchUsers(search); 
     } catch (error) {
       console.error('Error adding follow:', error);
     }
@@ -67,8 +67,8 @@ const Friends = () => {
     try {
       await axios.delete(`/api/remove_follow`, { data: { id_user_one: id_user, id_user_two } }, { withCredentials: true });
       console.log(`User ${id_user} unfollowed user ${id_user_two}`);
-      fetchFriends(); // Reload the list of friends after removing a follow
-      fetchUsers(search); // Reload the list of users after adding a follow
+      fetchFriends();
+      fetchUsers(search); 
     } catch (error) {
       console.error('Error removing follow:', error);
     }
@@ -90,8 +90,8 @@ const Friends = () => {
               input: "ml-1",
               inputWrapper: "h-[48px]",
             },
-            onChange: handleSearchChange, // Přidání obslužné funkce pro změnu vyhledávacího dotazu
-            value: search // Nastavení hodnoty vyhledávacího pole
+            onChange: handleSearchChange, 
+            value: search 
           }}
           listboxProps={{
             hideSelectedIcon: true,

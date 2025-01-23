@@ -19,10 +19,10 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
     try {
       const response = await axios.post(`/api/logout`, {}, { withCredentials: true });
       if (response.data.redirect) {
-        localStorage.setItem('lastPath', location.pathname); // Uložení poslední navštívené cesty
-        localStorage.removeItem('user'); // Remove user data from localStorage
-        localStorage.removeItem('id_user'); // Remove user data from localStorage
-        setIsAuthenticated(false); // Update authentication status
+        localStorage.setItem('lastPath', location.pathname);
+        localStorage.removeItem('user'); 
+        localStorage.removeItem('id_user'); 
+        setIsAuthenticated(false); 
         navigate(response.data.redirect);
       }
     } catch (error) {

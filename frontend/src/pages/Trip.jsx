@@ -56,27 +56,21 @@ const Trip = () => {
   }, [ID_trip]);
 
   const handleItemSearchChange = (e, itemId) => {
-    // Implementace vyhledávání položek
   };
 
   const handleItemSelect = (item, itemId) => {
-    // Implementace výběru položky
   };
 
   const handleByDayChange = (e, itemId) => {
-    // Implementace změny by_day
   };
 
   const handleCountChange = (e, itemId) => {
-    // Implementace změny počtu
   };
 
   const handleCategorySearchChange = (e, itemId) => {
-    // Implementace vyhledávání kategorií
   };
 
   const handleCategorySelect = (category, itemId) => {
-    // Implementace výběru kategorie
   };
 
   const createList = async () => {
@@ -88,7 +82,7 @@ const Trip = () => {
         items: savedItems
       });
       console.log('List created successfully:', response.data);
-      fetchUsingListItems(); // Načtení položek seznamu po vytvoření seznamu
+      fetchUsingListItems(); 
     } catch (error) {
       console.error('Error creating list:', error);
       setError('Chyba při vytváření seznamu');

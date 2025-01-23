@@ -36,7 +36,6 @@ const Home = () => {
       const response = await axios.get(`/api/trips`, { params: { id_user } }, { withCredentials: true });
       setTrips(response.data);
 
-      // Determine which accordion should be open by default
       if (response.data.upcoming.length > 0) {
         setDefaultOpenKey('2');
       } else if (response.data.invites.length > 0) {
@@ -49,7 +48,6 @@ const Home = () => {
         setDefaultOpenKey(null);
       }
 
-      // Check if all past trips are loaded
       setAllPastTripsLoaded(response.data.allPastTripsLoaded);
     } catch (error) {
       console.error('Error fetching trips:', error);
@@ -99,12 +97,11 @@ const Home = () => {
       }, { withCredentials: true });
       console.log('Trip created successfully:', response.data);
       setPastTripsCount(10);
-      // Reset state after creating the trip
       setTripName('');
       setTripDates({ start: null, end: null });
       setInvitedFriends([]);
       onNewTripOpenChange(false);
-      fetchTrips(); // Refresh trips after creating a new one
+      fetchTrips(); 
     } catch (error) {
       console.error('Error creating trip:', error);
     }
@@ -114,7 +111,7 @@ const Home = () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       await axios.post(`/api/join_trip`, { id_user, id_trip: tripId });
-      fetchTrips(); // Refresh trips after joining
+      fetchTrips(); 
     } catch (error) {
       console.error('Error joining trip:', error);
     }
@@ -124,7 +121,7 @@ const Home = () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       await axios.post(`/api/decline_trip`, { id_user, id_trip: tripId }, { withCredentials: true });
-      fetchTrips(); // Refresh trips after declining
+      fetchTrips(); 
     } catch (error) {
       console.error('Error declining trip:', error);
     }

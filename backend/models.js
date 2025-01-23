@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('./connection');
 
-// Users model
+
 const User = sequelize.define('User', {
   id_user: {
     type: DataTypes.INTEGER,
@@ -28,15 +28,13 @@ const User = sequelize.define('User', {
   },
 }, { timestamps: false });
 
-// Friends model
 const Friend = sequelize.define('Friend', {}, { timestamps: false });
-Friend.removeAttribute('id'); // Remove automatic id
-Friend.primaryKey = ['id_user_one', 'id_user_two']; // Composite primary key
+Friend.removeAttribute('id');
+Friend.primaryKey = ['id_user_one', 'id_user_two']; 
 
 Friend.belongsTo(User, { as: 'UserOne', foreignKey: 'id_user_one' });
 Friend.belongsTo(User, { as: 'UserTwo', foreignKey: 'id_user_two' });
 
-// Trips model
 const Trip = sequelize.define('Trip', {
   id_trip: {
     type: DataTypes.INTEGER,
@@ -55,7 +53,6 @@ const Trip = sequelize.define('Trip', {
   },
 }, { timestamps: false });
 
-// Trip Members model
 const TripMember = sequelize.define('TripMember', {
   joined: {
     type: DataTypes.BOOLEAN,
@@ -69,10 +66,10 @@ const TripMember = sequelize.define('TripMember', {
 
 TripMember.belongsTo(User, { foreignKey: 'id_user' });
 TripMember.belongsTo(Trip, { foreignKey: 'id_trip' });
-TripMember.removeAttribute('id'); // Remove automatic id
-TripMember.primaryKey = ['id_user', 'id_trip']; // Composite primary key
+TripMember.removeAttribute('id'); 
+TripMember.primaryKey = ['id_user', 'id_trip']; 
 
-// Trip Members Permission model
+
 const TripMemberPermission = sequelize.define('TripMemberPermission', {
   view: {
     type: DataTypes.BOOLEAN,
@@ -87,10 +84,9 @@ const TripMemberPermission = sequelize.define('TripMemberPermission', {
 TripMemberPermission.belongsTo(User, { foreignKey: 'id_user' });
 TripMemberPermission.belongsTo(User, { foreignKey: 'id_friend' });
 TripMemberPermission.belongsTo(Trip, { foreignKey: 'id_trip' });
-TripMemberPermission.removeAttribute('id'); // Remove automatic id
-TripMemberPermission.primaryKey = ['id_user', 'id_friend', 'id_trip']; // Composite primary key
+TripMemberPermission.removeAttribute('id'); 
+TripMemberPermission.primaryKey = ['id_user', 'id_friend', 'id_trip'];
 
-// Items model
 const Item = sequelize.define('Item', {
   id_item: {
     type: DataTypes.INTEGER,
@@ -103,7 +99,6 @@ const Item = sequelize.define('Item', {
   },
 }, { timestamps: false });
 
-// Categories model
 const Category = sequelize.define('Category', {
   id_category: {
     type: DataTypes.INTEGER,
@@ -116,7 +111,6 @@ const Category = sequelize.define('Category', {
   },
 }, { timestamps: false });
 
-// Lists model
 const List = sequelize.define('List', {
   id_list: {
     type: DataTypes.INTEGER,
@@ -128,16 +122,13 @@ const List = sequelize.define('List', {
 
 List.belongsTo(User, { foreignKey: 'id_user' });
 
-// List Categories model
 const ListCategory = sequelize.define('ListCategory', {}, { timestamps: false });
-ListCategory.removeAttribute('id'); // Remove automatic id
-ListCategory.primaryKey = ['id_list', 'id_category', 'id_user']; // Composite primary key
+ListCategory.removeAttribute('id'); 
+ListCategory.primaryKey = ['id_list', 'id_category', 'id_user']; 
 
 ListCategory.belongsTo(List, { foreignKey: 'id_list' });
 ListCategory.belongsTo(Category, { foreignKey: 'id_category' });
-ListCategory.belongsTo(User, { foreignKey: 'id_user' }); // Add foreign key to User
-
-// Category Items model
+ListCategory.belongsTo(User, { foreignKey: 'id_user' }); 
 const CategoryItem = sequelize.define(
   'CategoryItem',
   {},
@@ -151,13 +142,12 @@ const CategoryItem = sequelize.define(
   }
 );
 
-CategoryItem.removeAttribute('id'); // Remove automatic id
+CategoryItem.removeAttribute('id'); 
 CategoryItem.belongsTo(Category, { foreignKey: 'id_category' });
 CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
 CategoryItem.belongsTo(User, { foreignKey: 'id_user' }); 
 CategoryItem.belongsTo(List, { foreignKey: 'id_list' });
 
-// Saved Items model
 const SavedItem = sequelize.define('SavedItem', {
   by_day: {
     type: DataTypes.BOOLEAN,
@@ -166,21 +156,19 @@ const SavedItem = sequelize.define('SavedItem', {
   count: DataTypes.INTEGER,
 }, { timestamps: false });
 
-SavedItem.removeAttribute('id'); // Remove automatic id
-SavedItem.primaryKey = ['id_user', 'id_item']; // Composite primary key
+SavedItem.removeAttribute('id'); 
+SavedItem.primaryKey = ['id_user', 'id_item']; 
 
 SavedItem.belongsTo(User, { foreignKey: 'id_user' });
 SavedItem.belongsTo(Item, { foreignKey: 'id_item' });
 
-// Saved Categories model
 const SavedCategory = sequelize.define('SavedCategory', {}, { timestamps: false });
-SavedCategory.removeAttribute('id'); // Remove automatic id
-SavedCategory.primaryKey = ['id_user', 'id_category']; // Composite primary key
+SavedCategory.removeAttribute('id'); 
+SavedCategory.primaryKey = ['id_user', 'id_category']; 
 
 SavedCategory.belongsTo(User, { foreignKey: 'id_user' });
 SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
-// Using Items model
 const UsingItem = sequelize.define('UsingItem', {
   id_item: {
     type: DataTypes.INTEGER,
@@ -197,7 +185,6 @@ const UsingItem = sequelize.define('UsingItem', {
   dissent: DataTypes.BOOLEAN,
 }, { timestamps: false });
 
-// Using Categories model
 const UsingCategory = sequelize.define('UsingCategory', {
   id_category: {
     type: DataTypes.INTEGER,
@@ -207,32 +194,28 @@ const UsingCategory = sequelize.define('UsingCategory', {
   name: DataTypes.STRING,
 }, { timestamps: false });
 
-// Using List Categories model
 const UsingListCategory = sequelize.define('UsingListCategory', {}, { timestamps: false });
-UsingListCategory.removeAttribute('id'); // Remove automatic id
-UsingListCategory.primaryKey = ['id_trip', 'id_user', 'id_category']; // Composite primary key
+UsingListCategory.removeAttribute('id'); 
+UsingListCategory.primaryKey = ['id_trip', 'id_user', 'id_category']; 
 
 UsingListCategory.belongsTo(Trip, { foreignKey: 'id_trip' });
 UsingListCategory.belongsTo(User, { foreignKey: 'id_user' });
 UsingListCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
-// Using Category Items model
+
 const UsingCategoryItem = sequelize.define('UsingCategoryItem', {}, { timestamps: false });
-UsingCategoryItem.removeAttribute('id'); // Remove automatic id
-UsingCategoryItem.primaryKey = ['id_item', 'id_category']; // Composite primary key
+UsingCategoryItem.removeAttribute('id'); 
+UsingCategoryItem.primaryKey = ['id_item', 'id_category']; 
 
 UsingCategoryItem.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 UsingCategoryItem.belongsTo(UsingItem, { foreignKey: 'id_item' });
 
-// Define associations
 Item.belongsToMany(Category, { through: CategoryItem, foreignKey: 'id_item' });
 Category.belongsToMany(Item, { through: CategoryItem, foreignKey: 'id_category' });
 
-// Add missing associations
 Item.hasMany(CategoryItem, { foreignKey: 'id_item' });
 Category.hasMany(CategoryItem, { foreignKey: 'id_category' });
 
-// Add missing associations for SavedCategory
 Category.hasMany(SavedCategory, { foreignKey: 'id_category' });
 SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
 

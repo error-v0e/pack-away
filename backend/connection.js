@@ -1,20 +1,18 @@
 const { Sequelize } = require('sequelize');
 
-// Připojení k databázi PostgreSQL
 const sequelize = new Sequelize('packaway', 'postgres', '123', {
   host: 'localhost',
-  port: 5432, // Výchozí port PostgreSQL
+  port: 5432, 
   dialect: 'postgres',
-  logging: false, // Povolení logování SQL dotazů
+  logging: false, 
   pool: {
-    max: 5, // Maximální počet připojení
+    max: 5, 
     min: 0,
-    acquire: 30000, // Čas na získání připojení (ms)
-    idle: 10000, // Čas nečinnosti před uzavřením připojení (ms)
+    acquire: 30000, 
+    idle: 10000, 
   },
 });
 
-// Test připojení k databázi
 (async () => {
   try {
     await sequelize.authenticate();

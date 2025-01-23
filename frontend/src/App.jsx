@@ -14,7 +14,7 @@ function App() {
       try {
         const response = await fetch('/api/check-session', {
           method: 'GET',
-          credentials: 'include', // Include cookies in the request
+          credentials: 'include', 
         });
         if (response.ok) {
           const data = await response.json();
@@ -42,12 +42,10 @@ function App() {
   return (
     <Router>
       <Layout className="min-h-screen">
-        {/* Navigační lišta */}
         <Header>
           <CustomNavbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} onLogout={handleLogout} />
         </Header>
 
-        {/* Hlavní obsah */}
         <Content style={{ 
             padding: "20px",
             margin: "0 auto",

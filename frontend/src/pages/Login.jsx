@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import config from '../../config';
 import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
@@ -51,7 +50,7 @@ const Login = ({ setIsAuthenticated }) => {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-              setError(''); // Clear error when user starts typing
+              setError(''); 
             }}
             status={error ? 'error' : 'default'}
           />
@@ -73,7 +72,7 @@ const Login = ({ setIsAuthenticated }) => {
             type={isVisible ? "text" : "password"}
             onChange={(e) => {
               setPassword(e.target.value);
-              setError(''); // Clear error when user starts typing
+              setError(''); 
             }}
             status={error ? 'error' : 'default'}
           />

@@ -64,7 +64,6 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Middleware to check if user is authenticated
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
@@ -72,7 +71,6 @@ const isAuthenticated = (req, res, next) => {
   res.status(401).json({ message: 'Unauthorized' });
 };
 
-// Middleware to check if user is not authenticated
 const isNotAuthenticated = (req, res, next) => {
   if (!req.isAuthenticated()) {
     return next();
@@ -191,33 +189,32 @@ app.get('/api/users', isAuthenticated, async (req, res) => {
     const startsWithMatches = await User.findAll({
       where: {
         id_user: {
-          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
-          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+          [Op.ne]: id_user, 
+          [Op.notIn]: friendIds, 
         },
         username: {
-          [Op.like]: `${search}%` // Filtrování podle vyhledávacího dotazu
+          [Op.like]: `${search}%` 
         }
       },
-      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
-      limit: 7 // Omezení na prvních deset výsledků
+      attributes: { exclude: ['password'] }, 
+      limit: 7 
     });
 
-    // Výsledky obsahující vyhledávací dotaz
     const containsMatches = await User.findAll({
       where: {
         id_user: {
-          [Op.ne]: id_user, // Vyloučí aktuálního uživatele
-          [Op.notIn]: friendIds, // Vyloučí všechny přátele
+          [Op.ne]: id_user, 
+          [Op.notIn]: friendIds, 
         },
         username: {
-          [Op.like]: `%${search}%` // Filtrování podle vyhledávacího dotazu
+          [Op.like]: `%${search}%` 
         }
       },
-      attributes: { exclude: ['password'] }, // Vyloučí pole hesla
-      limit: 7 // Omezení na prvních deset výsledků
+      attributes: { exclude: ['password'] }, 
+      limit: 7 
     });
 
-    // Kombinace výsledků, odstranění duplicit a omezení na prvních deset výsledků
+    
     const combinedResults = [
       ...exactMatches,
       ...startsWithMatches.filter(user => !exactMatches.some(exact => exact.id_user === user.id_user)),
@@ -280,16 +277,11 @@ app.post('/api/create_trip', isAuthenticated, async (req, res) => {
   console.log('--------id_user:', id_user);
 
   try {
-    // Create the trip
     const newTrip = await Trip.create({ name, icon, from_date, to_date });
-
-    // Add the creator as a trip member with both booleans set to true
     await TripMember.create({ id_user, id_trip: newTrip.id_trip, joined: true, owner: true });
 
-    // Add trip member permissions for the creator
     await TripMemberPermission.create({ id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: true });
 
-    // Add invited friends as trip members with default boolean values
     for (const friend of invitedFriends) {
       await TripMember.create({ id_user: friend.id_user, id_trip: newTrip.id_trip, joined: false, owner: false });
     }
@@ -306,21 +298,19 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
   try {
     const now = new Date();
 
-    // Fetch trips where the user is invited but hasn't joined yet (limit 20)
     const invites = await TripMember.findAll({
       where: { id_user, joined: false },
       include: [{
         model: Trip,
         required: true,
         where: {
-          to_date: { [Op.gte]: now }, // Only include trips that are ongoing or upcoming
+          to_date: { [Op.gte]: now }, 
         },
       }],
       limit: 20,
       order: [[Trip, 'from_date', 'DESC']],
     });
 
-    // Fetch upcoming trips (limit 20)
     const upcoming = await TripMember.findAll({
       where: {
         id_user,
@@ -337,7 +327,6 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
       order: [[Trip, 'from_date', 'DESC']],
     });
 
-    // Fetch ongoing trips (limit 20)
     const ongoing = await TripMember.findAll({
       where: {
         id_user,
@@ -355,7 +344,6 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
       order: [[Trip, 'from_date', 'DESC']],
     });
 
-    // Fetch past trips (limit 10)
     const past = await TripMember.findAll({
       where: {
         id_user,
@@ -461,7 +449,6 @@ app.get('/api/more_past_trips', isAuthenticated, async (req, res) => {
   try {
     const now = new Date();
 
-    // Fetch additional past trips with offset
     const past = await TripMember.findAll({
       where: {
         id_user,
@@ -479,7 +466,6 @@ app.get('/api/more_past_trips', isAuthenticated, async (req, res) => {
       order: [[Trip, 'from_date', 'DESC']],
     });
 
-    // Count total past trips
     const totalPastTrips = await sequelize.query(
       `SELECT COUNT(*) AS count
        FROM "TripMembers" AS "TripMember"
@@ -503,8 +489,8 @@ app.get('/api/more_past_trips', isAuthenticated, async (req, res) => {
       to_date: formatDate(tripMember.Trip.to_date),
       joined: tripMember.joined,
       owner: tripMember.owner,
-      members_count: 0, // Placeholder, you can add logic to count members
-      missing_items_count: 0, // Placeholder, you can add logic to count missing items
+      members_count: 0, 
+      missing_items_count: 0, 
     }));
 
     res.json({
@@ -543,7 +529,6 @@ app.get('/api/search-categories', isAuthenticated, async (req, res) => {
   }
 
   try {
-    // Načíst kategorie, které má uživatel uložené
     const savedCategories = await Category.findAll({
       include: [{
         model: SavedCategory,
@@ -558,10 +543,8 @@ app.get('/api/search-categories', isAuthenticated, async (req, res) => {
       limit: 7
     });
 
-    // Načíst kategorie, které uživatel nemá uložené
     const savedCategoryIds = savedCategories.map(sc => sc.id_category);
 
-    // Get categories excluding the saved ones
     const unsavedCategories = await Category.findAll({
       where: {
         id_category: {
@@ -586,25 +569,21 @@ app.post('/api/add-item-category', isAuthenticated, async (req, res) => {
   const { itemName, categoryName, userId, count, by_day } = req.body;
 
   try {
-    // Find or create item
     let item = await Item.findOne({ where: { name: itemName } });
     if (!item) {
       item = await Item.create({ name: itemName });
     }
 
-    // Find or create category
     let category = await Category.findOne({ where: { name: categoryName } });
     if (!category) {
       category = await Category.create({ name: categoryName });
     }
 
-    // Create or update CategoryItem association
     let categoryItem = await CategoryItem.findOne({ where: { id_item: item.id_item, id_category: category.id_category, id_user: userId } });
     if (!categoryItem) {
       categoryItem = await CategoryItem.create({ id_item: item.id_item, id_category: category.id_category, id_user: userId });
     }
 
-    // Create or update SavedItem association
     let savedItem = await SavedItem.findOne({ where: { id_user: userId, id_item: item.id_item } });
     if (!savedItem) {
       savedItem = await SavedItem.create({ id_user: userId, id_item: item.id_item, count, by_day });
@@ -614,7 +593,6 @@ app.post('/api/add-item-category', isAuthenticated, async (req, res) => {
       await savedItem.save();
     }
 
-    // Create or update SavedCategory association
     let savedCategory = await SavedCategory.findOne({ where: { id_user: userId, id_category: category.id_category } });
     if (!savedCategory) {
       savedCategory = await SavedCategory.create({ id_user: userId, id_category: category.id_category });
@@ -658,7 +636,6 @@ app.get('/api/saved-items', isAuthenticated, async (req, res) => {
       type: sequelize.QueryTypes.SELECT,
     });
 
-    // Připravit strukturu pro vrácení dat
     const categorizedItems = {};
 
     savedItems.forEach(savedItem => {
@@ -678,7 +655,6 @@ app.get('/api/saved-items', isAuthenticated, async (req, res) => {
         by_day: savedItem.by_day,
       });
     });
-    // Převést objekt na pole
     const result = Object.values(categorizedItems);
 
     res.json(result);
@@ -700,7 +676,6 @@ app.put('/api/update-item', isAuthenticated, async (req, res) => {
 
   
   try {
-    // Find or create item
     let item = await Item.findByPk(id_item);
     if (item && item.name !== itemName) {
       let existingItem = await Item.findOne({ where: { name: itemName } });
@@ -715,7 +690,6 @@ app.put('/api/update-item', isAuthenticated, async (req, res) => {
     } else if (!item) {
       item = await Item.create({ name: itemName });
     }
-    // Find or create category
     let category;
     if (categoryN) {
       category = await Category.findOne({ where: { name: categoryN } });
@@ -723,12 +697,10 @@ app.put('/api/update-item', isAuthenticated, async (req, res) => {
         category = await Category.create({ name: categoryN });
       }
     }
-    // Remove old CategoryItem associations if category has changed
     if (category) {
       await CategoryItem.destroy({ where: { id_item: item.id_item, id_user: userId, id_list: null } });
       await CategoryItem.create({ id_item: item.id_item, id_category: category.id_category, id_user: userId, id_list: null });
     }
-    // Create or update SavedItem association
     let savedItem = await SavedItem.findOne({ where: { id_user: userId, id_item: item.id_item } });
     if (!savedItem) {
       savedItem = await SavedItem.create({ id_user: userId, id_item: item.id_item, count, by_day });
@@ -740,7 +712,6 @@ app.put('/api/update-item', isAuthenticated, async (req, res) => {
         await savedItem.save();
       }
     }
-    // Create or update SavedCategory association
     if (category) {
       let savedCategory = await SavedCategory.findOne({ where: { id_user: userId, id_category: category.id_category } });
       if (!savedCategory) {
@@ -759,12 +730,10 @@ app.delete('/api/delete-item', isAuthenticated, async (req, res) => {
   const { userId, id_item } = req.body;
 
   try {
-    // Find all saved items for the given item
     const savedItems = await SavedItem.findAll({ where: { id_item } });
     const categoryItems = await CategoryItem.findAll({ where: { id_item } });
 
     if (savedItems.length === 1) {
-      // If there is only one saved item, delete the item itself
       await Item.destroy({ where: { id_item } });
     }
 
@@ -829,23 +798,19 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
 
   try {
     for (const category of items) {
-      // Create or find UsingCategory
       let usingCategory = await UsingCategory.findOne({ where: { name: category.name } });
       if (!usingCategory) {
         usingCategory = await UsingCategory.create({ name: category.name });
       }
 
-      // Create UsingListCategory
       await UsingListCategory.create({ id_trip, id_user, id_category: usingCategory.id_category });
 
       for (const item of category.items) {
-        // Create or find UsingItem
         let usingItem = await UsingItem.findOne({ where: { name: item.name } });
         if (!usingItem) {
           usingItem = await UsingItem.create({ name: item.name, count: item.count, check: false, dissent: false });
         }
 
-        // Create UsingCategoryItem
         await UsingCategoryItem.create({ id_item: usingItem.id_item, id_category: usingCategory.id_category });
       }
     }
@@ -880,7 +845,6 @@ app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
       type: sequelize.QueryTypes.SELECT,
     });
 
-    // Připravit strukturu pro vrácení dat
     const categorizedItems = {};
 
     usingListItems.forEach(item => {
@@ -901,7 +865,6 @@ app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
       });
     });
 
-    // Převést objekt na pole
     const result = Object.values(categorizedItems);
 
     res.json(result);
