@@ -38,7 +38,7 @@ const Register = ({ setIsAuthenticated }) => {
 
   return (
     <div>
-      <Card>
+      <Card className='max-w-[400px] mx-auto mt-20'>
         <CardHeader>
           <h1>Registrace</h1>
         </CardHeader>
