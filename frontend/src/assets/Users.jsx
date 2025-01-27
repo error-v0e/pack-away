@@ -8,7 +8,7 @@ export const Users = ({ width = 20, height = 20 }) => (
       <defs>
         <style>
           {`.st0 {
-            fill: #000; /* Změň na požadovanou barvu */
+            fill: #000; 
           }`}
         </style>
       </defs>

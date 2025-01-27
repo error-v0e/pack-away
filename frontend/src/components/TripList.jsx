@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody } from '@nextui-org/react';
+import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button } from '@nextui-org/react';
 import { Flex } from 'antd';
+import { Check } from "../assets/Check";
+import { Dash } from "../assets/Dash";
 
 const TripList = ({ ID_trip, tripDays }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -34,14 +36,18 @@ const TripList = ({ ID_trip, tripDays }) => {
             <AccordionItem key={category.id_category} aria-label={category.name} title={category.name}>
               {category.items.map(item => (
                 <Card key={item.id_item} className="max-w-[400px] mb-2">
-                  <CardBody className="justify-between">
+                  <CardHeader className="justify-between">
                     <div className="flex gap-5">
                       <div className="flex flex-col gap-1 items-start justify-center">
                         <h4 className="text-small font-semibold leading-none text-default-600">{item.name}</h4>
                         <h5 className="text-small tracking-tight text-default-400">{item.by_day ? `Počet (${item.count * tripDays})` : `Počet (${item.count})`}</h5>
                       </div>
+                      
                     </div>
-                  </CardBody>
+                    <Button isIconOnly >
+        
+                      </Button>
+                  </CardHeader>
                 </Card>
               ))}
             </AccordionItem>
