@@ -45,8 +45,8 @@ const TripList = ({ ID_trip, tripDays }) => {
                       
                     </div>
                     <Button isIconOnly >
-        
-                      </Button>
+                      <Check/>
+                    </Button>
                   </CardHeader>
                 </Card>
               ))}
