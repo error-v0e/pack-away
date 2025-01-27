@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button } from '@nextui-org/react';
+import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, PopoverTrigger, PopoverContent } from '@nextui-org/react';
 import { Flex } from 'antd';
 import { Check } from "../assets/Check";
 import { Dash } from "../assets/Dash";
@@ -8,6 +8,7 @@ import { Dash } from "../assets/Dash";
 const TripList = ({ ID_trip, tripDays }) => {
   const [savedItems, setSavedItems] = useState([]);
   const [error, setError] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchUsingListItems = async () => {
     try {
@@ -23,6 +24,43 @@ const TripList = ({ ID_trip, tripDays }) => {
   useEffect(() => {
     fetchUsingListItems();
   }, [ID_trip]);
+
+  const handleLeftClick = (item) => {
+    let newStatus;
+    switch (item.status) {
+      case 'none':
+        newStatus = 'check';
+        break;
+      case 'check':
+        newStatus = 'none';
+        break;
+      case 'dash':
+        newStatus = 'none';
+        break;
+      default:
+        newStatus = 'check';
+    }
+    updateItemStatus(item.id_item, newStatus);
+  };
+
+  const handleRightClick = (e, item) => {
+    e.preventDefault();
+    setSelectedItem(item);
+  };
+
+  const updateItemStatus = (id_item, status) => {
+    setSavedItems(prevItems => prevItems.map(category => ({
+      ...category,
+      items: category.items.map(item => item.id_item === id_item ? { ...item, status } : item)
+    })));
+  };
+
+  const handleStatusChange = (status) => {
+    if (selectedItem) {
+      updateItemStatus(selectedItem.id_item, status);
+      setSelectedItem(null);
+    }
+  };
 
   if (error) {
     return <div>{error}</div>;
@@ -42,11 +80,25 @@ const TripList = ({ ID_trip, tripDays }) => {
                         <h4 className="text-small font-semibold leading-none text-default-600">{item.name}</h4>
                         <h5 className="text-small tracking-tight text-default-400">{item.by_day ? `Počet (${item.count * tripDays})` : `Počet (${item.count})`}</h5>
                       </div>
-                      
                     </div>
-                    <Button isIconOnly >
-                      <Check/>
-                    </Button>
+                    <Popover isOpen={selectedItem && selectedItem.id_item === item.id_item} onClose={() => setSelectedItem(null)}>
+                      <PopoverTrigger>
+                        <Button
+                          isIconOnly
+                          onClick={() => handleLeftClick(item)}
+                          onContextMenu={(e) => handleRightClick(e, item)}
+                        >
+                          {item.status === 'check' ? <Check /> : item.status === 'dash' ? <Dash /> : null}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <div className="flex flex-col gap-2 py-2">
+                          <Button isIconOnly onClick={() => handleStatusChange('check')}><Check /></Button>
+                          <Button isIconOnly onClick={() => handleStatusChange('dash')}><Dash /></Button>
+                          <Button isIconOnly onClick={() => handleStatusChange('none')}></Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </CardHeader>
                 </Card>
               ))}

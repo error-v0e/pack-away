@@ -1,7 +1,7 @@
 export const Arrow = ({ width = 20, height = 20 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 640 512"
+    viewBox="0 0 30.1 17"
     width={width}
     height={height}
   >
