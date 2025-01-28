@@ -847,8 +847,6 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
 });
 app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
   const { IDuser, IDtrip } = req.query;
-  console.log('id_user:', IDuser);
-  console.log('id_trip:', IDtrip);
   try {
     const query = `
       SELECT
@@ -921,6 +919,29 @@ app.get('/api/trip-details/', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching trip details:', error);
     res.status(500).json({ message: 'Error fetching trip details' });
+  }
+});
+app.post('/api/update-item-status', isAuthenticated, async (req, res) => {
+  const { id_item, status } = req.body;
+
+  try {
+    let check = false;
+    let dissent = false;
+
+    if (status === 'check') {
+      check = true;
+      dissent = false;
+    } else if (status === 'dash') {
+      check = false;
+      dissent = true;
+    }
+
+    await UsingItem.update({ check, dissent }, { where: { id_item } });
+
+    res.json({ message: 'Item status updated successfully' });
+  } catch (error) {
+    console.error('Error updating item status:', error);
+    res.status(500).json({ message: 'Error updating item status' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {

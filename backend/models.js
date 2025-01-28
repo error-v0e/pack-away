@@ -181,8 +181,14 @@ const UsingItem = sequelize.define('UsingItem', {
   },
   name: DataTypes.STRING,
   count: DataTypes.INTEGER,
-  check: DataTypes.BOOLEAN,
-  dissent: DataTypes.BOOLEAN,
+  check: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  dissent: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 }, { timestamps: false });
 
 const UsingCategory = sequelize.define('UsingCategory', {
