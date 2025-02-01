@@ -180,7 +180,10 @@ const UsingItem = sequelize.define('UsingItem', {
     defaultValue: true,
   },
   name: DataTypes.STRING,
-  count: DataTypes.INTEGER,
+  count: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
   check: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
