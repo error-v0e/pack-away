@@ -174,39 +174,42 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         ...prevState,
         [itemId]: category.name
       }));
+  
       setSavedItems(prevState => {
-        const updatedItems = prevState.reduce((acc, cat) => {
-          if (cat.items.some(item => item.id_item === itemId)) {
-            const selectedItem = cat.items.find(item => item.id_item === itemId);
-            const newItems = cat.items.filter(item => item.id_item !== itemId);
-            acc.push({
-              ...cat,
-              items: newItems
-            });
-            const newCategoryIndex = acc.findIndex(c => c.name === category.name);
-            if (newCategoryIndex === -1) {
-              acc.push({
-                id_category: cat.id_category, // Use the same ID for the new category
-                name: category.name,
-                items: [{ ...selectedItem, categoryTerm: category.name }]
-              });
-            } else {
-              acc[newCategoryIndex].items.push({ ...selectedItem, categoryTerm: category.name });
+        let selectedItem = null;
+  
+        // Odstranění položky ze staré kategorie
+        const updatedCategories = prevState
+          .map(cat => {
+            if (cat.items.some(item => item.id_item === itemId)) {
+              selectedItem = cat.items.find(item => item.id_item === itemId);
+              return {
+                ...cat,
+                items: cat.items.filter(item => item.id_item !== itemId)
+              };
             }
+            return cat;
+          })
+          .filter(cat => cat.items.length > 0); // Odstraní prázdné kategorie
+  
+        if (selectedItem) {
+          // Najdeme kategorii, pokud už existuje
+          let existingCategory = updatedCategories.find(cat => cat.name === category.name);
+  
+          if (existingCategory) {
+            // Přidáme položku do existující kategorie
+            existingCategory.items.push({ ...selectedItem, categoryTerm: category.name });
           } else {
-            acc.push(cat);
+            // Pokud kategorie neexistuje, vytvoříme nový akordeon
+            updatedCategories.push({
+              id_category: Date.now(), // Generujeme unikátní ID pro novou kategorii
+              name: category.name,
+              items: [{ ...selectedItem, categoryTerm: category.name }]
+            });
           }
-          return acc;
-        }, []);
-        return updatedItems.filter(cat => cat.items.length > 0).map(cat => {
-          if (cat.name === category.name) {
-            return {
-              ...cat,
-              items: cat.items.filter((item, index, self) => index === self.findIndex(i => i.id_item === item.id_item))
-            };
-          }
-          return cat;
-        });
+        }
+  
+        return updatedCategories;
       });
     }
   };
