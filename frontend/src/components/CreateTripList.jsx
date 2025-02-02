@@ -242,22 +242,49 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       by_day: newItem.by_day,
       categoryTerm: newItem.category
     };
-
+  
     setSavedItems(prevState => {
-      const updatedItems = [...prevState];
-      const categoryIndex = updatedItems.findIndex(cat => cat.name === newItem.category);
-      if (categoryIndex !== -1) {
-        updatedItems[categoryIndex].items.push(newItemToAdd);
+      let updatedItems = [...prevState];
+      let existingItem = null;
+      let existingCategoryIndex = -1;
+      let existingItemIndex = -1;
+  
+      // Find the existing item in any category
+      updatedItems.forEach((category, catIndex) => {
+        const itemIndex = category.items.findIndex(item => item.name === newItem.name);
+        if (itemIndex !== -1) {
+          existingItem = category.items[itemIndex];
+          existingCategoryIndex = catIndex;
+          existingItemIndex = itemIndex;
+        }
+      });
+  
+      if (existingItem) {
+        // Remove the existing item from its current category
+        updatedItems[existingCategoryIndex].items.splice(existingItemIndex, 1);
+        if (updatedItems[existingCategoryIndex].items.length === 0) {
+          // Remove the category if it has no items left
+          updatedItems.splice(existingCategoryIndex, 1);
+        }
+      }
+  
+      // Find or create the new category
+      const newCategoryIndex = updatedItems.findIndex(cat => cat.name === newItem.category);
+      if (newCategoryIndex !== -1) {
+        // Add the item to the existing category
+        updatedItems[newCategoryIndex].items.push(newItemToAdd);
       } else {
+        // Create a new category with the new item
         updatedItems.push({
           id_category: Date.now(), // Temporary ID for new category
           name: newItem.category,
           items: [newItemToAdd]
         });
       }
+  
       return updatedItems;
     });
-
+  
     setNewItem({ name: '', count: '', by_day: true, category: '' });
   };
 
