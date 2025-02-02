@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, useDisclosure } from '@nextui-org/react';
 import { Flex } from 'antd';
+import { Dash } from "../assets/Dash";
 
 const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -174,7 +175,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         ...prevState,
         [itemId]: category.name
       }));
-  
       setSavedItems(prevState => {
         let selectedItem = null;
   
@@ -211,7 +211,27 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   
         return updatedCategories;
       });
+
+      // Update all items to ensure they have the correct category
+      setSavedItems(prevState => {
+        return prevState.map(cat => ({
+          ...cat,
+          items: cat.items.map(item => ({
+            ...item,
+            categoryTerm: prevState.find(c => c.items.some(i => i.id_item === item.id_item))?.name || item.categoryTerm
+          }))
+        }));
+      });
     }
+  };
+
+  const removeItem = (itemId) => {
+    setSavedItems(prevState => {
+      return prevState.map(category => ({
+        ...category,
+        items: category.items.filter(item => item.id_item !== itemId)
+      })).filter(category => category.items.length > 0);
+    });
   };
 
   const addItem = () => {
@@ -344,6 +364,19 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
               {category.items.map(item => (
                 <Card key={item.id_item} className="max-w-[400px] mb-2">
                   <CardBody>
+                    <div className="flex flex-col col-span-6 md:col-span-8">
+                      <div className="flex justify-between flex-row-reverse items-start">
+                        <Button
+                          isIconOnly
+                          className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
+                          radius="full"
+                          variant="light"
+                          onClick={() => removeItem(item.id_item)}
+                        >
+                          <Dash />
+                        </Button>
+                      </div>
+                    </div>
                     <Autocomplete
                       className="max-w-xs mb-3"
                       items={itemSearchResults[item.id_item] || []}
