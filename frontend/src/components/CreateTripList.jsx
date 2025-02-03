@@ -35,14 +35,48 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
     }
   };
 
+  const extractCategoryNames = (savedItems) => {
+    return savedItems.map(item => item.name).filter(Boolean);
+  };
+  
+
   const fetchCategories = async (searchTerm, itemId) => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       const response = await axios.get('/api/search-categories', { params: { search: searchTerm, userId: id_user } }, { withCredentials: true });
-      setCategorySearchResults(prevState => ({
-        ...prevState,
-        [itemId]: response.data
-      }));
+      const fetchedCategories = response.data;
+
+      console.log('Fetched categories:', fetchedCategories);
+
+      const usingCategories = {
+        savedCategories: Array.from(new Set(extractCategoryNames(savedItems)))
+          .map(name => ({ id_category: `saved-${name}`, name }))
+      };
+      console.log('Using categories:', usingCategories);
+
+      console.log('Saved items:', savedItems);
+
+      const allCategories = [...fetchedCategories.savedCategories, ...fetchedCategories.unsavedCategories, ...usingCategories.savedCategories];
+
+      console.log('All categories:', allCategories);
+
+      const uniqueCategories = allCategories.reduce((acc, category) => {
+        if (!acc.some(cat => cat.name === category.name)) {
+          acc.push(category);
+        }
+        return acc;
+      }, []);
+      
+
+    console.log('Unique categories:', uniqueCategories);
+      
+    setCategorySearchResults(prevState => ({
+      ...prevState,
+      [itemId]: {
+        savedCategories: uniqueCategories.filter(cat => usingCategories.savedCategories.some(savedCat => savedCat.name === cat.name)),
+        unsavedCategories: uniqueCategories.filter(cat => !usingCategories.savedCategories.some(savedCat => savedCat.name === cat.name))
+      }
+    }));
     } catch (error) {
       console.error('Chyba při načítání kategorií:', error);
     }
