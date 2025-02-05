@@ -21,6 +21,12 @@ const TripList = ({ ID_trip, tripDays }) => {
       setError('Chyba při načítání položek seznamu');
     }
   };
+  const handleCloseOnInteractOutside = (element) => {
+    if (element.id === "keep-open-element") {
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     fetchUsingListItems();
@@ -95,10 +101,11 @@ const TripList = ({ ID_trip, tripDays }) => {
                           <h5 className="text-small tracking-tight text-default-400">{item.by_day ? `Počet (${item.count * tripDays})` : `Počet (${item.count})`}</h5>
                         </div>
                       </div>
-                      <Popover isOpen={isPopoverOpen && selectedItem && selectedItem.id_item === item.id_item} onClose={() => setIsPopoverOpen(false)}>
+                      <Popover isOpen={isPopoverOpen && selectedItem && selectedItem.id_item === item.id_item}  shouldCloseOnInteractOutside={handleCloseOnInteractOutside}>
                         <PopoverTrigger>
                           <Button
                             isIconOnly
+                            id='keep-open-element'
                             onClick={() => handleLeftClick(item)}
                             onContextMenu={(e) => handleRightClick(e, item)}
                           >
