@@ -19,8 +19,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
     setSelectedCategory(categoryId);
-    const category = savedItems.find(cat => cat.id_category === categoryId);
-    setNewCategoryName(category.name);
     setShowCategoryModal(true);
   };
 
@@ -366,82 +364,82 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   return (
     <div>
       <Flex wrap justify="center" className="mb-5">
-              <Card className="max-w-[400px]">
-                <CardBody>
-                  <Autocomplete
-                    className="max-w-xs mb-3"
-                    items={itemSearchResults[null] || []}
-                    label="Název položky"
-                    placeholder="Názvi novou položku"
-                    inputProps={{
-                      onChange: (e) => handleItemSearchChange(e, null),
-                      value: newItem.name || ''
-                    }}
+        <Card className="max-w-[400px]">
+          <CardBody>
+            <Autocomplete
+              className="max-w-xs mb-3"
+              items={itemSearchResults[null] || []}
+              label="Název položky"
+              placeholder="Názvi novou položku"
+              inputProps={{
+                onChange: (e) => handleItemSearchChange(e, null),
+                value: newItem.name || ''
+              }}
+            >
+              {itemSearchResults[null]?.map(item => (
+                <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                  {item.name}
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+            <Input
+              endContent={
+                <div className="flex items-center">
+                  <select
+                    className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
+                    id="by_day"
+                    name="by_day"
+                    onChange={(e) => handleByDayChange(e, null)}
+                    value={newItem.by_day ? 'true' : 'false'}
                   >
-                    {itemSearchResults[null]?.map(item => (
-                      <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
-                        {item.name}
-                      </AutocompleteItem>
-                    ))}
-                  </Autocomplete>
-                  <Input
-                    endContent={
-                      <div className="flex items-center">
-                        <select
-                          className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
-                          id="by_day"
-                          name="by_day"
-                          onChange={(e) => handleByDayChange(e, null)}
-                          value={newItem.by_day ? 'true' : 'false'}
-                        >
-                          <option value="true">na den</option>
-                          <option value="false">na celou cestu</option>
-                        </select>
-                      </div>
-                    }
-                    label="Počet"
-                    placeholder="Zadejte počet"
-                    type="number"
-                    onChange={(e) => handleCountChange(e, null)}
-                    value={newItem.count || ''}
-                  />
-                  <Autocomplete
-                    className="max-w-xs mt-3"
-                    label="Vyber kategorie"
-                    placeholder="Vyhledej kategorii"
-                    inputProps={{
-                      onChange: (e) => handleCategorySearchChange(e, null),
-                      value: newItem.category || ''
-                    }}
-                    onSelectionChange={(key) => {
-                      const selectedCategory = categorySearchResults[null]?.savedCategories.concat(categorySearchResults[null]?.unsavedCategories).find(cat => cat.id_category === key);
-                      if (selectedCategory) handleCategorySelect(selectedCategory, null);
-                    }}
-                  >
-                    <AutocompleteSection title="Vaše uložené">
-                      {categorySearchResults[null]?.savedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
-                          {cat.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                    <AutocompleteSection title="Návrhy">
-                      {categorySearchResults[null]?.unsavedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
-                          {cat.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                  </Autocomplete>
-                  <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItem}>
-                    Přidat položku
-                  </Button>
-                </CardBody>
-              </Card>
-            </Flex>
+                    <option value="true">na den</option>
+                    <option value="false">na celou cestu</option>
+                  </select>
+                </div>
+              }
+              label="Počet"
+              placeholder="Zadejte počet"
+              type="number"
+              onChange={(e) => handleCountChange(e, null)}
+              value={newItem.count || ''}
+            />
+            <Autocomplete
+              className="max-w-xs mt-3"
+              label="Vyber kategorie"
+              placeholder="Vyhledej kategorii"
+              inputProps={{
+                onChange: (e) => handleCategorySearchChange(e, null),
+                value: newItem.category || ''
+              }}
+              onSelectionChange={(key) => {
+                const selectedCategory = categorySearchResults[null]?.savedCategories.concat(categorySearchResults[null]?.unsavedCategories).find(cat => cat.id_category === key);
+                if (selectedCategory) handleCategorySelect(selectedCategory, null);
+              }}
+            >
+              <AutocompleteSection title="Vaše uložené">
+                {categorySearchResults[null]?.savedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+              <AutocompleteSection title="Návrhy">
+                {categorySearchResults[null]?.unsavedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+            </Autocomplete>
+            <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItem}>
+              Přidat položku
+            </Button>
+          </CardBody>
+        </Card>
+      </Flex>
       <Flex wrap justify="center">
-      {savedItems.map(category => (
-        <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
+        {savedItems.map(category => (
+          <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
           <AccordionItem key={category.id_category} aria-label={category.name} title={
             <div className="flex items-center" onContextMenu={(e) => handleCategoryContextMenu(e, category.id_category)}>
               {category.name}
@@ -532,46 +530,48 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                 </CardBody>
               </Card>
             ))}
-            {showCategoryModal && selectedCategory === category.id_category && (
-              <Modal isOpen={showCategoryModal} onClose={() => setShowCategoryModal(false)}>
-                <ModalContent>
-                  <ModalHeader>Přejmenovat nebo smazat kategorii</ModalHeader>
-                  <ModalBody>
-                    <Autocomplete
-                      className="max-w-xs"
-                      label="Kategorie"
-                      placeholder="Vyhledej kategorii"
-                      inputProps={{
-                        onChange: (e) => handleCategorySearchChange(e, category.id_category),
-                        value: categorySearchTerms[category.id_category] || category.name || ''
-                      }}
-                    >
-                      <AutocompleteSection title="Vaše uložené">
-                        {categorySearchResults[category.id_category]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, category.id_category)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                      <AutocompleteSection title="Návrhy">
-                        {categorySearchResults[category.id_category]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, category.id_category)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                    </Autocomplete>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button color="danger" onClick={handleCategoryDelete}>Smazat</Button>
-                    <Button onClick={() => handleCategoryRename(category.name, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            )}
           </AccordionItem>
         </Accordion>
       ))}
+
+      {showCategoryModal && (
+        <Modal isOpen={showCategoryModal} onClose={() => setShowCategoryModal(false)}>
+        <ModalContent>
+          <ModalHeader>Přejmenovat nebo smazat kategorii</ModalHeader>
+          <ModalBody>
+            <Autocomplete
+              className="w-full"
+              label="Přejmenovat kategorii"
+              placeholder="Zadejte nový název kategorie"
+              inputProps={{
+                onChange: (e) => setNewCategoryName(e.target.value),
+                value: newCategoryName
+              }}
+              endContent={null}
+            >
+              <AutocompleteSection title="Vaše uložené">
+                {categorySearchResults[selectedCategory]?.savedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => setNewCategoryName(cat.name)}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+              <AutocompleteSection title="Návrhy">
+                {categorySearchResults[selectedCategory]?.unsavedCategories.map(cat => (
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => setNewCategoryName(cat.name)}>
+                    {cat.name}
+                  </AutocompleteItem>
+                ))}
+              </AutocompleteSection>
+            </Autocomplete>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={handleCategoryDelete}>Smazat</Button>
+            <Button onClick={handleCategoryRename}>Přejmenovat</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      )}
       </Flex>
       <Popover placement="right">
         <PopoverTrigger>
@@ -589,5 +589,3 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
     </div>
   );
 };
-
-export default CreateTripList;
