@@ -309,6 +309,12 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       });
     }
   };
+  const handleCategorySearchSelect = (category, categoryId) => {
+    setCategorySearchTerms((prevState) => ({
+      ...prevState,
+      [categoryId]: category.name, // Naplní název kategorie do vstupu (inputu) v modálu
+    }));
+  };
 
   const removeItem = (itemId) => {
     setSavedItems(prevState => {
@@ -577,14 +583,14 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     >
                       <AutocompleteSection title="Vaše uložené">
                         {categorySearchResults[category.id_category]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, category.id_category)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
                         {categorySearchResults[category.id_category]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, category.id_category)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
