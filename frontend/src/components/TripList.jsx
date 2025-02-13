@@ -16,7 +16,6 @@ const TripList = ({ ID_trip, tripDays }) => {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       const response = await axios.get('/api/using-list-items', { params: { IDuser: id_user, IDtrip: ID_trip } });
       setSavedItems(response.data);
-      console.log('Using list items:', response.data);
     } catch (error) {
       setError('Chyba při načítání položek seznamu');
     }

@@ -19,18 +19,53 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
     setSelectedCategory(categoryId);
+    console.log('Selected category:', categoryId);
     const category = savedItems.find(cat => cat.id_category === categoryId);
+    console.log('Selected category:', category);
     setNewCategoryName(category.name);
+    console.log('N Selected category:', newCategoryName);
     setShowCategoryModal(true);
+    console.log(savedItems);
   };
 
-  const handleCategoryRename = () => {
-    // Implement logic to rename category
-    setShowCategoryModal(false);
+  const handleCategoryRename = (categoryId, newCategoryName) => {
+    setSavedItems((prevState) => {
+      let targetCategory = null;
+      let renamedCategoryItems = [];
+  
+      const updatedCategories = prevState.map((category) => {
+        if (category.name === newCategoryName) {
+          // Najdeme cílovou kategorii
+          targetCategory = category;
+          return category; // Necháme kategorii beze změny
+        } else if (category.id_category === categoryId) {
+          // Uchováme položky kategorie, která se přejmenovává
+          renamedCategoryItems = [...category.items];
+          return null; // Dočasně odstraníme starou kategorii
+        } else {
+          return category; // Ostatní kategorie zůstanou beze změny
+        }
+      }).filter(Boolean); // Odstraníme `null` kategorie
+  
+      // Přesuneme položky do cílové kategorie nebo vytvoříme novou
+      if (targetCategory) {
+        targetCategory.items = [...targetCategory.items, ...renamedCategoryItems];
+      } else {
+        updatedCategories.push({
+          id_category: categoryId,
+          name: newCategoryName,
+          items: renamedCategoryItems,
+        });
+      }
+  
+      return updatedCategories;
+    });
+  
+    setShowCategoryModal(false); // Zavře modální okno
   };
+  
 
   const handleCategoryDelete = () => {
-    // Implement logic to delete category
     setShowCategoryModal(false);
   };
 
@@ -67,19 +102,15 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       const response = await axios.get('/api/search-categories', { params: { search: searchTerm, userId: id_user } }, { withCredentials: true });
       const fetchedCategories = response.data;
 
-      console.log('Fetched categories:', fetchedCategories);
 
       const usingCategories = {
         savedCategories: Array.from(new Set(extractCategoryNames(savedItems)))
           .map(name => ({ id_category: `saved-${name}`, name }))
       };
-      console.log('Using categories:', usingCategories);
 
-      console.log('Saved items:', savedItems);
 
       const allCategories = [...fetchedCategories.savedCategories, ...fetchedCategories.unsavedCategories, ...usingCategories.savedCategories];
 
-      console.log('All categories:', allCategories);
 
       const uniqueCategories = allCategories.reduce((acc, category) => {
         if (!acc.some(cat => cat.name === category.name)) {
@@ -89,7 +120,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       }, []);
       
 
-    console.log('Unique categories:', uniqueCategories);
       
     setCategorySearchResults(prevState => ({
       ...prevState,
@@ -351,7 +381,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         id_trip: ID_trip,
         items: savedItems
       }, { withCredentials: true });
-      console.log('List created successfully:', response.data);
       setIsUsingList(true);
     } catch (error) {
       console.error('Error creating list:', error);
@@ -564,7 +593,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   </ModalBody>
                   <ModalFooter>
                     <Button color="danger" onClick={handleCategoryDelete}>Smazat</Button>
-                    <Button onClick={() => handleCategoryRename(category.name, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
+                    <Button onClick={() => handleCategoryRename(category.id_category, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
                   </ModalFooter>
                 </ModalContent>
               </Modal>

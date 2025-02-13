@@ -30,7 +30,6 @@ const Trip = () => {
       try {
         const response = await axios.get('/api/trip-details/', { params: { id_trip: ID_trip } });
         setTripDays(response.data.days);
-        console.log('Trip details:', response.data);
       } catch (error) {
         console.error('Error fetching trip details:', error);
       }
