@@ -65,7 +65,10 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   };
   
 
-  const handleCategoryDelete = () => {
+  const handleCategoryDelete = (categoryId) => {
+    setSavedItems(prevState => {
+      return prevState.filter(category => category.id_category !== categoryId);
+    });
     setShowCategoryModal(false);
   };
 
@@ -598,7 +601,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     </Autocomplete>
                   </ModalBody>
                   <ModalFooter>
-                    <Button color="danger" onClick={handleCategoryDelete}>Smazat</Button>
+                  <Button color="danger" onClick={() => handleCategoryDelete(category.id_category)}>Smazat</Button>
                     <Button onClick={() => handleCategoryRename(category.id_category, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
                   </ModalFooter>
                 </ModalContent>
