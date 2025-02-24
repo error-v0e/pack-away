@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, PopoverTrigger, PopoverContent } from '@nextui-org/react';
+import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 import { Flex } from 'antd';
 import { Check } from "../assets/Check";
 import { Dash } from "../assets/Dash";

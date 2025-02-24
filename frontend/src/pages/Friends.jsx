@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem } from '@nextui-org/react';
+import { Card, CardHeader, Avatar, Button, Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Flex } from 'antd';
 import { SearchIcon } from "../assets/SearchIcon";
 import { useNavigate } from 'react-router-dom';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from '@nextui-org/react';
+import { Input, Button, Card, Spacer, CardHeader, CardBody, CardFooter, Link, Chip } from "@heroui/react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeFilledIcon } from "../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../assets/EyeSlashFilledIcon";

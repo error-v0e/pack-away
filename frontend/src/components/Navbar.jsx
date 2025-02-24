@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@heroui/react";
 import axios from 'axios';
 import { PackAwayLogo } from "../assets/PackAwayLogo";
 
