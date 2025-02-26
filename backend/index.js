@@ -36,7 +36,14 @@ app.use(passport.session());
 passport.use(new LocalStrategy(
   async (username, password, done) => {
     try {
-      const user = await User.findOne({ where: { username } });
+      const user = await User.findOne({
+        where: {
+          [Op.or]: [
+            { username: username },
+            { email: username }
+          ]
+        }
+      });
       if (!user) {
         return done(null, false, { message: 'Účet neexistuje' });
       }

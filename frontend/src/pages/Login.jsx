@@ -46,7 +46,7 @@ const Login = ({ setIsAuthenticated }) => {
           <Input
             clearable
             underlined
-            placeholder="Jméno"
+            placeholder="Jméno nebo email"
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
