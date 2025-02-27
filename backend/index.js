@@ -951,6 +951,31 @@ app.post('/api/update-item-status', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error updating item status' });
   }
 });
+app.get('/api/items-l', isAuthenticated, async (req, res) => {
+  const { search } = req.query;
+console.log('search:', search);
+  try {
+    const items = await Item.findAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${search}%`
+        }
+      },
+      limit: 5
+    });
+    console.log('items:', items);
+
+    const savedItems = items.filter(item => item.isSaved);
+    console.log('saved items:', savedItems);
+    const unsavedItems = items.filter(item => !item.isSaved);
+    console.log('unsaved items:', unsavedItems);
+
+    res.json({ savedItems, unsavedItems });
+  } catch (err) {
+    console.error('Error fetching items:', err);
+    res.status(500).json({ message: 'Error fetching items' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');

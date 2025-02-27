@@ -84,11 +84,16 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
 
   const fetchItems = async (searchTerm, itemId) => {
     try {
-      const response = await axios.get('/api/items', { params: { search: searchTerm } }, { withCredentials: true });
-      setItemSearchResults(prevState => ({
-        ...prevState,
-        [itemId]: response.data
-      }));
+      console.log(searchTerm);
+      const response = await axios.get('/api/items-l', { params: { search: searchTerm } }, { withCredentials: true });
+      console.log(response.data);
+    const savedItems = response.data.savedItems;
+    const unsavedItems = response.data.unsavedItems;
+
+    setItemSearchResults(prevState => ({
+      ...prevState,
+      [itemId]: { savedItems, unsavedItems }
+    }));
     } catch (error) {
       console.error('Chyba při načítání položek:', error);
     }
@@ -169,6 +174,12 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const handleItemSelect = (item, itemId) => {
     if (itemId === null) {
       setNewItem(prevState => ({ ...prevState, name: item.name }));
+      if (item.isSaved) {
+        const savedItem = savedItems.find(savedItem => savedItem.id_item === item.id_item);
+        if (savedItem) {
+          setNewItem(savedItem);
+        }
+      }
     } else {
       setItemSearchTerms(prevState => ({
         ...prevState,
@@ -408,19 +419,31 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                 <CardBody>
                   <Autocomplete
                     className="max-w-xs mb-3"
-                    items={itemSearchResults[null] || []}
                     label="Název položky"
                     placeholder="Názvi novou položku"
                     inputProps={{
                       onChange: (e) => handleItemSearchChange(e, null),
                       value: newItem.name || ''
                     }}
+                    onSelectionChange={(key) => {
+                      const selectedItem = itemSearchResults[null]?.savedItems.concat(itemSearchResults[null]?.unsavedItems).find(item => item.id_item === key);
+                      if (selectedItem) handleItemSelect(selectedItem, null);
+                    }}
                   >
-                    {itemSearchResults[null]?.map(item => (
-                      <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
-                        {item.name}
-                      </AutocompleteItem>
-                    ))}
+                    <AutocompleteSection title="Vaše uložené">
+                      {itemSearchResults[null]?.savedItems.map(item => (
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.name}
+                        </AutocompleteItem>
+                      ))}
+                    </AutocompleteSection>
+                    <AutocompleteSection title="Návrhy">
+                      {itemSearchResults[null]?.unsavedItems.map(item => (
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.name}
+                        </AutocompleteItem>
+                      ))}
+                    </AutocompleteSection>
                   </Autocomplete>
                   <Input
                     endContent={
