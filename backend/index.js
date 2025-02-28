@@ -953,8 +953,10 @@ app.post('/api/update-item-status', isAuthenticated, async (req, res) => {
 });
 app.get('/api/items-l', isAuthenticated, async (req, res) => {
   const { search } = req.query;
-console.log('search:', search);
+  console.log('search:', search);
+
   try {
+    // Find all items that match the search term
     const items = await Item.findAll({
       where: {
         name: {
@@ -965,9 +967,27 @@ console.log('search:', search);
     });
     console.log('items:', items);
 
-    const savedItems = items.filter(item => item.isSaved);
+    // Find all saved items for the authenticated user
+    const savedItems = await SavedItem.findAll({
+      where: {
+        id_user: req.user.id_user
+      },
+      include: [{
+        model: Item,
+        where: {
+          name: {
+            [Op.iLike]: `%${search}%`
+          }
+        }
+      }]
+    });
     console.log('saved items:', savedItems);
-    const unsavedItems = items.filter(item => !item.isSaved);
+
+    // Extract the item IDs of the saved items
+    const savedItemIds = savedItems.map(savedItem => savedItem.id_item);
+
+    // Filter the items to get the unsaved items
+    const unsavedItems = items.filter(item => !savedItemIds.includes(item.id_item));
     console.log('unsaved items:', unsavedItems);
 
     res.json({ savedItems, unsavedItems });

@@ -432,15 +432,15 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   >
                     <AutocompleteSection title="Vaše uložené">
                       {itemSearchResults[null]?.savedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.name}
+                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.name}
+                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
