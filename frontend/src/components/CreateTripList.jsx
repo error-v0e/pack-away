@@ -174,11 +174,14 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const handleItemSelect = (item, itemId) => {
     if (itemId === null) {
       setNewItem(prevState => ({ ...prevState, name: item.name }));
-      if (item.isSaved) {
-        const savedItem = savedItems.find(savedItem => savedItem.id_item === item.id_item);
-        if (savedItem) {
-          setNewItem(savedItem);
-        }
+      const savedItem = savedItems.flatMap(category => category.items).find(savedItem => savedItem.id_item === item.id_item);
+      if (savedItem) {
+        setNewItem({
+          name: savedItem.name,
+          count: savedItem.count,
+          by_day: savedItem.by_day,
+          category: savedItem.categoryTerm
+        });
       }
     } else {
       setItemSearchTerms(prevState => ({
@@ -197,6 +200,28 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         }));
         return updatedItems;
       });
+  
+      const savedItem = savedItems.flatMap(category => category.items).find(savedItem => savedItem.id_item === item.id_item);
+      if (savedItem) {
+        setSavedItems(prevState => {
+          const updatedItems = prevState.map(category => ({
+            ...category,
+            items: category.items.map(i => {
+              if (i.id_item === itemId) {
+                return {
+                  ...i,
+                  name: savedItem.name,
+                  count: savedItem.count,
+                  by_day: savedItem.by_day,
+                  categoryTerm: savedItem.categoryTerm
+                };
+              }
+              return i;
+            })
+          }));
+          return updatedItems;
+        });
+      }
     }
   };
 
