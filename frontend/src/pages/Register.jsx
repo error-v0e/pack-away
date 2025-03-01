@@ -101,7 +101,7 @@ const Register = ({ setIsAuthenticated }) => {
             Registrovat se
           </Button>
         </CardBody>
-        <CardFooter>
+        <CardFooter className='w-full flex justify-center'>
           <Link href="/login">Přihlášení</Link>
         </CardFooter>
       </Card>

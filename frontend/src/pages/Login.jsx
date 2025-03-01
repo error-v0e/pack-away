@@ -81,7 +81,7 @@ const Login = ({ setIsAuthenticated }) => {
             Přihlásit se
           </Button>
         </CardBody>
-        <CardFooter>
+        <CardFooter className='w-full flex justify-center'>
           <Link href="/register">Registrace</Link>
         </CardFooter>
       </Card>
