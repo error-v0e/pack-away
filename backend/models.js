@@ -228,6 +228,15 @@ Category.hasMany(CategoryItem, { foreignKey: 'id_category' });
 Category.hasMany(SavedCategory, { foreignKey: 'id_category' });
 SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
 
+SavedItem.belongsTo(Item, { foreignKey: 'id_item' });
+SavedItem.belongsTo(User, { foreignKey: 'id_user' });
+
+CategoryItem.belongsTo(Category, { foreignKey: 'id_category' });
+CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
+CategoryItem.belongsTo(User, { foreignKey: 'id_user' });
+
+User.hasMany(CategoryItem, { foreignKey: 'id_user' });
+
 module.exports = {
   sequelize,
   User,

@@ -171,17 +171,22 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
     }
   };
 
-  const handleItemSelect = (item, itemId) => {
+  const handleItemSelect = async (item, itemId) => {
     if (itemId === null) {
-      setNewItem(prevState => ({ ...prevState, name: item.name }));
-      const savedItem = savedItems.flatMap(category => category.items).find(savedItem => savedItem.id_item === item.id_item);
-      if (savedItem) {
+      try {
+        const id_user = JSON.parse(localStorage.getItem('id_user'));
+        console.log(item.id_item);
+        const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+        const { name, count, by_day, category } = response.data;
+
         setNewItem({
-          name: savedItem.name,
-          count: savedItem.count,
-          by_day: savedItem.by_day,
-          category: savedItem.categoryTerm
+          name: name,
+          count: count,
+          by_day: by_day,
+          category: category
         });
+      } catch (error) {
+        console.error('Error fetching item details:', error);
       }
     } else {
       setItemSearchTerms(prevState => ({

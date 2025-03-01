@@ -953,10 +953,8 @@ app.post('/api/update-item-status', isAuthenticated, async (req, res) => {
 });
 app.get('/api/items-l', isAuthenticated, async (req, res) => {
   const { search } = req.query;
-  console.log('search:', search);
 
   try {
-    // Find all items that match the search term
     const items = await Item.findAll({
       where: {
         name: {
@@ -965,9 +963,7 @@ app.get('/api/items-l', isAuthenticated, async (req, res) => {
       },
       limit: 5
     });
-    console.log('items:', items);
 
-    // Find all saved items for the authenticated user
     const savedItems = await SavedItem.findAll({
       where: {
         id_user: req.user.id_user
@@ -981,19 +977,54 @@ app.get('/api/items-l', isAuthenticated, async (req, res) => {
         }
       }]
     });
-    console.log('saved items:', savedItems);
-
-    // Extract the item IDs of the saved items
     const savedItemIds = savedItems.map(savedItem => savedItem.id_item);
 
-    // Filter the items to get the unsaved items
     const unsavedItems = items.filter(item => !savedItemIds.includes(item.id_item));
-    console.log('unsaved items:', unsavedItems);
 
     res.json({ savedItems, unsavedItems });
   } catch (err) {
     console.error('Error fetching items:', err);
     res.status(500).json({ message: 'Error fetching items' });
+  }
+});
+app.get('/api/item-details', isAuthenticated, async (req, res) => {
+  const { id_item, id_user } = req.query;
+
+  try {
+    const itemDetails = await SavedItem.findOne({
+      where: { id_item, id_user },
+      include: [
+        {
+          model: Item,
+          attributes: ['name'],
+          include: [
+            {
+              model: CategoryItem,
+              where: { id_user },
+              include: [
+                {
+                  model: Category,
+                  attributes: ['name']
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!itemDetails) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    const { name } = itemDetails.Item;
+    const { count, by_day } = itemDetails;
+    const category = itemDetails.Item.CategoryItems[0]?.Category.name || '';
+
+    res.json({ name, count, by_day, category });
+  } catch (err) {
+    console.error('Error fetching item details:', err);
+    res.status(500).json({ message: 'Error fetching item details' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {
