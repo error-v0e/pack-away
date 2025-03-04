@@ -159,6 +159,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         const updatedItems = prevState.map(category => ({
           ...category,
           items: category.items.map(item => {
+            
+          
             if (item.id_item === itemId) {
               return { ...item, name: value };
             }
@@ -172,63 +174,56 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   };
 
   const handleItemSelect = async (item, itemId) => {
-    if (itemId === null) {
-      try {
-        const id_user = JSON.parse(localStorage.getItem('id_user'));
-        console.log(item.id_item);
-        const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
-        const { name, count, by_day, category } = response.data;
+  const id_user = JSON.parse(localStorage.getItem('id_user'));
 
-        setNewItem({
-          name: name,
-          count: count,
-          by_day: by_day,
-          category: category
-        });
-      } catch (error) {
-        console.error('Error fetching item details:', error);
-      }
-    } else {
-      setItemSearchTerms(prevState => ({
-        ...prevState,
-        [itemId]: item.name
-      }));
+  if (itemId === null) {
+    try {
+      console.log(item.id_item);
+      const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+      const { name, count, by_day, category } = response.data;
+
+      console.log(response.data);
+      setNewItem({
+        name: name,
+        count: count,
+        by_day: by_day,
+        category: category
+      });
+    } catch (error) {
+      console.error('Error fetching item details:', error);
+    }
+  } else {
+    setItemSearchTerms(prevState => ({
+      ...prevState,
+      [itemId]: item.name
+    }));
+
+    try {
+      const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+      const { name, count, by_day } = response.data;
+
       setSavedItems(prevState => {
         const updatedItems = prevState.map(category => ({
           ...category,
           items: category.items.map(i => {
             if (i.id_item === itemId) {
-              return { ...i, name: item.name };
+              return {
+                ...i,
+                name,
+                count,
+                by_day
+              };
             }
             return i;
           })
         }));
         return updatedItems;
       });
-  
-      const savedItem = savedItems.flatMap(category => category.items).find(savedItem => savedItem.id_item === item.id_item);
-      if (savedItem) {
-        setSavedItems(prevState => {
-          const updatedItems = prevState.map(category => ({
-            ...category,
-            items: category.items.map(i => {
-              if (i.id_item === itemId) {
-                return {
-                  ...i,
-                  name: savedItem.name,
-                  count: savedItem.count,
-                  by_day: savedItem.by_day,
-                  categoryTerm: savedItem.categoryTerm
-                };
-              }
-              return i;
-            })
-          }));
-          return updatedItems;
-        });
-      }
+    } catch (error) {
+      console.error('Error fetching item details:', error);
     }
-  };
+  }
+};
 
   const handleByDayChange = (e, itemId) => {
     const value = e.target.value === 'true';
@@ -565,16 +560,16 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     }}
                   >
                     <AutocompleteSection title="Vaše uložené">
-                      {itemSearchResults[item.id_item]?.savedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, item.id_item)}>
-                          {item.Item.name}
+                      {itemSearchResults[item.id_item]?.savedItems.map(i => (
+                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                          {i.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
-                      {itemSearchResults[item.id_item]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, item.id_item)}>
-                          {item.Item.name}
+                      {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
+                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                          {i.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
