@@ -4,7 +4,7 @@ import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, Autocomp
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
 
-const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
+const CreateList = () => {
   const [savedItems, setSavedItems] = useState([]);
   const [itemSearchResults, setItemSearchResults] = useState({});
   const [itemSearchTerms, setItemSearchTerms] = useState({});
@@ -143,7 +143,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
 
   useEffect(() => {
     fetchSavedItems();
-  }, [ID_trip]);
+  }, []);
 
   const handleItemSearchChange = (e, itemId) => {
     const value = e.target.value;
@@ -421,12 +421,9 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const createList = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.post('/api/create-list', {
-        id_user,
-        id_trip: ID_trip,
+      const response = await axios.post('/api/create-save-list', {
         items: savedItems
       }, { withCredentials: true });
-      setIsUsingList(true);
     } catch (error) {
       console.error('Error creating list:', error);
       setError('Chyba při vytváření seznamu');
@@ -685,4 +682,4 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   );
 };
 
-export default CreateTripList;
+export default CreateList;

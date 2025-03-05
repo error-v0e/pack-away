@@ -131,7 +131,13 @@ ListCategory.belongsTo(Category, { foreignKey: 'id_category' });
 ListCategory.belongsTo(User, { foreignKey: 'id_user' }); 
 const CategoryItem = sequelize.define(
   'CategoryItem',
-  {},
+  {
+    by_day: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    count: DataTypes.INTEGER,
+  },
   {
     timestamps: false,
     uniqueKeys: {

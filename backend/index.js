@@ -826,15 +826,12 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
     for (const category of items) {
 
       const usingCategory = await UsingCategory.create({ name: category.name });
-      console.log('usingCategory:', usingCategory);
-      console.log('-------id:',usingCategory.id_category);
 
       await UsingListCategory.create({
         id_trip,
         id_user,
         id_category: usingCategory.id_category
       });
-      console.log('usingCategory:', usingCategory);
 
       for (const item of category.items) {
         const usingItem = await UsingItem.create({ name: item.name, count: item.count,by_day: item.by_day, check: false, dissent: false });
@@ -1025,6 +1022,40 @@ app.get('/api/item-details', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error fetching item details:', err);
     res.status(500).json({ message: 'Error fetching item details' });
+  }
+});
+app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
+  const { id_user } = req.body;
+
+  try {
+
+    for (const category of items) {
+
+      const usingCategory = await UsingCategory.create({ name: category.name });
+      console.log('usingCategory:', usingCategory);
+      console.log('-------id:',usingCategory.id_category);
+
+      await UsingListCategory.create({
+        id_trip,
+        id_user,
+        id_category: usingCategory.id_category
+      });
+      console.log('usingCategory:', usingCategory);
+
+      for (const item of category.items) {
+        const usingItem = await UsingItem.create({ name: item.name, count: item.count,by_day: item.by_day, check: false, dissent: false });
+        console.log('usingItem:', usingItem);
+        await UsingCategoryItem.create({
+          id_item: usingItem.id_item,
+          id_category: usingCategory.id_category 
+        });
+      }
+    }
+
+    res.json({ message: 'List created successfully' });
+  } catch (error) {
+    console.error('Error creating list:', error);
+    res.status(500).json({ message: 'Error creating list' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {
