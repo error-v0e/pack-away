@@ -12,6 +12,7 @@ export default function CustomNavbar({ isAuthenticated, setIsAuthenticated }) {
   const menuItems = [
     { name: "Cesty", path: "/" },
     { name: "Přátelé", path: "/pratele" },
+    { name: "Seznamy", path: "/seznamy" },
     { name: "Položky", path: "/polozky" },
   ];
 
