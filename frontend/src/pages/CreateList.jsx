@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
@@ -16,6 +17,7 @@ const CreateList = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [listName, setListName] = useState(''); // Add state for list name
+  const navigate = useNavigate();
 
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
@@ -427,6 +429,7 @@ const CreateList = () => {
         items: savedItems,
         listName: listName 
       }, { withCredentials: true });
+      navigate('/seznamy');
     } catch (error) {
       console.error('Error creating list:', error);
       setError('Chyba při vytváření seznamu');

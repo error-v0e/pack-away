@@ -217,7 +217,6 @@ UsingListCategory.belongsTo(Trip, { foreignKey: 'id_trip' });
 UsingListCategory.belongsTo(User, { foreignKey: 'id_user' });
 UsingListCategory.belongsTo(UsingCategory, { foreignKey: 'id_category' });
 
-
 const UsingCategoryItem = sequelize.define('UsingCategoryItem', {}, { timestamps: false });
 UsingCategoryItem.removeAttribute('id'); 
 UsingCategoryItem.primaryKey = ['id_item', 'id_category']; 
@@ -230,6 +229,8 @@ Category.belongsToMany(Item, { through: CategoryItem, foreignKey: 'id_category' 
 
 Item.hasMany(CategoryItem, { foreignKey: 'id_item' });
 Category.hasMany(CategoryItem, { foreignKey: 'id_category' });
+User.hasMany(CategoryItem, { foreignKey: 'id_user' });
+List.hasMany(CategoryItem, { foreignKey: 'id_list' });
 
 Category.hasMany(SavedCategory, { foreignKey: 'id_category' });
 SavedCategory.belongsTo(Category, { foreignKey: 'id_category' });
@@ -240,8 +241,8 @@ SavedItem.belongsTo(User, { foreignKey: 'id_user' });
 CategoryItem.belongsTo(Category, { foreignKey: 'id_category' });
 CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
 CategoryItem.belongsTo(User, { foreignKey: 'id_user' });
+CategoryItem.belongsTo(List, { foreignKey: 'id_list' });
 
-User.hasMany(CategoryItem, { foreignKey: 'id_user' });
 
 module.exports = {
   sequelize,

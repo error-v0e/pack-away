@@ -1081,6 +1081,31 @@ app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error creating list' });
   }
 });
+app.get('/api/get-lists', isAuthenticated, async (req, res) => {
+  const { id_user } = req.query;
+
+  try {
+    const lists = await List.findAll({
+      where: { id_user },
+      include: [{
+        model: CategoryItem,
+        attributes: [],
+        required: true
+      }],
+      attributes: [
+        'id_list',
+        'name',
+        [sequelize.fn('COUNT', sequelize.col('CategoryItems.id_item')), 'itemCount']
+      ],
+      group: ['List.id_list']
+    });
+
+    res.json(lists);
+  } catch (error) {
+    console.error('Error fetching lists:', error);
+    res.status(500).json({ message: 'Error fetching lists' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
