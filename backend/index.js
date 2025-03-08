@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory, UsingCategory, UsingItem, UsingCategoryItem } = require('./models');
+const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory, UsingCategory, UsingItem, UsingCategoryItem, List, ListCategory } = require('./models');
 const { Op } = require('sequelize');
 const { format } = require('date-fns');
 
@@ -1025,29 +1025,52 @@ app.get('/api/item-details', isAuthenticated, async (req, res) => {
   }
 });
 app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
-  const { id_user } = req.body;
+  const { id_user, items, listName } = req.body;
 
   try {
+    // Create the list
+    const newList = await List.create({ name: listName, id_user });
 
     for (const category of items) {
+      // Check if the category exists, if not, create it
+      let savedCategory = await Category.findOne({ where: { name: category.name } });
+      if (!savedCategory) {
+        savedCategory = await Category.create({ name: category.name });
+      }
 
-      const usingCategory = await UsingCategory.create({ name: category.name });
-      console.log('usingCategory:', usingCategory);
-      console.log('-------id:',usingCategory.id_category);
-
-      await UsingListCategory.create({
-        id_trip,
-        id_user,
-        id_category: usingCategory.id_category
+      // Save the category for the user
+      await SavedCategory.findOrCreate({
+        where: { id_user, id_category: savedCategory.id_category }
       });
-      console.log('usingCategory:', usingCategory);
+
+      // Create the relationship between the list and the category
+      await ListCategory.create({
+        id_list: newList.id_list,
+        id_category: savedCategory.id_category,
+        id_user
+      });
 
       for (const item of category.items) {
-        const usingItem = await UsingItem.create({ name: item.name, count: item.count,by_day: item.by_day, check: false, dissent: false });
-        console.log('usingItem:', usingItem);
-        await UsingCategoryItem.create({
-          id_item: usingItem.id_item,
-          id_category: usingCategory.id_category 
+        // Check if the item exists, if not, create it
+        let savedItem = await Item.findOne({ where: { name: item.name } });
+        if (!savedItem) {
+          savedItem = await Item.create({ name: item.name });
+        }
+
+        // Save the item for the user
+        await SavedItem.findOrCreate({
+          where: { id_user, id_item: savedItem.id_item },
+          defaults: { count: item.count, by_day: item.by_day }
+        });
+
+        // Create the relationship between the category and the item
+        await CategoryItem.create({
+          id_item: savedItem.id_item,
+          id_category: savedCategory.id_category,
+          id_user,
+          count: item.count,
+          by_day: item.by_day,
+          id_list: newList.id_list
         });
       }
     }

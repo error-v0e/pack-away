@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
+import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
 
@@ -15,6 +15,7 @@ const CreateList = () => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [listName, setListName] = useState(''); // Add state for list name
 
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
@@ -422,7 +423,9 @@ const CreateList = () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
       const response = await axios.post('/api/create-save-list', {
-        items: savedItems
+        id_user: id_user,
+        items: savedItems,
+        listName: listName 
       }, { withCredentials: true });
     } catch (error) {
       console.error('Error creating list:', error);
@@ -436,6 +439,20 @@ const CreateList = () => {
 
   return (
     <div>
+      <Flex wrap justify="center" className="mb-5">
+        <Card className="max-w-[340px] w-full">
+          <CardHeader className="flex gap-3">
+            <div className="flex flex-col">
+              <p className="text-xl">Název seznamu</p>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+              <Input label="Nazev" type="text" value={listName} onChange={(e) => setListName(e.target.value)} />
+            </div>
+          </CardBody>
+        </Card>
+      </Flex>
       <Flex wrap justify="center" className="mb-5">
               <Card className="max-w-[400px]">
                 <CardBody>
