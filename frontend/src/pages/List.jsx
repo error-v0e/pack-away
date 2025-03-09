@@ -36,7 +36,7 @@ const List = () => {
       </Flex>
       <Flex wrap gap="small" justify="center" className="mb-5">
         {lists.map(list => (
-          <Tooltip content={"#"+list.id_list}>
+          <Tooltip key={'t'+list.id_list} content={"#"+list.id_list}>
             <Card key={list.id_list} className="max-w-[240px] w-full">
               <CardHeader className="flex gap-3">
                 <div className="flex flex-col">
