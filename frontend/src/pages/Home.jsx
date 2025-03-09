@@ -128,7 +128,7 @@ const Home = () => {
   };
 
   const navigateToTripDetail = async (tripId) => {
-    navigate(`/trip/${tripId}`);
+    navigate(`/cesta/${tripId}`);
   };
 
   return (
