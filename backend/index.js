@@ -1106,6 +1106,55 @@ app.get('/api/get-lists', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error fetching lists' });
   }
 });
+app.get('/api/saved-list-items', isAuthenticated, async (req, res) => {
+  const { userId, listId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  try {
+    const savedItems = await CategoryItem.findAll({
+      where: {
+        id_user: userId,
+        id_list: listId
+      },
+      include: [{
+        model: Item,
+        attributes: ['id_item','name']
+      },
+        {model: Category,
+        attributes: ['id_category','name']
+      }]
+    });
+
+    const categorizedItems = {};
+
+    savedItems.forEach(savedItem => {
+      const category = savedItem.Category.name;
+      if (!categorizedItems[category]) {
+        categorizedItems[category] = {
+          id_category: savedItem.Category.id_category,
+          name: category,
+          items: [],
+        };
+      }
+
+      categorizedItems[category].items.push({
+        id_item: savedItem.Item.id_item,
+        name: savedItem.Item.name,
+        count: savedItem.count,
+        by_day: savedItem.by_day,
+      });
+    });
+    const result = Object.values(categorizedItems);
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching saved items:', err);
+    res.status(500).json({ message: 'Error fetching saved items' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');

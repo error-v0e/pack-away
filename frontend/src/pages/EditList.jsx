@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
 
-const CreateList = () => {
+const EditList = () => {
+  const { ID_list } = useParams();
   const [savedItems, setSavedItems] = useState([]);
   const [itemSearchResults, setItemSearchResults] = useState({});
   const [itemSearchTerms, setItemSearchTerms] = useState({});
@@ -78,7 +79,7 @@ const CreateList = () => {
   const fetchSavedItems = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('/api/saved-items', { params: { userId: id_user } }, { withCredentials: true });
+      const response = await axios.get('/api/saved-list-items', { params: { userId: id_user, listId: ID_list } }, { withCredentials: true });
       setSavedItems(response.data);
     } catch (error) {
       setError('Chyba při načítání uložených položek');
@@ -146,7 +147,7 @@ const CreateList = () => {
 
   useEffect(() => {
     fetchSavedItems();
-  }, []);
+  }, [ID_list]);
 
   const handleItemSearchChange = (e, itemId) => {
     const value = e.target.value;
@@ -702,4 +703,4 @@ const CreateList = () => {
   );
 };
 
-export default CreateList;
+export default EditList;
