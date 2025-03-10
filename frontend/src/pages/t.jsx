@@ -20,6 +20,21 @@ const EditList = () => {
   const [listName, setListName] = useState(''); 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchListName = async () => {
+      try {
+        const response = await axios.get('/api/get-list-name', { params: { listId: ID_list } });
+        setListName(response.data.name);
+      } catch (error) {
+        console.error('Error fetching list name:', error);
+        setError('Error fetching list name');
+      }
+    };
+
+    fetchListName();
+    fetchSavedItems();
+  }, [ID_list]);
+
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
     setSelectedCategory(categoryId);
@@ -142,22 +157,6 @@ const EditList = () => {
     }));
     } catch (error) {
       console.error('Chyba při načítání kategorií:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchListName();
-    fetchSavedItems();
-  }, [ID_list]);
-
-  
-  const fetchListName = async () => {
-    try {
-      const response = await axios.get('/api/get-list-name', { params: { listId: ID_list } });
-      setListName(response.data.name);
-    } catch (error) {
-      console.error('Error fetching list name:', error);
-      setError('Error fetching list name');
     }
   };
 
@@ -486,233 +485,4 @@ const EditList = () => {
                     }}
                   >
                     <AutocompleteSection title="Vaše uložené">
-                      {itemSearchResults[null]?.savedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.Item.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                    <AutocompleteSection title="Návrhy">
-                      {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.Item.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                  </Autocomplete>
-                  <Input
-                    endContent={
-                      <div className="flex items-center">
-                        <select
-                          className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
-                          id="by_day"
-                          name="by_day"
-                          onChange={(e) => handleByDayChange(e, null)}
-                          value={newItem.by_day ? 'true' : 'false'}
-                        >
-                          <option value="true">na den</option>
-                          <option value="false">na celou cestu</option>
-                        </select>
-                      </div>
-                    }
-                    label="Počet"
-                    placeholder="Zadejte počet"
-                    type="number"
-                    onChange={(e) => handleCountChange(e, null)}
-                    value={newItem.count || ''}
-                  />
-                  <Autocomplete
-                    className="max-w-xs mt-3"
-                    label="Vyber kategorie"
-                    placeholder="Vyhledej kategorii"
-                    inputProps={{
-                      onChange: (e) => handleCategorySearchChange(e, null),
-                      value: newItem.category || ''
-                    }}
-                    onSelectionChange={(key) => {
-                      const selectedCategory = categorySearchResults[null]?.savedCategories.concat(categorySearchResults[null]?.unsavedCategories).find(cat => cat.id_category === key);
-                      if (selectedCategory) handleCategorySelect(selectedCategory, null);
-                    }}
-                  >
-                    <AutocompleteSection title="Vaše uložené">
-                      {categorySearchResults[null]?.savedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
-                          {cat.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                    <AutocompleteSection title="Návrhy">
-                      {categorySearchResults[null]?.unsavedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
-                          {cat.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                  </Autocomplete>
-                  <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItem}>
-                    Přidat položku
-                  </Button>
-                </CardBody>
-              </Card>
-            </Flex>
-      <Flex wrap justify="center">
-      {savedItems.map(category => (
-        <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>
-          <AccordionItem key={category.id_category} aria-label={category.name} title={
-            <div className="flex items-center" onContextMenu={(e) => handleCategoryContextMenu(e, category.id_category)}>
-              {category.name}
-            </div>
-          }>
-            {category.items.map(item => (
-              <Card key={item.id_item} className="max-w-[400px] mb-2">
-                <CardBody>
-                  <div className="flex flex-col col-span-6 md:col-span-8">
-                    <div className="flex justify-between flex-row-reverse items-start">
-                      <Button
-                        isIconOnly
-                        className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
-                        radius="full"
-                        variant="light"
-                        onClick={() => removeItem(item.id_item)}
-                      >
-                        <Dash />
-                      </Button>
-                    </div>
-                  </div>
-                  <Autocomplete
-                    className="max-w-xs mb-3"
-                    items={itemSearchResults[item.id_item] || []}
-                    label="Název položky"
-                    placeholder="Názvi novou položku"
-                    inputProps={{
-                      onChange: (e) => handleItemSearchChange(e, item.id_item),
-                      value: itemSearchTerms[item.id_item] || item.name || ''
-                    }}
-                  >
-                    <AutocompleteSection title="Vaše uložené">
-                      {itemSearchResults[item.id_item]?.savedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                    <AutocompleteSection title="Návrhy">
-                      {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                  </Autocomplete>
-                  <Input
-                    endContent={
-                      <div className="flex items-center">
-                        <select
-                          className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
-                          id="by_day"
-                          name="by_day"
-                          onChange={(e) => handleByDayChange(e, item.id_item)}
-                          value={item.by_day ? 'true' : 'false'}
-                        >
-                          <option value="true">na den</option>
-                          <option value="false">na celou cestu</option>
-                        </select>
-                      </div>
-                    }
-                    label="Počet"
-                    placeholder="Zadejte počet"
-                    type="number"
-                    onChange={(e) => handleCountChange(e, item.id_item)}
-                    value={item.count || ''}
-                  />
-                  <Flex gap="small">
-                    <Autocomplete
-                      className="max-w-xs mt-3"
-                      label="Vyber kategorie"
-                      placeholder="Vyhledej kategorii"
-                      inputProps={{
-                        onChange: (e) => handleCategorySearchChange(e, item.id_item),
-                        value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
-                      }}
-                      endContent={
-                        <Button isIconOnly className='mt-1' onClick={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
-                      }
-                    >
-                      <AutocompleteSection title="Vaše uložené">
-                        {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                      <AutocompleteSection title="Návrhy">
-                        {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                    </Autocomplete>
-                  </Flex>
-                </CardBody>
-              </Card>
-            ))}
-            {showCategoryModal && selectedCategory === category.id_category && (
-              <Modal isOpen={showCategoryModal} onClose={() => setShowCategoryModal(false)}>
-                <ModalContent>
-                  <ModalHeader>Přejmenovat nebo smazat kategorii</ModalHeader>
-                  <ModalBody>
-                    <Autocomplete
-                      className="max-w-xs"
-                      label="Kategorie"
-                      placeholder="Vyhledej kategorii"
-                      inputProps={{
-                        onChange: (e) => handleCategorySearchChange(e, category.id_category),
-                        value: categorySearchTerms[category.id_category] || category.name || ''
-                      }}
-                    >
-                      <AutocompleteSection title="Vaše uložené">
-                        {categorySearchResults[category.id_category]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                      <AutocompleteSection title="Návrhy">
-                        {categorySearchResults[category.id_category]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
-                            {cat.name}
-                          </AutocompleteItem>
-                        ))}
-                      </AutocompleteSection>
-                    </Autocomplete>
-                  </ModalBody>
-                  <ModalFooter>
-                  <Button color="danger" onClick={() => handleCategoryDelete(category.id_category)}>Smazat</Button>
-                    <Button onClick={() => handleCategoryRename(category.id_category, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            )}
-          </AccordionItem>
-        </Accordion>
-      ))}
-      </Flex>
-      <Popover placement="right">
-        <PopoverTrigger>
-          <Button className="fixed bottom-4 right-4 z-50">Vytvořit seznam</Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <div className="px-1 py-2">
-            <div className="text-small font-bold mb-2">Opravdu chcete vytvořit seznam?</div>
-            <Button color="warning" variant="flat" className='w-full' onClick={createList}>
-              Ano
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-};
-
-export default EditList;
+                      {itemSearchResults[null]?.savedItems// filepath: d:\pack-away\frontend\src\pages\EditList.jsx

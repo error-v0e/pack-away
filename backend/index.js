@@ -1155,6 +1155,29 @@ app.get('/api/saved-list-items', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error fetching saved items' });
   }
 });
+app.get('/api/get-list-name', isAuthenticated, async (req, res) => {
+  const { listId } = req.query;
+
+  if (!listId) {
+    return res.status(400).json({ message: 'List ID is required' });
+  }
+
+  try {
+    const list = await List.findOne({
+      where: { id_list: listId },
+      attributes: ['name']
+    });
+
+    if (!list) {
+      return res.status(404).json({ message: 'List not found' });
+    }
+
+    res.json({ name: list.name });
+  } catch (error) {
+    console.error('Error fetching list name:', error);
+    res.status(500).json({ message: 'Error fetching list name' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');
