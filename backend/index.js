@@ -1024,12 +1024,29 @@ app.get('/api/item-details', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error fetching item details' });
   }
 });
-app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
-  const { id_user, items, listName } = req.body;
+app.post('/api/edit-save-list', isAuthenticated, async (req, res) => {
+  const { id_user, items, listName, id_list } = req.body;
 
   try {
-    // Create the list
-    const newList = await List.create({ name: listName, id_user });
+    await CategoryItem.destroy({
+      where: {
+        id_user,
+        id_list
+      }
+    });
+
+    if (!id_list || !listName) {
+      return res.status(400).json({ message: 'List ID and new name are required' });
+    }
+
+    const list = await List.findOne({ where: { id_list } });
+
+    if (!list) {
+      return res.status(404).json({ message: 'List not found' });
+    }
+
+    list.name = listName;
+    await list.save();
 
     for (const category of items) {
       // Check if the category exists, if not, create it
@@ -1041,13 +1058,6 @@ app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
       // Save the category for the user
       await SavedCategory.findOrCreate({
         where: { id_user, id_category: savedCategory.id_category }
-      });
-
-      // Create the relationship between the list and the category
-      await ListCategory.create({
-        id_list: newList.id_list,
-        id_category: savedCategory.id_category,
-        id_user
       });
 
       for (const item of category.items) {
@@ -1070,15 +1080,15 @@ app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
           id_user,
           count: item.count,
           by_day: item.by_day,
-          id_list: newList.id_list
+          id_list: id_list
         });
       }
     }
 
-    res.json({ message: 'List created successfully' });
+    res.json({ message: 'List updated successfully' });
   } catch (error) {
-    console.error('Error creating list:', error);
-    res.status(500).json({ message: 'Error creating list' });
+    console.error('Error updating list:', error);
+    res.status(500).json({ message: 'Error updating list' });
   }
 });
 app.get('/api/get-lists', isAuthenticated, async (req, res) => {
@@ -1176,6 +1186,56 @@ app.get('/api/get-list-name', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching list name:', error);
     res.status(500).json({ message: 'Error fetching list name' });
+  }
+});
+app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
+  const { id_user, items, listName } = req.body;
+
+  try {
+    // Create the list
+    const newList = await List.create({ name: listName, id_user });
+
+    for (const category of items) {
+      // Check if the category exists, if not, create it
+      let savedCategory = await Category.findOne({ where: { name: category.name } });
+      if (!savedCategory) {
+        savedCategory = await Category.create({ name: category.name });
+      }
+
+      // Save the category for the user
+      await SavedCategory.findOrCreate({
+        where: { id_user, id_category: savedCategory.id_category }
+      });
+
+      for (const item of category.items) {
+        // Check if the item exists, if not, create it
+        let savedItem = await Item.findOne({ where: { name: item.name } });
+        if (!savedItem) {
+          savedItem = await Item.create({ name: item.name });
+        }
+
+        // Save the item for the user
+        await SavedItem.findOrCreate({
+          where: { id_user, id_item: savedItem.id_item },
+          defaults: { count: item.count, by_day: item.by_day }
+        });
+
+        // Create the relationship between the category and the item
+        await CategoryItem.create({
+          id_item: savedItem.id_item,
+          id_category: savedCategory.id_category,
+          id_user,
+          count: item.count,
+          by_day: item.by_day,
+          id_list: newList.id_list
+        });
+      }
+    }
+
+    res.json({ message: 'List created successfully' });
+  } catch (error) {
+    console.error('Error creating list:', error);
+    res.status(500).json({ message: 'Error creating list' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {

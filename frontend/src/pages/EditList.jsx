@@ -437,10 +437,11 @@ const EditList = () => {
   const createList = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.post('/api/create-save-list', {
+      const response = await axios.post('/api/edit-save-list', {
         id_user: id_user,
         items: savedItems,
-        listName: listName 
+        listName: listName,
+        id_list: ID_list
       }, { withCredentials: true });
       navigate('/seznamy');
     } catch (error) {
