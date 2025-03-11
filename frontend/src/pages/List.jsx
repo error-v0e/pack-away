@@ -43,7 +43,7 @@ const List = () => {
           <Tooltip key={'t'+list.id_list} content={"#"+list.id_list}>
             <Card key={list.id_list} className="max-w-[240px] w-full" onPress={() => navigateToListEdit(list.id_list)} isPressable>
               <CardHeader className="flex gap-3">
-                <div className="flex flex-col">
+                <div className="flex flex-col items-start items-start">
                   <p className="text-xl">{list.name}</p>
                   <p className="text-small text-default-500">Počet položek: {list.itemCount}</p>
                 </div>
