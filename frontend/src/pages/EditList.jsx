@@ -701,11 +701,11 @@ const EditList = () => {
       </Flex>
       <Popover placement="right">
         <PopoverTrigger>
-          <Button className="fixed bottom-4 right-4 z-50">Vytvořit seznam</Button>
+          <Button className="fixed bottom-4 right-4 z-50">Uložit seznam</Button>
         </PopoverTrigger>
         <PopoverContent>
           <div className="px-1 py-2">
-            <div className="text-small font-bold mb-2">Opravdu chcete vytvořit seznam?</div>
+            <div className="text-small font-bold mb-2">Opravdu chcete uložit změny v seznam?</div>
             <Button color="warning" variant="flat" className='w-full' onClick={createList}>
               Ano
             </Button>
