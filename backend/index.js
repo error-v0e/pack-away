@@ -5,7 +5,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const {sequelize, User, Friend, Trip, TripMember, TripMemberPermission, Item, Category, CategoryItem, SavedItem, SavedCategory, UsingListCategory, UsingCategory, UsingItem, UsingCategoryItem, List, ListCategory } = require('./models');
-const { Op } = require('sequelize');
+const { Sequelize, DataTypes, Op } = require('sequelize');
 const { format } = require('date-fns');
 
 
@@ -852,16 +852,18 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
 app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
   const { asking_IDuser, IDuser, IDtrip } = req.query;
   try {
-    const permission = await TripMemberPermission.findOne({
-      where: {
-        id_user: asking_IDuser,
-        id_friend: IDuser,
-        id_trip: IDtrip,
-      }
-    });
 
-    if (asking_IDuser !== IDuser || permission.view !== true) {
-      return res.status(403).json({ message: 'Unauthorized' });
+    if (asking_IDuser !== IDuser) {
+      const permission = await TripMemberPermission.findOne({
+        where: {
+          id_user: asking_IDuser,
+          id_friend: IDuser,
+          id_trip: IDtrip,
+        }
+      });
+      if (permission.view !== true) {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
     }
 
     const query = `
@@ -920,16 +922,17 @@ app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
 app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
   const { asking_IDuser, IDuser, IDtrip } = req.query;
   try {
-    const permission = await TripMemberPermission.findOne({
-      where: {
-        id_user: asking_IDuser,
-        id_friend: IDuser,
-        id_trip: IDtrip,
+    if (asking_IDuser !== IDuser) {
+      const permission = await TripMemberPermission.findOne({
+        where: {
+          id_user: asking_IDuser,
+          id_friend: IDuser,
+          id_trip: IDtrip,
+        }
+      });
+      if (permission.edit !== true) {
+        return res.status(403).json({ message: 'Unauthorized' });
       }
-    });
-
-    if (asking_IDuser !== IDuser || permission.edit !== true) {
-      return res.status(403).json({ message: 'Unauthorized' });
     }
 
     const query = `
@@ -1364,6 +1367,49 @@ app.get('/api/item-name', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching item name:', error);
     res.status(500).json({ message: 'Error fetching item name' });
+  }
+});
+app.get('/api/trip-members', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip } = req.query;
+
+  if (!id_user || !id_trip) {
+    return res.status(400).json({ message: 'User ID and Trip ID are required' });
+  }
+
+  try {
+    const tripMembers = await sequelize.query(
+        `SELECT 
+          tm.id_user, 
+          tm.joined, 
+          u.username, 
+          u.picture, 
+          tmp.view
+        FROM "TripMembers" tm  -- Opraveno
+        LEFT JOIN "Users" u ON tm.id_user = u.id_user
+        LEFT JOIN "TripMemberPermissions" tmp 
+            ON tmp.id_friend = tm.id_user 
+            AND tmp.id_trip = tm.id_trip 
+            AND tmp.id_user = :id_user
+        WHERE tm.id_trip = :id_trip 
+        AND tm.id_user != :id_user;`,
+      {
+        replacements: { id_trip, id_user },
+        type: Sequelize.QueryTypes.SELECT
+      }
+    );
+
+    const members = tripMembers.map(member => ({
+      id_user: member.id_user,
+      username: member.username,
+      picture: member.picture,
+      joined: member.joined,
+      view: member.view
+    }));
+
+    res.json(members);
+  } catch (error) {
+    console.error('Error fetching trip members:', error);
+    res.status(500).json({ message: 'Error fetching trip members' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {

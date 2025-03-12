@@ -190,6 +190,9 @@ const UsingItem = sequelize.define('UsingItem', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  pack_count: {
+    type: DataTypes.INTEGER,
+  },
   check: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
@@ -243,6 +246,10 @@ CategoryItem.belongsTo(Item, { foreignKey: 'id_item' });
 CategoryItem.belongsTo(User, { foreignKey: 'id_user' });
 CategoryItem.belongsTo(List, { foreignKey: 'id_list' });
 
+TripMember.hasMany(TripMemberPermission, { foreignKey: 'id_friend', sourceKey: 'id_user' });
+TripMemberPermission.belongsTo(TripMember, { foreignKey: 'id_friend', targetKey: 'id_user' });
+TripMember.hasMany(TripMemberPermission, { foreignKey: 'id_user', sourceKey: 'id_user'});
+TripMemberPermission.belongsTo(TripMember, { foreignKey: 'id_user', targetKey: 'id_user' });
 
 module.exports = {
   sequelize,

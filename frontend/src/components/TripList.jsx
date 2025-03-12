@@ -4,6 +4,7 @@ import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, 
 import { Flex } from 'antd';
 import { Check } from "../assets/Check";
 import { Dash } from "../assets/Dash";
+import UserBar from "../components/UserBar.jsx";
 
 const TripList = ({ ID_trip, ID_user, tripDays }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -91,9 +92,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
 
   return (
     <div>
-      <Flex justify="center">
-        
-      </Flex>
+      <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
       <Flex wrap justify="center">
         {savedItems.map(category => (
           <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>

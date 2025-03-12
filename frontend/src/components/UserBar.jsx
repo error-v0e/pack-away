@@ -1,31 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
+import { Avatar } from "@heroui/react";
 import { Flex } from 'antd';
 
-const TripList = ({ ID_trip, ID_user, tripDays }) => {
+const UserBar = ({ ID_trip, ID_user }) => {
+  const [members, setMembers] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-  }, [ID_trip]);
+    const fetchTripMembers = async () => {
+      try {
+        const response = await axios.get('/api/trip-members', { params: { id_user: ID_user, id_trip: ID_trip } });
+        setMembers(response.data);
+        console.log('------------- -- '+response.data);
+      } catch (error) {
+        console.error('Error fetching trip members:', error);
+        setError('Error fetching trip members');
+      }
+    };
 
-  
+    fetchTripMembers();
+  }, [ID_trip, ID_user]);
 
-  
-
-  
-
-  
-
-  
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div>
       <Flex justify="center">
-        
-      
+        {members.map(member => (
+          <Avatar
+            key={member.id_user}
+            size="lg"
+            name={member.username}
+            src={member.picture}
+            isDisabled={!member.view || !member.joined}
+          />
+        ))}
       </Flex>
     </div>
   );
 };
 
-export default TripList;
+export default UserBar;

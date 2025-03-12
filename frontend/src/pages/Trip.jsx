@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import CreateTripList from "../components/CreateTripList.jsx";
 import TripList from "../components/TripList.jsx";
-import UserBar from "../components/UserBar.jsx";
 
 const Trip = () => {
   const { ID_trip } = useParams();
