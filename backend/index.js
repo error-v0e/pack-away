@@ -305,10 +305,19 @@ app.post('/api/create_trip', isAuthenticated, async (req, res) => {
     const newTrip = await Trip.create({ name, icon, from_date, to_date });
     await TripMember.create({ id_user, id_trip: newTrip.id_trip, joined: true, owner: true });
 
-    await TripMemberPermission.create({ id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: true });
-
     for (const friend of invitedFriends) {
       await TripMember.create({ id_user: friend.id_user, id_trip: newTrip.id_trip, joined: false, owner: false });
+
+      // Create TripMemberPermission for each invited friend with the trip creator
+      await TripMemberPermission.create({ id_user, id_friend: friend.id_user, id_trip: newTrip.id_trip, view: true, edit: false });
+      await TripMemberPermission.create({ id_user: friend.id_user, id_friend: id_user, id_trip: newTrip.id_trip, view: true, edit: false });
+
+      // Create TripMemberPermission for each invited friend with other invited friends
+      for (const otherFriend of invitedFriends) {
+        if (friend.id_user !== otherFriend.id_user) {
+          await TripMemberPermission.create({ id_user: friend.id_user, id_friend: otherFriend.id_user, id_trip: newTrip.id_trip, view: true, edit: false });
+        }
+      }
     }
 
     res.json({ message: 'Trip created successfully', trip: newTrip });
