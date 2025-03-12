@@ -1238,6 +1238,31 @@ app.post('/api/create-save-list', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error creating list' });
   }
 });
+app.get('/api/check-user-presence', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip } = req.query;
+
+  if (!id_user || !id_trip) {
+    return res.status(400).json({ message: 'User ID and Trip ID are required' });
+  }
+
+  try {
+    const tripMember = await TripMember.findOne({
+      where: {
+        id_user,
+        id_trip
+      }
+    });
+
+    if (tripMember) {
+      res.json({ exists: true });
+    } else {
+      res.json({ exists: false });
+    }
+  } catch (error) {
+    console.error('Error checking user presence:', error);
+    res.status(500).json({ message: 'Error checking user presence' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');

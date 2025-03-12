@@ -7,6 +7,7 @@ import List from './pages/List';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Trip from './pages/Trip'; 
+import TripUser from './pages/TripUser'; 
 import NewList from './pages/CreateList'; 
 import EditList from './pages/EditList';
 
@@ -22,6 +23,7 @@ const Routers = ({ isAuthenticated, setIsAuthenticated }) => {
       <Route path="/seznamy" element={isAuthenticated ? <List /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/novy-seznam" element={isAuthenticated ? <NewList /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/cesta/:ID_trip" element={isAuthenticated ? <Trip /> : <Navigate to="/login" state={{ from: location }} />} />
+      <Route path="/cesta/:ID_trip/:ID_user" element={isAuthenticated ? <TripUser /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/uprava-seznamu/:ID_list" element={isAuthenticated ? <EditList /> : <Navigate to="/login" state={{ from: location }} />} />
       <Route path="/login" element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to={from} />} />
       <Route path="/register" element={!isAuthenticated ? <Register setIsAuthenticated={setIsAuthenticated} /> : <Navigate to={from} />} />

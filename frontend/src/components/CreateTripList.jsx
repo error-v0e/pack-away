@@ -89,6 +89,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       console.log(response.data);
     const savedItems = response.data.savedItems;
     const unsavedItems = response.data.unsavedItems;
+    console.log(savedItems);
+    console.log(unsavedItems);
 
     setItemSearchResults(prevState => ({
       ...prevState,
