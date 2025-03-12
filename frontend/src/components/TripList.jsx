@@ -15,10 +15,11 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
     try {
       if (!ID_user) {
         const id_user = JSON.parse(localStorage.getItem('id_user'));
-        const response = await axios.get('/api/using-list-items', { params: { IDuser: id_user, IDtrip: ID_trip } });
+        const response = await axios.get('/api/using-list-items', { params: { asking_IDuser: id_user, IDuser: id_user, IDtrip: ID_trip } });
         setSavedItems(response.data);
       }else{
-        const response = await axios.get('/api/using-list-items', { params: { IDuser: ID_user, IDtrip: ID_trip } });
+        const id_user = JSON.parse(localStorage.getItem('id_user'));
+        const response = await axios.get('/api/using-list-items', { params: { asking_IDuser: id_user, IDuser: ID_user, IDtrip: ID_trip } });
         setSavedItems(response.data);
       }
     } catch (error) {
@@ -90,6 +91,9 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
 
   return (
     <div>
+      <Flex justify="center">
+        
+      </Flex>
       <Flex wrap justify="center">
         {savedItems.map(category => (
           <Accordion key={category.id_category} className="p-2 w-[300px]" defaultExpandedKeys={[category.id_category.toString()]}>

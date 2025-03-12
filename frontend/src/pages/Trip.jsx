@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import CreateTripList from "../components/CreateTripList.jsx";
 import TripList from "../components/TripList.jsx";
+import UserBar from "../components/UserBar.jsx";
 
 const Trip = () => {
   const { ID_trip } = useParams();
@@ -43,6 +44,7 @@ const Trip = () => {
 
   return (
     <div>
+
       {!isUsingList && (
         <CreateTripList ID_trip={ID_trip} tripDays={tripDays} setIsUsingList={setIsUsingList} />
       )}

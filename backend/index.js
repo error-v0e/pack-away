@@ -849,9 +849,89 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error creating list' });
   }
 });
-app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
-  const { IDuser, IDtrip } = req.query;
+app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
+  const { asking_IDuser, IDuser, IDtrip } = req.query;
   try {
+    const permission = await TripMemberPermission.findOne({
+      where: {
+        id_user: asking_IDuser,
+        id_friend: IDuser,
+        id_trip: IDtrip,
+      }
+    });
+
+    if (asking_IDuser !== IDuser || permission.view !== true) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    const query = `
+      SELECT
+        "UsingItems".id_item,
+        "UsingItems".name AS item_name,
+        "UsingItems".count AS count,
+        "UsingItems".check AS check,
+        "UsingItems".by_day,
+        "UsingItems".dissent AS dissent,
+        "UsingCategories".id_category,
+        "UsingCategories".name AS category_name,
+        "UsingListCategories".id_user,
+        "UsingListCategories".id_trip
+      FROM "UsingItems"
+      INNER JOIN "UsingCategoryItems" ON "UsingItems".id_item = "UsingCategoryItems".id_item
+      INNER JOIN "UsingCategories" ON "UsingCategoryItems".id_category = "UsingCategories".id_category
+      INNER JOIN "UsingListCategories" ON "UsingCategories".id_category = "UsingListCategories".id_category
+      WHERE "UsingListCategories".id_user = :IDuser AND "UsingListCategories".id_trip = :IDtrip;
+    `;
+
+    const usingListItems = await sequelize.query(query, {
+      replacements: { IDuser, IDtrip },
+      type: sequelize.QueryTypes.SELECT,
+    });
+
+    const categorizedItems = {};
+
+    usingListItems.forEach(item => {
+      const category = item.category_name;
+      if (!categorizedItems[category]) {
+        categorizedItems[category] = {
+          id_category: item.id_category,
+          name: category,
+          items: [],
+        };
+      }
+      categorizedItems[category].items.push({
+        id_item: item.id_item,
+        name: item.item_name,
+        by_day: item.by_day,
+        count: item.count,
+        check: item.check,
+        dissent: item.dissent,
+      });
+    });
+
+    const result = Object.values(categorizedItems);
+
+    res.json(result);
+  } catch (err) {
+    console.error('Error fetching using list items:', err);
+    res.status(500).json({ message: 'Error fetching using list items' });
+  }
+});
+app.get('/api/using-list-items', isAuthenticated, async (req, res) => {
+  const { asking_IDuser, IDuser, IDtrip } = req.query;
+  try {
+    const permission = await TripMemberPermission.findOne({
+      where: {
+        id_user: asking_IDuser,
+        id_friend: IDuser,
+        id_trip: IDtrip,
+      }
+    });
+
+    if (asking_IDuser !== IDuser || permission.edit !== true) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
     const query = `
       SELECT
         "UsingItems".id_item,
