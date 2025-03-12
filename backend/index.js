@@ -1263,6 +1263,29 @@ app.get('/api/check-user-presence', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error checking user presence' });
   }
 });
+app.get('/api/item-name', isAuthenticated, async (req, res) => {
+  const { id_item } = req.query;
+
+  if (!id_item) {
+    return res.status(400).json({ message: 'Item ID is required' });
+  }
+
+  try {
+    const item = await Item.findOne({
+      where: { id_item },
+      attributes: ['name']
+    });
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.json({ name: item.name });
+  } catch (error) {
+    console.error('Error fetching item name:', error);
+    res.status(500).json({ message: 'Error fetching item name' });
+  }
+});
 sequelize.sync({ alter: true }).then(() => {
   app.listen(5000, () => {
     console.log('Server běží na http://localhost:5000');

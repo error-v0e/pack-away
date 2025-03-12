@@ -177,56 +177,88 @@ const CreateList = () => {
   };
 
   const handleItemSelect = async (item, itemId) => {
-  const id_user = JSON.parse(localStorage.getItem('id_user'));
-
-  if (itemId === null) {
-    try {
-      console.log(item.id_item);
-      const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
-      const { name, count, by_day, category } = response.data;
-
-      console.log(response.data);
-      setNewItem({
-        name: name,
-        count: count,
-        by_day: by_day,
-        category: category
-      });
-    } catch (error) {
-      console.error('Error fetching item details:', error);
+    const id_user = JSON.parse(localStorage.getItem('id_user'));
+  
+    if (itemId === null) {
+      try {
+        console.log(item.id_item);
+        const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+        const { name, count, by_day, category } = response.data;
+  
+        console.log(response.data);
+        setNewItem({
+          name: name,
+          count: count,
+          by_day: by_day,
+          category: category
+        });
+      } catch (error) {
+        try {
+          console.log(item.id_item);
+          const response = await axios.get('/api/item-name', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+          const { name } = response.data;
+    
+          console.log(response.data);
+          setNewItem({
+            name: name
+          });
+        } catch (error) {
+          console.error('Error fetching item details:', error);
+        }
+      }
+    } else {
+      setItemSearchTerms(prevState => ({
+        ...prevState,
+        [itemId]: item.name
+      }));
+  
+      try {
+        const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+        const { name, count, by_day } = response.data;
+  
+        setSavedItems(prevState => {
+          const updatedItems = prevState.map(category => ({
+            ...category,
+            items: category.items.map(i => {
+              if (i.id_item === itemId) {
+                return {
+                  ...i,
+                  name,
+                  count,
+                  by_day
+                };
+              }
+              return i;
+            })
+          }));
+          return updatedItems;
+        });
+      } catch (error) {
+        try {
+          const response = await axios.get('/api/item-name', { params: { id_item: item.id_item} }, { withCredentials: true });
+          const { name } = response.data;
+    
+          setSavedItems(prevState => {
+            const updatedItems = prevState.map(category => ({
+              ...category,
+              items: category.items.map(i => {
+                if (i.id_item === itemId) {
+                  return {
+                    ...i,
+                    name,
+                  };
+                }
+                return i;
+              })
+            }));
+            return updatedItems;
+          });
+        } catch (error) {
+          console.error('Error fetching item details:', error);
+        }
+      }
     }
-  } else {
-    setItemSearchTerms(prevState => ({
-      ...prevState,
-      [itemId]: item.name
-    }));
-
-    try {
-      const response = await axios.get('/api/item-details', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
-      const { name, count, by_day } = response.data;
-
-      setSavedItems(prevState => {
-        const updatedItems = prevState.map(category => ({
-          ...category,
-          items: category.items.map(i => {
-            if (i.id_item === itemId) {
-              return {
-                ...i,
-                name,
-                count,
-                by_day
-              };
-            }
-            return i;
-          })
-        }));
-        return updatedItems;
-      });
-    } catch (error) {
-      console.error('Error fetching item details:', error);
-    }
-  }
-};
+  };
 
   const handleByDayChange = (e, itemId) => {
     const value = e.target.value === 'true';
@@ -481,8 +513,8 @@ const CreateList = () => {
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.Item.name}
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
@@ -585,8 +617,8 @@ const CreateList = () => {
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                          {i.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>

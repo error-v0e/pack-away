@@ -180,7 +180,18 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         category: category
       });
     } catch (error) {
-      console.error('Error fetching item details:', error);
+      try {
+        console.log(item.id_item);
+        const response = await axios.get('/api/item-name', { params: { id_item: item.id_item, id_user } }, { withCredentials: true });
+        const { name } = response.data;
+  
+        console.log(response.data);
+        setNewItem({
+          name: name
+        });
+      } catch (error) {
+        console.error('Error fetching item details:', error);
+      }
     }
   } else {
     setItemSearchTerms(prevState => ({
@@ -210,7 +221,28 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         return updatedItems;
       });
     } catch (error) {
-      console.error('Error fetching item details:', error);
+      try {
+        const response = await axios.get('/api/item-name', { params: { id_item: item.id_item} }, { withCredentials: true });
+        const { name } = response.data;
+  
+        setSavedItems(prevState => {
+          const updatedItems = prevState.map(category => ({
+            ...category,
+            items: category.items.map(i => {
+              if (i.id_item === itemId) {
+                return {
+                  ...i,
+                  name,
+                };
+              }
+              return i;
+            })
+          }));
+          return updatedItems;
+        });
+      } catch (error) {
+        console.error('Error fetching item details:', error);
+      }
     }
   }
 };
@@ -558,8 +590,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                          {i.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
