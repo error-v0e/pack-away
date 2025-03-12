@@ -13,10 +13,6 @@ const UserBar = ({ ID_trip, ID_user }) => {
         const response = await axios.get('/api/trip-members', { params: { id_user: ID_user, id_trip: ID_trip } });
         setMembers(response.data);
 
-        members.map(member => (
-          console.log('------------- -- ' + member.id_user+ ' ' + member.username + ' ' + member.picture + ' ' + member.joined + ' ' + member.view)
-        ));
-
       } catch (error) {
         console.error('Error fetching trip members:', error);
         setError('Error fetching trip members');
