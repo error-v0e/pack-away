@@ -997,7 +997,7 @@ app.get('/api/item-details', isAuthenticated, async (req, res) => {
           include: [
             {
               model: CategoryItem,
-              where: { id_user },
+              where: { id_user, id_list: null },
               include: [
                 {
                   model: Category,

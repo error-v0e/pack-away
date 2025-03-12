@@ -21,11 +21,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
     setSelectedCategory(categoryId);
     console.log('Selected category:', categoryId);
     const category = savedItems.find(cat => cat.id_category === categoryId);
-    console.log('Selected category:', category);
-    setNewCategoryName(category.name);
-    console.log('N Selected category:', newCategoryName);
+    setNewCategoryName(category?.name || '');
     setShowCategoryModal(true);
-    console.log(savedItems);
   };
 
   const handleCategoryRename = (categoryId, newCategoryName) => {
@@ -89,9 +86,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       console.log(response.data);
     const savedItems = response.data.savedItems;
     const unsavedItems = response.data.unsavedItems;
-    console.log(savedItems);
-    console.log(unsavedItems);
-
     setItemSearchResults(prevState => ({
       ...prevState,
       [itemId]: { savedItems, unsavedItems }
@@ -104,7 +98,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const extractCategoryNames = (savedItems) => {
     return savedItems.map(item => item.name).filter(Boolean);
   };
-  
 
   const fetchCategories = async (searchTerm, itemId) => {
     try {
@@ -112,15 +105,12 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
       const response = await axios.get('/api/search-categories', { params: { search: searchTerm, userId: id_user } }, { withCredentials: true });
       const fetchedCategories = response.data;
 
-
       const usingCategories = {
         savedCategories: Array.from(new Set(extractCategoryNames(savedItems)))
           .map(name => ({ id_category: `saved-${name}`, name }))
       };
 
-
       const allCategories = [...fetchedCategories.savedCategories, ...fetchedCategories.unsavedCategories, ...usingCategories.savedCategories];
-
 
       const uniqueCategories = allCategories.reduce((acc, category) => {
         if (!acc.some(cat => cat.name === category.name)) {
@@ -128,8 +118,6 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         }
         return acc;
       }, []);
-      
-
       
     setCategorySearchResults(prevState => ({
       ...prevState,
@@ -459,15 +447,15 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   >
                     <AutocompleteSection title="Vaše uložené">
                       {itemSearchResults[null]?.savedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
+                        <AutocompleteItem key={item.Item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
                           {item.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
-                          {item.Item.name}
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                          {item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>

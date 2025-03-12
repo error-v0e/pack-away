@@ -5,7 +5,7 @@ import { Flex } from 'antd';
 import { Check } from "../assets/Check";
 import { Dash } from "../assets/Dash";
 
-const TripList = ({ ID_trip, tripDays }) => {
+const TripList = ({ ID_trip, ID_user, tripDays }) => {
   const [savedItems, setSavedItems] = useState([]);
   const [error, setError] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -13,9 +13,14 @@ const TripList = ({ ID_trip, tripDays }) => {
 
   const fetchUsingListItems = async () => {
     try {
-      const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.get('/api/using-list-items', { params: { IDuser: id_user, IDtrip: ID_trip } });
-      setSavedItems(response.data);
+      if (!ID_user) {
+        const id_user = JSON.parse(localStorage.getItem('id_user'));
+        const response = await axios.get('/api/using-list-items', { params: { IDuser: id_user, IDtrip: ID_trip } });
+        setSavedItems(response.data);
+      }else{
+        const response = await axios.get('/api/using-list-items', { params: { IDuser: ID_user, IDtrip: ID_trip } });
+        setSavedItems(response.data);
+      }
     } catch (error) {
       setError('Chyba při načítání položek seznamu');
     }
