@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Avatar } from "@heroui/react";
+import { Avatar, AvatarIcon, Card, CardBody } from "@heroui/react";
 import { Flex } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const UserBar = ({ ID_trip, ID_user }) => {
   const [members, setMembers] = useState([]);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTripMembers = async () => {
@@ -22,6 +24,10 @@ const UserBar = ({ ID_trip, ID_user }) => {
     fetchTripMembers();
   }, [ID_trip, ID_user]);
 
+  const navigateToUserList = async (IDuser) => {
+    navigate(`/cesta/${ID_trip}/${IDuser}`);
+  };
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -30,13 +36,27 @@ const UserBar = ({ ID_trip, ID_user }) => {
     <div>
       <Flex gap='small' justify="center">
         {members.map(member => (
-          <Avatar
-            key={member.id_user}
-            size="lg"
-            name={member.username}
-            src={member.picture}
-            isDisabled={!member.joined || !member.view }
-          />
+          // eslint-disable-next-line react/jsx-key
+          <Card 
+            className='bg-transparent border-none'
+            shadow="none"
+            onPress={member.joined && member.view ? () => navigateToUserList(member.id_user) : undefined}
+            isPressable={member.joined && member.view}> 
+            <CardBody>
+              <Flex justify="center" >
+                <Avatar
+                  className='justify-item-center'
+                  key={member.id_user}
+                  size="lg"
+                  name={member.username}
+                  src={member.picture}
+                  isDisabled={!member.joined || !member.view }
+                  icon={<AvatarIcon />}
+                />
+              </Flex>
+                <p className='text-center'>{member.username}</p>
+            </CardBody>
+          </Card>
         ))}
       </Flex>
     </div>
