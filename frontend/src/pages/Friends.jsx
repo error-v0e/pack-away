@@ -136,7 +136,7 @@ const Friends = () => {
                   radius="full"
                   size="sm"
                   variant="bordered"
-                  onClick={() => addFollow(item.id_user)}
+                  onPress={() => addFollow(item.id_user)}
                 >
                   Přidat
                 </Button>
@@ -161,7 +161,7 @@ const Friends = () => {
                 radius="full"
                 size="sm"
                 variant="bordered"
-                onClick={() => removeFollow(friend.id_user)}
+                onPress={() => removeFollow(friend.id_user)}
               >
                 Odebrat
               </Button>

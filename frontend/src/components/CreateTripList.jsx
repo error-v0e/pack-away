@@ -479,14 +479,14 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   >
                     <AutocompleteSection title="Vaše uložené">
                       {itemSearchResults[null]?.savedItems.map(item => (
-                        <AutocompleteItem key={item.Item.id_item} textValue={item.Item.name} onClick={() => handleItemSelect(item, null)}>
+                        <AutocompleteItem key={item.Item.id_item} textValue={item.Item.name} onPress={() => handleItemSelect(item, null)}>
                           {item.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onPress={() => handleItemSelect(item, null)}>
                           {item.name}
                         </AutocompleteItem>
                       ))}
@@ -528,20 +528,20 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   >
                     <AutocompleteSection title="Vaše uložené">
                       {categorySearchResults[null]?.savedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, null)}>
                           {cat.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {categorySearchResults[null]?.unsavedCategories.map(cat => (
-                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                        <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, null)}>
                           {cat.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                   </Autocomplete>
-                  <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItem}>
+                  <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onPress={addItem}>
                     Přidat položku
                   </Button>
                 </CardBody>
@@ -565,7 +565,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                         className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
                         radius="full"
                         variant="light"
-                        onClick={() => removeItem(item.id_item)}
+                        onPress={() => removeItem(item.id_item)}
                       >
                         <Dash />
                       </Button>
@@ -583,14 +583,14 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                   >
                     <AutocompleteSection title="Vaše uložené">
                       {itemSearchResults[item.id_item]?.savedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onPress={() => handleItemSelect(i, item.id_item)}>
                           {i.Item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onPress={() => handleItemSelect(i, item.id_item)}>
                           {i.name}
                         </AutocompleteItem>
                       ))}
@@ -627,19 +627,19 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                         value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
                       }}
                       endContent={
-                        <Button isIconOnly className='mt-1' onClick={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
+                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
                       }
                     >
                       <AutocompleteSection title="Vaše uložené">
                         {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
                         {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
@@ -665,14 +665,14 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     >
                       <AutocompleteSection title="Vaše uložené">
                         {categorySearchResults[category.id_category]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySearchSelect(cat, category.id_category)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
                         {categorySearchResults[category.id_category]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySearchSelect(cat, category.id_category)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySearchSelect(cat, category.id_category)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
@@ -680,8 +680,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                     </Autocomplete>
                   </ModalBody>
                   <ModalFooter>
-                  <Button color="danger" onClick={() => handleCategoryDelete(category.id_category)}>Smazat</Button>
-                    <Button onClick={() => handleCategoryRename(category.id_category, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
+                  <Button color="danger" onPress={() => handleCategoryDelete(category.id_category)}>Smazat</Button>
+                    <Button onPress={() => handleCategoryRename(category.id_category, categorySearchTerms[category.id_category] || category.name)}>Přejmenovat</Button>
                   </ModalFooter>
                 </ModalContent>
               </Modal>
@@ -697,7 +697,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
         <PopoverContent>
           <div className="px-1 py-2">
             <div className="text-small font-bold mb-2">Opravdu chcete vytvořit seznam?</div>
-            <Button color="warning" variant="flat" className='w-full' onClick={createList}>
+            <Button color="warning" variant="flat" className='w-full' onPress={createList}>
               Ano
             </Button>
           </div>

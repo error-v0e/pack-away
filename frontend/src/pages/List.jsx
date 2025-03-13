@@ -33,7 +33,7 @@ const List = () => {
   return (
     <>
       <Flex wrap gap="small" justify="center" className="mb-5">
-        <Button onClick={handleButtonClick} size="lg" className='ps-4 pe-4 min-h-[60px]'>
+        <Button onPress={handleButtonClick} size="lg" className='ps-4 pe-4 min-h-[60px]'>
           Nový seznam
         </Button>
         

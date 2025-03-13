@@ -272,7 +272,7 @@ const Items = () => {
               }}
             >
               {itemSearchResults[null]?.map(item => (
-                <AutocompleteItem key={item.id_item} textValue={item.name} onClick={() => handleItemSelect(item, null)}>
+                <AutocompleteItem key={item.id_item} textValue={item.name} onPress={() => handleItemSelect(item, null)}>
                   {item.name}
                 </AutocompleteItem>
               ))}
@@ -313,20 +313,20 @@ const Items = () => {
             >
               <AutocompleteSection title="Vaše uložené">
                 {categorySearchResults[null]?.savedCategories.map(cat => (
-                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, null)}>
                     {cat.name}
                   </AutocompleteItem>
                 ))}
               </AutocompleteSection>
               <AutocompleteSection title="Návrhy">
                 {categorySearchResults[null]?.unsavedCategories.map(cat => (
-                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, null)}>
+                  <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, null)}>
                     {cat.name}
                   </AutocompleteItem>
                 ))}
               </AutocompleteSection>
             </Autocomplete>
-            <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onClick={addItemAndCategory}>
+            <Button size="lg" className='ps-4 pe-4 mt-4 min-h-[40px]' onPress={addItemAndCategory}>
               Přidat položku
             </Button>
           </CardBody>
@@ -350,7 +350,7 @@ const Items = () => {
                       }}
                     >
                       {itemSearchResults[item.id_item]?.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.name} onClick={() => handleItemSelect(i, item.id_item)}>
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onPress={() => handleItemSelect(i, item.id_item)}>
                           {i.name}
                         </AutocompleteItem>
                       ))}
@@ -392,20 +392,20 @@ const Items = () => {
                     >
                       <AutocompleteSection title="Vaše uložené">
                         {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
                         {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onClick={() => handleCategorySelect(cat, item.id_item)}>
+                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
                             {cat.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                     </Autocomplete>
-                    <Button isIconOnly className='h-15 mt-3' color="success" variant="flat" onClick={() => updateItem(item.id_item)}>
+                    <Button isIconOnly className='h-15 mt-3' color="success" variant="flat" onPress={() => updateItem(item.id_item)}>
                       U
                     </Button>
                     <Popover placement="right">
@@ -420,7 +420,7 @@ const Items = () => {
                           <Button className='me-3 b' color="success" variant="flat">
                           Zrusit
                           </Button>
-                          <Button color="danger" variant="flat" onClick={() => deleteItem(item.id_item)}>
+                          <Button color="danger" variant="flat" onPress={() => deleteItem(item.id_item)}>
                           Ano
                           </Button>
                         </div>

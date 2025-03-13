@@ -299,7 +299,6 @@ app.delete('/api/remove_follow', isAuthenticated, async (req, res) => {
 });
 app.post('/api/create_trip', isAuthenticated, async (req, res) => {
   const { id_user, name, icon, from_date, to_date, invitedFriends } = req.body;
-  console.log('--------id_user:', id_user);
 
   try {
     const newTrip = await Trip.create({ name, icon, from_date, to_date });
@@ -844,7 +843,6 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
 
       for (const item of category.items) {
         const usingItem = await UsingItem.create({ name: item.name, count: item.count,by_day: item.by_day, check: false, dissent: false });
-        console.log('usingItem:', usingItem);
         await UsingCategoryItem.create({
           id_item: usingItem.id_item,
           id_category: usingCategory.id_category 
@@ -870,7 +868,6 @@ app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
           id_trip: IDtrip,
         }
       });
-      console.log('permission:', permission);
       if (permission.view !== true) {
         return res.status(403).json({ message: 'Unauthorized' });
       }

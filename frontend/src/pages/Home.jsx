@@ -231,7 +231,7 @@ const Home = () => {
                                       radius="full"
                                       size="sm"
                                       variant="bordered"
-                                      onClick={() => inviteFriend(item)}
+                                      onPress={() => inviteFriend(item)}
                                     >
                                       Pozvat
                                     </Button>
@@ -256,7 +256,7 @@ const Home = () => {
                                       radius="full"
                                       size="sm"
                                       variant="bordered"
-                                      onClick={() => removeInviteFriend(friend)}
+                                      onPress={() => removeInviteFriend(friend)}
                                     >
                                       Odebrat
                                     </Button>
@@ -306,10 +306,10 @@ const Home = () => {
                         </div>
                       </div>
                       <div className="flex gap-1 ms-2">
-                        <Button isIconOnly onClick={() => handleJoinTrip(trip.id_trip)}>
+                        <Button isIconOnly onPress={() => handleJoinTrip(trip.id_trip)}>
                           Y
                         </Button>
-                        <Button isIconOnly color="danger" variant="flat" onClick={() => handleDeclineTrip(trip.id_trip)}>
+                        <Button isIconOnly color="danger" variant="flat" onPress={() => handleDeclineTrip(trip.id_trip)}>
                           N
                         </Button>
                       </div>
@@ -403,7 +403,7 @@ const Home = () => {
               </Flex>
               {!allPastTripsLoaded && (
                 <div className="text-center mt-4">
-                  <Button onClick={loadMorePastTrips}>Načíst další</Button>
+                  <Button onPress={loadMorePastTrips}>Načíst další</Button>
                 </div>
               )}
             </AccordionItem>
