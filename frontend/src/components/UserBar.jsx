@@ -36,8 +36,8 @@ const UserBar = ({ ID_trip, ID_user }) => {
     <div>
       <Flex gap='small' justify="center">
         {members.map(member => (
-          // eslint-disable-next-line react/jsx-key
           <Card 
+            key={member.id_user}
             className='bg-transparent border-none'
             shadow="none"
             onPress={member.joined && member.view ? () => navigateToUserList(member.id_user) : undefined}
@@ -48,7 +48,6 @@ const UserBar = ({ ID_trip, ID_user }) => {
                   className='justify-item-center'
                   key={member.id_user}
                   size="lg"
-                  name={member.username}
                   src={member.picture}
                   isDisabled={!member.joined || !member.view }
                   icon={<AvatarIcon />}

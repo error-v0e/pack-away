@@ -870,6 +870,7 @@ app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
           id_trip: IDtrip,
         }
       });
+      console.log('permission:', permission);
       if (permission.view !== true) {
         return res.status(403).json({ message: 'Unauthorized' });
       }
@@ -1419,6 +1420,33 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching trip members:', error);
     res.status(500).json({ message: 'Error fetching trip members' });
+  }
+});
+app.get('/api/user-permissions', isAuthenticated, async (req, res) => {
+  const { id_user, id_friend, id_trip } = req.query;
+
+  if (!id_user || !id_friend || !id_trip) {
+    return res.status(400).json({ message: 'User ID, Friend ID, and Trip ID are required' });
+  }
+
+  try {
+    const permission = await TripMemberPermission.findOne({
+      where: {
+        id_user,
+        id_friend,
+        id_trip
+      },
+      attributes: ['view', 'edit']
+    });
+
+    if (!permission) {
+      return res.status(404).json({ message: 'Permissions not found' });
+    }
+
+    res.json({ view: permission.view, edit: permission.edit });
+  } catch (error) {
+    console.error('Error fetching user permissions:', error);
+    res.status(500).json({ message: 'Error fetching user permissions' });
   }
 });
 sequelize.sync({ alter: true }).then(() => {
