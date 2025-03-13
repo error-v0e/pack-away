@@ -395,51 +395,49 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
 
     const formatDate = (date) => format(new Date(date), 'dd.MM.yyyy');
 
+    const getMembersCount = async (id_trip) => {
+      const count = await TripMember.count({ where: { id_trip } });
+      return count;
+    };
+
+    const getMissingItemsCount = async (id_trip, id_user) => {
+      const query = `
+        SELECT COUNT(*) AS count
+        FROM "UsingItems"
+        INNER JOIN "UsingCategoryItems" ON "UsingItems".id_item = "UsingCategoryItems".id_item
+        INNER JOIN "UsingCategories" ON "UsingCategoryItems".id_category = "UsingCategories".id_category
+        INNER JOIN "UsingListCategories" ON "UsingCategories".id_category = "UsingListCategories".id_category
+        WHERE "UsingListCategories".id_user = :id_user
+        AND "UsingListCategories".id_trip = :id_trip
+        AND "UsingItems".check = false
+        AND "UsingItems".dissent = false;
+      `;
+      const result = await sequelize.query(query, {
+        replacements: { id_user, id_trip },
+        type: sequelize.QueryTypes.SELECT,
+      });
+      return result[0].count;
+    };
+
+    const mapTrips = async (tripMembers) => {
+      return Promise.all(tripMembers.map(async (tripMember) => ({
+        id_trip: tripMember.Trip.id_trip,
+        name: tripMember.Trip.name,
+        icon: tripMember.Trip.icon,
+        from_date: formatDate(tripMember.Trip.from_date),
+        to_date: formatDate(tripMember.Trip.to_date),
+        joined: tripMember.joined,
+        owner: tripMember.owner,
+        members_count: await getMembersCount(tripMember.Trip.id_trip),
+        missing_items_count: await getMissingItemsCount(tripMember.Trip.id_trip, id_user),
+      })));
+    };
+
     const trips = {
-      upcoming: upcoming.map(tripMember => ({
-        id_trip: tripMember.Trip.id_trip,
-        name: tripMember.Trip.name,
-        icon: tripMember.Trip.icon,
-        from_date: formatDate(tripMember.Trip.from_date),
-        to_date: formatDate(tripMember.Trip.to_date),
-        joined: tripMember.joined,
-        owner: tripMember.owner,
-        members_count: 0, 
-        missing_items_count: 0, 
-      })),
-      ongoing: ongoing.map(tripMember => ({
-        id_trip: tripMember.Trip.id_trip,
-        name: tripMember.Trip.name,
-        icon: tripMember.Trip.icon,
-        from_date: formatDate(tripMember.Trip.from_date),
-        to_date: formatDate(tripMember.Trip.to_date),
-        joined: tripMember.joined,
-        owner: tripMember.owner,
-        members_count: 0, 
-        missing_items_count: 0, 
-      })),
-      past: past.map(tripMember => ({
-        id_trip: tripMember.Trip.id_trip,
-        name: tripMember.Trip.name,
-        icon: tripMember.Trip.icon,
-        from_date: formatDate(tripMember.Trip.from_date),
-        to_date: formatDate(tripMember.Trip.to_date),
-        joined: tripMember.joined,
-        owner: tripMember.owner,
-        members_count: 0, 
-        missing_items_count: 0, 
-      })),
-      invites: invites.map(tripMember => ({
-        id_trip: tripMember.Trip.id_trip,
-        name: tripMember.Trip.name,
-        icon: tripMember.Trip.icon,
-        from_date: formatDate(tripMember.Trip.from_date),
-        to_date: formatDate(tripMember.Trip.to_date),
-        joined: tripMember.joined,
-        owner: tripMember.owner,
-        members_count: 0, 
-        missing_items_count: 0, 
-      })),
+      upcoming: await mapTrips(upcoming),
+      ongoing: await mapTrips(ongoing),
+      past: await mapTrips(past),
+      invites: await mapTrips(invites),
       allPastTripsLoaded: past.length < 10
     };
 

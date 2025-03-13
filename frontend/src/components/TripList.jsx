@@ -113,7 +113,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
                           <Button
                             isIconOnly
                             id='keep-open-element'
-                            onPress={() => handleLeftClick(item)}
+                            onClick={() => handleLeftClick(item)}
                             onContextMenu={(e) => handleRightClick(e, item)}
                           >
                             {item.status === 'check' ? <Check /> : item.status === 'dash' ? <Dash /> : null}
@@ -121,9 +121,9 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
                         </PopoverTrigger>
                         <PopoverContent>
                           <div className="flex flex-col gap-2 py-2">
-                            <Button isIconOnly onPress={() => handleStatusChange('check')}><Check /></Button>
-                            <Button isIconOnly onPress={() => handleStatusChange('dash')}><Dash /></Button>
-                            <Button isIconOnly onPress={() => handleStatusChange('none')}></Button>
+                            <Button isIconOnly onClick={() => handleStatusChange('check')}><Check /></Button>
+                            <Button isIconOnly onClick={() => handleStatusChange('dash')}><Dash /></Button>
+                            <Button isIconOnly onClick={() => handleStatusChange('none')}></Button>
                           </div>
                         </PopoverContent>
                       </Popover>
