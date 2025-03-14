@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, Accordion, AccordionItem, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from "@heroui/react";
 import { Flex } from 'antd';
+import {I18nProvider} from "@react-aria/i18n";
 import { PackAwayLogo } from '../assets/PackAwayLogo';
 import { MissingInput } from '../assets/MissingInput';
 import { Users } from '../assets/Users';
@@ -155,12 +156,14 @@ const Home = () => {
                     value={tripName}
                     onChange={(e) => setTripName(e.target.value)}
                   />
-                  <DateRangePicker
-                    label="Stay duration"
-                    className="w-full"
-                    value={tripDates}
-                    onChange={(range) => setTripDates({ start: range.start, end: range.end })}
-                  />
+                  <I18nProvider locale="cs-CZ-u-ca-czech">
+                    <DateRangePicker
+                      label="Obdobý cesty"
+                      className="w-full"
+                      value={tripDates}
+                      onChange={(range) => setTripDates({ start: range.start, end: range.end })}
+                    />
+                  </I18nProvider>
                   <Button onPress={onInviteOpen} size="lg" className='ps-4 pe-4 min-h-[60px]' startContent={<Users width={50} height={50} />}>
                     Pozvat přátele
                   </Button>
