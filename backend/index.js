@@ -419,6 +419,14 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
       return result[0].count;
     };
 
+    const getOwnerUsername = async (id_trip) => {
+      const owner = await TripMember.findOne({
+        where: { id_trip, owner: true },
+        include: [{ model: User, attributes: ['username'] }]
+      });
+      return owner ? owner.User.username : null;
+    };
+
     const mapTrips = async (tripMembers) => {
       return Promise.all(tripMembers.map(async (tripMember) => ({
         id_trip: tripMember.Trip.id_trip,
@@ -427,7 +435,7 @@ app.get('/api/trips', isAuthenticated, async (req, res) => {
         from_date: formatDate(tripMember.Trip.from_date),
         to_date: formatDate(tripMember.Trip.to_date),
         joined: tripMember.joined,
-        owner: tripMember.owner,
+        owner: await getOwnerUsername(tripMember.Trip.id_trip),
         members_count: await getMembersCount(tripMember.Trip.id_trip),
         missing_items_count: await getMissingItemsCount(tripMember.Trip.id_trip, id_user),
       })));
