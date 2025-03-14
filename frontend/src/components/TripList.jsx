@@ -28,7 +28,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
     }
   };
   const handleCloseOnInteractOutside = (element) => {
-    if (element.id === "keep-open-element") {
+    if (element.id === "popup") {
       return false;
     }
     return true;
@@ -40,6 +40,16 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
     return () => clearInterval(interval); 
   }, [ID_trip]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".popover-content") && isPopoverOpen) {
+        setIsPopoverOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isPopoverOpen]);
+  
   const handleLeftClick = async (item) => {
     let newStatus;
     switch (item.status) {
@@ -112,7 +122,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
                         <PopoverTrigger>
                           <Button
                             isIconOnly
-                            id='keep-open-element'
+                            id='popup'
                             onClick={() => handleLeftClick(item)}
                             onContextMenu={(e) => handleRightClick(e, item)}
                           >
