@@ -11,7 +11,7 @@ const { format } = require('date-fns');
 
 const app = express();
 
-const allowedOrigins = ['http://192.168.50.100:5173', 'http://localhost:5173', 'http://10.20.9.35:5173'];
+const allowedOrigins = ['http://192.168.50.100:5173', 'http://localhost:5173', 'http://10.20.9.35:5173', 'https://packaway.spsul.cz'];
 
 app.use(cors({
   origin: function (origin, callback) {
