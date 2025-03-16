@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
@@ -15,6 +16,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
+    const navigate = useNavigate();
 
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
@@ -440,6 +442,10 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
     setNewItem({ name: '', count: '', by_day: true, category: '' });
   };
 
+  const clearAllItems = () => {
+    setSavedItems([]);
+  };
+
   const createList = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
@@ -461,6 +467,22 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
 
   return (
     <div>
+      <div>
+        <Button onPress={() => navigate('/')}>
+          Zpět na cesty      
+        </Button>
+        <Popover>
+          <PopoverTrigger>
+            <Button className='absolute right-5'>Odebrat všechny položky</Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <div className="px-1 py-2">
+              <div className="text-small font-bold pb-1">Opravdu chcete odebrat<br></br> všechny položky?</div>
+              <Button color='danger' onPress={clearAllItems}>Ano</Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       <Flex wrap justify="center" className="mb-5">
               <Card className="max-w-[400px]">
                 <CardBody>

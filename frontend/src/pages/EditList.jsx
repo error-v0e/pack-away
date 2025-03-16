@@ -434,6 +434,10 @@ const EditList = () => {
     setNewItem({ name: '', count: '', by_day: true, category: '' });
   };
 
+  const clearAllItems = () => {
+    setSavedItems([]);
+  };
+
   const createList = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
@@ -456,6 +460,22 @@ const EditList = () => {
 
   return (
     <div>
+      <div>
+              <Button onPress={() => navigate('/seznamy')}>
+                Zpět na seznamy       
+              </Button>
+              <Popover>
+                <PopoverTrigger>
+                  <Button className='absolute right-5'>Odebrat všechny položky</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <div className="px-1 py-2">
+                    <div className="text-small font-bold pb-1">Opravdu chcete odebrat<br></br> všechny položky?</div>
+                    <Button color='danger' onPress={clearAllItems}>Ano</Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
       <Flex wrap justify="center" className="mb-5">
         <Card className="max-w-[340px] w-full">
           <CardHeader className="flex gap-3">

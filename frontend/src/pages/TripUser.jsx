@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import TripList from "../components/TripList.jsx";
 import ViewTripList from "../components/ViewTripList.jsx";
 import UserBar from "../components/UserBar.jsx";
@@ -12,6 +13,7 @@ const TripUser = () => {
   const [viewUser, setViewUser] = useState(false);
   const [editUser, setEditUser] = useState(false);
   const [tripDays, setTripDays] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkUserPresence = async () => {
@@ -64,6 +66,11 @@ const TripUser = () => {
 
   return (
     <div>
+      <div>
+        <Button onPress={() => navigate('/cesta/'+ID_trip)}>
+          Zpět na svůj seznam       
+        </Button>
+      </div>
       <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
       {!isUser && <div>Uživatel není ve vybrané cestě.</div>}
       {editUser && <TripList ID_trip={ID_trip} ID_user={ID_user} tripDays={tripDays} />}

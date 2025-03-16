@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardBody, CardHeader, Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 import { Flex } from 'antd';
 import { Check } from "../assets/Check";
@@ -11,6 +12,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
   const [error, setError] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const navigate = useNavigate();
 
   const fetchUsingListItems = async () => {
     try {
@@ -67,7 +69,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
     }
     await updateItemStatus(item.id_item, newStatus);
     item.status = newStatus; // Aktualizace stavu položky na frontendu
-    setSavedItems([...savedItems]); // Aktualizace stavu komponenty
+    setSavedItems([...savedItems]); // ... Aktualizace stavu komponenty
   };
 
   const handleRightClick = (e, item) => {
@@ -102,6 +104,11 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
 
   return (
     <div>
+      <div>
+        <Button onPress={() => navigate('/')}>
+          Zpět na cesty       
+        </Button>
+      </div>
       <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
       <Flex wrap justify="center">
         {savedItems.map(category => (
