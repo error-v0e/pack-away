@@ -515,8 +515,8 @@ const EditList = () => {
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[null]?.unsavedItems.map(item => (
-                        <AutocompleteItem key={item.id_item} textValue={item.Item.name} onPress={() => handleItemSelect(item, null)}>
-                          {item.Item.name}
+                        <AutocompleteItem key={item.id_item} textValue={item.name} onPress={() => handleItemSelect(item, null)}>
+                          {item.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
@@ -619,8 +619,8 @@ const EditList = () => {
                     </AutocompleteSection>
                     <AutocompleteSection title="Návrhy">
                       {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onPress={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
+                        <AutocompleteItem key={i.id_item} textValue={i.name} onPress={() => handleItemSelect(i, item.id_item)}>
+                          {i.name}
                         </AutocompleteItem>
                       ))}
                     </AutocompleteSection>
