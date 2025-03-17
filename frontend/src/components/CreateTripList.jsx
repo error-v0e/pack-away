@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
+import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, CardHeader, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
 import { Dash } from "../assets/Dash";
 
@@ -16,7 +16,9 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const [lists, setLists] = useState([]);
 
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
@@ -135,6 +137,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
 
   useEffect(() => {
     fetchSavedItems();
+    fetchLists();
   }, [ID_trip]);
 
   const handleItemSearchChange = (e, itemId) => {
@@ -441,9 +444,27 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   
     setNewItem({ name: '', count: '', by_day: true, category: '' });
   };
-
+  const fetchLists = async () => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('/api/get-lists', { params: { id_user } });
+      setLists(response.data);
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+    }
+  };
   const clearAllItems = () => {
     setSavedItems([]);
+  };
+  const fetchSavedListItems = async (ID_list) => {
+    try {
+      const id_user = JSON.parse(localStorage.getItem('id_user'));
+      const response = await axios.get('/api/saved-list-items', { params: { userId: id_user, listId: ID_list } }, { withCredentials: true });
+      setSavedItems([]);
+      setSavedItems(response.data);
+    } catch (error) {
+      console.error('Chyba při načítání uložených položek:', error);
+    }
   };
 
   const createList = async () => {
@@ -467,13 +488,54 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
 
   return (
     <div>
-      <div>
+      <div className="flex justify-between items-center mb-5">
         <Button onPress={() => navigate('/')}>
           Zpět na cesty      
         </Button>
+        <div>
+        <Button onPress={onOpen}>Načíst ze seznamu</Button>
+      <Modal isOpen={isOpen} size='2xl' onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Vyber seznam
+              <div className="text-small">Již načtené položky budou přepsané</div></ModalHeader>
+              <ModalBody>
+                <Flex wrap gap="small" justify="center" className="mb-6">
+                  {lists.map(list => (
+                  <Popover key={list.id_list + 'P'} placement="bottom">
+                    <PopoverTrigger>
+                      <Card key={list.id_list} className="max-w-[280px] m-1 w-full" isPressable>
+                        <CardHeader className="flex gap-3">
+                          <div className="flex flex-col items-start items-start">
+                            <p className="text-xl">{list.name}</p>
+                            <p className="text-small text-default-500">Počet položek: {list.itemCount}</p>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <div className="px-1 py-2">
+                        <div className="text-small font-bold">Načíst seznam "{list.name}"</div>
+                        <Button className='me-3 b' variant="flat">
+                        Zrusit
+                        </Button>
+                        <Button color="primary" variant="flat" onPress={() =>{ fetchSavedListItems(list.id_list); onClose();}}>
+                        Ano
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  ))}
+                </Flex>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
         <Popover>
           <PopoverTrigger>
-            <Button className='absolute right-5'>Odebrat všechny položky</Button>
+            <Button className='ms-5'>Odebrat všechny položky</Button>
           </PopoverTrigger>
           <PopoverContent>
             <div className="px-1 py-2">
@@ -482,6 +544,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
             </div>
           </PopoverContent>
         </Popover>
+        </div>
       </div>
       <Flex wrap justify="center" className="mb-5">
               <Card className="max-w-[400px]">

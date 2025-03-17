@@ -137,7 +137,6 @@ const CategoryItem = sequelize.define(
       defaultValue: true,
     },
     count: DataTypes.INTEGER,
-    defaultValue: 0,
   },
   {
     timestamps: false,
@@ -161,7 +160,6 @@ const SavedItem = sequelize.define('SavedItem', {
     defaultValue: true,
   },
   count: DataTypes.INTEGER,
-  defaultValue: 0,
 }, { timestamps: false });
 
 SavedItem.removeAttribute('id'); 
