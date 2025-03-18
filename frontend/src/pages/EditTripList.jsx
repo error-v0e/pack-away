@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, CardHeader, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
-import { Dash } from "../assets/Dash";
+import { Check } from "../assets/Check.jsx";
+import { Dash } from "../assets/Dash.jsx";
 
 const EditTripList = () => {
   const { ID_trip } = useParams();
@@ -19,7 +20,8 @@ const EditTripList = () => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const navigate = useNavigate();
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
-    const [lists, setLists] = useState([]);
+  const [lists, setLists] = useState([]);
+  const [tripDays, setTripDays] = useState(1);
 
   const handleCategoryContextMenu = (e, categoryId) => {
     e.preventDefault();
@@ -139,6 +141,15 @@ const EditTripList = () => {
   useEffect(() => {
     fetchSavedItems();
     fetchLists();
+    const fetchTripDetails = async () => {
+      try {
+        const response = await axios.get('/api/trip-details/', { params: { id_trip: ID_trip } });
+        setTripDays(response.data.days);
+      } catch (error) {
+        console.error('Error fetching trip details:', error);
+      }
+    };
+    fetchTripDetails();
   }, [ID_trip]);
 
   const handleItemSearchChange = (e, itemId) => {
@@ -490,7 +501,7 @@ const EditTripList = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-5">
-        <Button onPress={() => navigate('/')} className="float-left mb-2 me-5">
+        <Button onPress={() => navigate('/cesta/'+ ID_trip)} className="float-left mb-2 me-5">
           Zpět na cesty      
         </Button>
         <div>
@@ -642,100 +653,121 @@ const EditTripList = () => {
               {category.name}
             </div>
           }>
-            {category.items.map(item => (
-              <Card key={item.id_item} className="max-w-[400px] mb-2">
-                <CardBody>
-                  <div className="flex flex-col col-span-6 md:col-span-8">
-                    <div className="flex justify-between flex-row-reverse items-start">
-                      <Button
-                        isIconOnly
-                        className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
-                        radius="full"
-                        variant="light"
-                        onPress={() => removeItem(item.id_item)}
-                      >
-                        <Dash />
-                      </Button>
-                    </div>
-                  </div>
-                  <Autocomplete
-                    className="max-w-xs mb-3"
-                    items={itemSearchResults[item.id_item] || []}
-                    label="Název položky"
-                    placeholder="Názvi novou položku"
-                    inputProps={{
-                      onChange: (e) => handleItemSearchChange(e, item.id_item),
-                      value: itemSearchTerms[item.id_item] || item.name || ''
-                    }}
-                  >
-                    <AutocompleteSection title="Vaše uložené">
-                      {itemSearchResults[item.id_item]?.savedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.Item.name} onPress={() => handleItemSelect(i, item.id_item)}>
-                          {i.Item.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                    <AutocompleteSection title="Návrhy">
-                      {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
-                        <AutocompleteItem key={i.id_item} textValue={i.name} onPress={() => handleItemSelect(i, item.id_item)}>
-                          {i.name}
-                        </AutocompleteItem>
-                      ))}
-                    </AutocompleteSection>
-                  </Autocomplete>
-                  <Input
-                    endContent={
-                      <div className="flex items-center">
-                        <select
-                          className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
-                          id="by_day"
-                          name="by_day"
-                          onChange={(e) => handleByDayChange(e, item.id_item)}
-                          value={item.by_day ? 'true' : 'false'}
-                        >
-                          <option value="true">na den</option>
-                          <option value="false">na celou cestu</option>
-                        </select>
+            {category.items.map(item => {
+              item.status = item.check ? 'check' : item.dissent ? 'dash' : 'none';
+              return (item.check || item.dissent) ? (
+                <Card key={item.id_item} className="max-w-[400px] mb-2">
+                  <CardHeader className="justify-between">
+                    <div className="flex gap-5">
+                      <div className="flex flex-col gap-1 items-start justify-center">
+                        <h4 className="text-small font-semibold leading-none text-default-600">{item.name}</h4>
+                        <h5 className="text-small tracking-tight text-default-400">{item.by_day ? `Počet (${item.count * tripDays})` : `Počet (${item.count})`}</h5>
                       </div>
-                    }
-                    label="Počet"
-                    placeholder="Zadejte počet"
-                    type="number"
-                    onChange={(e) => handleCountChange(e, item.id_item)}
-                    value={item.count || ''}
-                  />
-                  <Flex gap="small">
+                    </div>
+                    <Button
+                      isDisabled
+                      isIconOnly
+                      id='keep-open-element'
+                    >
+                      {item.status === 'check' ? <Check /> : item.status === 'dash' ? <Dash /> : null}
+                    </Button>
+                  </CardHeader>
+                </Card>
+              ) : (
+                <Card key={item.id_item} className="max-w-[400px] mb-2">
+                  <CardBody>
+                    <div className="flex flex-col col-span-6 md:col-span-8">
+                      <div className="flex justify-between flex-row-reverse items-start">
+                        <Button
+                          isIconOnly
+                          className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
+                          radius="full"
+                          variant="light"
+                          onPress={() => removeItem(item.id_item)}
+                        >
+                          <Dash />
+                        </Button>
+                      </div>
+                    </div>
                     <Autocomplete
-                      className="max-w-xs mt-3"
-                      label="Vyber kategorie"
-                      placeholder="Vyhledej kategorii"
+                      className="max-w-xs mb-3"
+                      items={itemSearchResults[item.id_item] || []}
+                      label="Název položky"
+                      placeholder="Názvi novou položku"
                       inputProps={{
-                        onChange: (e) => handleCategorySearchChange(e, item.id_item),
-                        value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
+                        onChange: (e) => handleItemSearchChange(e, item.id_item),
+                        value: itemSearchTerms[item.id_item] || item.name || ''
                       }}
-                      endContent={
-                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
-                      }
                     >
                       <AutocompleteSection title="Vaše uložené">
-                        {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
-                            {cat.name}
+                        {itemSearchResults[item.id_item]?.savedItems.map(i => (
+                          <AutocompleteItem key={i.id_item} textValue={i.Item.name} onPress={() => handleItemSelect(i, item.id_item)}>
+                            {i.Item.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                       <AutocompleteSection title="Návrhy">
-                        {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
-                          <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
-                            {cat.name}
+                        {itemSearchResults[item.id_item]?.unsavedItems.map(i => (
+                          <AutocompleteItem key={i.id_item} textValue={i.name} onPress={() => handleItemSelect(i, item.id_item)}>
+                            {i.name}
                           </AutocompleteItem>
                         ))}
                       </AutocompleteSection>
                     </Autocomplete>
-                  </Flex>
-                </CardBody>
-              </Card>
-            ))}
+                    <Input
+                      endContent={
+                        <div className="flex items-center">
+                          <select
+                            className="outline-none border-0 bg-transparent text-default-400 text-small text-right"
+                            id="by_day"
+                            name="by_day"
+                            onChange={(e) => handleByDayChange(e, item.id_item)}
+                            value={item.by_day ? 'true' : 'false'}
+                          >
+                            <option value="true">na den</option>
+                            <option value="false">na celou cestu</option>
+                          </select>
+                        </div>
+                      }
+                      label="Počet"
+                      placeholder="Zadejte počet"
+                      type="number"
+                      onChange={(e) => handleCountChange(e, item.id_item)}
+                      value={item.count || ''}
+                    />
+                    <Flex gap="small">
+                      <Autocomplete
+                        className="max-w-xs mt-3"
+                        label="Vyber kategorie"
+                        placeholder="Vyhledej kategorii"
+                        inputProps={{
+                          onChange: (e) => handleCategorySearchChange(e, item.id_item),
+                          value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
+                        }}
+                        endContent={
+                          <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
+                        }
+                      >
+                        <AutocompleteSection title="Vaše uložené">
+                          {categorySearchResults[item.id_item]?.savedCategories.map(cat => (
+                            <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
+                              {cat.name}
+                            </AutocompleteItem>
+                          ))}
+                        </AutocompleteSection>
+                        <AutocompleteSection title="Návrhy">
+                          {categorySearchResults[item.id_item]?.unsavedCategories.map(cat => (
+                            <AutocompleteItem key={cat.id_category} textValue={cat.name} onPress={() => handleCategorySelect(cat, item.id_item)}>
+                              {cat.name}
+                            </AutocompleteItem>
+                          ))}
+                        </AutocompleteSection>
+                      </Autocomplete>
+                    </Flex>
+                  </CardBody>
+                </Card>
+              );
+            })}
             {showCategoryModal && selectedCategory === category.id_category && (
               <Modal isOpen={showCategoryModal} onClose={() => setShowCategoryModal(false)}>
                 <ModalContent>
