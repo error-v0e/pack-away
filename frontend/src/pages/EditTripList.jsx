@@ -479,15 +479,15 @@ const EditTripList = () => {
     }
   };
 
-  const createList = async () => {
+  const updateList = async () => {
     try {
       const id_user = JSON.parse(localStorage.getItem('id_user'));
-      const response = await axios.post('/api/create-list', {
+      const response = await axios.post('/api/update-list', {
         id_user,
         id_trip: ID_trip,
         items: savedItems
       }, { withCredentials: true });
-      setIsUsingList(true);
+      navigate('/cesta/'+ ID_trip);
     } catch (error) {
       console.error('Error creating list:', error);
       setError('Chyba při vytváření seznamu');
@@ -816,7 +816,7 @@ const EditTripList = () => {
         <PopoverContent>
           <div className="px-1 py-2">
             <div className="text-small font-bold mb-2">Opravdu chcete uložit seznam?</div>
-            <Button color="warning" variant="flat" className='w-full' onPress={createList}>
+            <Button color="warning" variant="flat" className='w-full' onPress={updateList}>
               Ano
             </Button>
           </div>

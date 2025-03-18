@@ -862,6 +862,52 @@ app.post('/api/create-list', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error creating list' });
   }
 });
+app.post('/api/update-list', isAuthenticated, async (req, res) => {
+  const { id_user, id_trip, items } = req.body;
+
+  try {
+    await UsingItem.destroy({
+      where: {
+        id_item: {
+          [Op.in]: sequelize.literal(`(
+            SELECT "UsingItems".id_item
+            FROM "UsingItems"
+            INNER JOIN "UsingCategoryItems" ON "UsingItems".id_item = "UsingCategoryItems".id_item
+            INNER JOIN "UsingCategories" ON "UsingCategoryItems".id_category = "UsingCategories".id_category
+            INNER JOIN "UsingListCategories" ON "UsingCategories".id_category = "UsingListCategories".id_category
+            WHERE "UsingListCategories".id_user = ${id_user} AND "UsingListCategories".id_trip = ${id_trip}
+            AND "UsingItems".check = false AND "UsingItems".dissent = false
+          )`)
+        }
+      }
+    });
+
+    for (const category of items) {
+      const usingCategory = await UsingCategory.create({ name: category.name });
+
+      await UsingListCategory.create({
+        id_trip,
+        id_user,
+        id_category: usingCategory.id_category
+      });
+
+      for (const item of category.items) {
+        if (!item.check && !item.dissent) {
+          const usingItem = await UsingItem.create({ name: item.name, count: item.count, by_day: item.by_day, check: false, dissent: false });
+          await UsingCategoryItem.create({
+            id_item: usingItem.id_item,
+            id_category: usingCategory.id_category
+          });
+        }
+      }
+    }
+
+    res.json({ message: 'List updated successfully' });
+  } catch (error) {
+    console.error('Error updating list:', error);
+    res.status(500).json({ message: 'Error updating list' });
+  }
+});
 app.get('/api/view-using-list-items', isAuthenticated, async (req, res) => {
   const { asking_IDuser, IDuser, IDtrip } = req.query;
   try {
