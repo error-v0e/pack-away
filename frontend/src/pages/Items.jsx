@@ -265,7 +265,7 @@ const Items = () => {
               className="max-w-xs mb-3"
               items={itemSearchResults[null] || []}
               label="Název položky"
-              placeholder="Názvi novou položku"
+              placeholder="Pojmenuj novou položku"
               inputProps={{
                 onChange: (e) => handleItemSearchChange(e, null),
                 value: searchTerm || ''
@@ -300,7 +300,7 @@ const Items = () => {
             />
             <Autocomplete
               className="max-w-xs mt-3"
-              label="Vyber kategorie"
+              label="Vyber kategorii"
               placeholder="Vyhledej kategorii"
               inputProps={{
                 onChange: (e) => handleCategorySearchChange(e, null),
@@ -343,7 +343,7 @@ const Items = () => {
                       className="max-w-xs mb-3"
                       items={itemSearchResults[item.id_item] || []}
                       label="Název položky"
-                      placeholder="Názvi novou položku"
+                      placeholder="Pojmenuj novou položku"
                       inputProps={{
                         onChange: (e) => handleItemSearchChange(e, item.id_item),
                         value: itemSearchTerms[item.id_item] || item.name || ''
@@ -379,7 +379,7 @@ const Items = () => {
                     <Flex gap="small" >
                     <Autocomplete
                       className="max-w-xs mt-3"
-                      label="Vyber kategorie"
+                      label="Vyber kategorii"
                       placeholder="Vyhledej kategorii"
                       inputProps={{
                         onChange: (e) => handleCategorySearchChange(e, item.id_item),
@@ -434,19 +434,6 @@ const Items = () => {
           </Accordion>
         ))}
       </Flex>
-      <Button className="fixed bottom-4 right-4 z-50" onPress={onOpen}>Správa kategorii</Button>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          <ModalHeader>Správa kategorii</ModalHeader>
-          <ModalBody>
-          </ModalBody>
-          <ModalFooter>
-            <Button onPress={onClose}>
-              Zavřít
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 };

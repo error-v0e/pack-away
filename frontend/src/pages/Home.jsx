@@ -146,19 +146,19 @@ const Home = () => {
           <ModalContent>
             {(onClose) => (
               <>
-                <ModalHeader className="flex flex-col gap-1">Nová cestu</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Nová cesta</ModalHeader>
                 <ModalBody>
                   <Input
                     autoFocus
                     label="Název cesty"
-                    placeholder="Názvi novou cesty"
+                    placeholder="Pojmenuj novou cestu"
                     variant="bordered"
                     value={tripName}
                     onChange={(e) => setTripName(e.target.value)}
                   />
                   <I18nProvider locale="cs-CZ-u-ca-czech">
                     <DateRangePicker
-                      label="Obdobý cesty"
+                      label="Odjezd - Příjezd"
                       className="w-full"
                       value={tripDates}
                       onChange={(range) => setTripDates({ start: range.start, end: range.end })}
@@ -323,7 +323,7 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.upcoming.length > 0 && (
-            <AccordionItem key="2" aria-label="Budouci" title="Nadchazejici">
+            <AccordionItem key="2" aria-label="Budoucí" title="Nadcházející">
               <Flex wrap gap="small" justify="center">
                 {trips.upcoming.map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]" onPress={() => navigateToTripDetail(trip.id_trip)} isPressable>
@@ -351,7 +351,7 @@ const Home = () => {
             </AccordionItem>
           )}
           {trips.ongoing.length > 0 && (
-            <AccordionItem key="3" aria-label="Aktualni" title="Porbihajici">
+            <AccordionItem key="3" aria-label="Aktuální" title="Probíhající">
               <Flex wrap gap="small" justify="center">
                 {trips.ongoing.map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]" onPress={() => navigateToTripDetail(trip.id_trip)} isPressable>

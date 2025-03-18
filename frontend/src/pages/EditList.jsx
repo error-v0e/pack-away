@@ -496,7 +496,7 @@ const EditList = () => {
                   <Autocomplete
                     className="max-w-xs mb-3"
                     label="Název položky"
-                    placeholder="Názvi novou položku"
+                    placeholder="Pojmenuj novou položku"
                     inputProps={{
                       onChange: (e) => handleItemSearchChange(e, null),
                       value: newItem.name || ''
@@ -544,7 +544,7 @@ const EditList = () => {
                   />
                   <Autocomplete
                     className="max-w-xs mt-3"
-                    label="Vyber kategorie"
+                    label="Vyber kategorii"
                     placeholder="Vyhledej kategorii"
                     inputProps={{
                       onChange: (e) => handleCategorySearchChange(e, null),
@@ -604,7 +604,7 @@ const EditList = () => {
                     className="max-w-xs mb-3"
                     items={itemSearchResults[item.id_item] || []}
                     label="Název položky"
-                    placeholder="Názvi novou položku"
+                    placeholder="Pojmenuj novou položku"
                     inputProps={{
                       onChange: (e) => handleItemSearchChange(e, item.id_item),
                       value: itemSearchTerms[item.id_item] || item.name || ''
@@ -649,7 +649,7 @@ const EditList = () => {
                   <Flex gap="small">
                     <Autocomplete
                       className="max-w-xs mt-3"
-                      label="Vyber kategorie"
+                      label="Vyber kategorii"
                       placeholder="Vyhledej kategorii"
                       inputProps={{
                         onChange: (e) => handleCategorySearchChange(e, item.id_item),
