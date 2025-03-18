@@ -104,9 +104,13 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
 
   return (
     <div>
-      <div>
+      <div className="flex justify-between">
         <Button onPress={() => navigate('/')}>
           Zpět na cesty       
+        </Button>
+
+        <Button onPress={() => navigate('/cesta/'+ID_trip+'/uprava-seznamu')}>
+            Upravit seznam
         </Button>
       </div>
       <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
