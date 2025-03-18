@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Avatar, AvatarIcon, Card, CardBody } from "@heroui/react";
+import { Avatar, AvatarIcon, Card, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, } from "@heroui/react";
 import { Flex } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { UsersInvite } from "../assets/UsersInvite.jsx";
 
 const UserBar = ({ ID_trip, ID_user }) => {
   const [members, setMembers] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
   useEffect(() => {
     const fetchTripMembers = async () => {
@@ -33,7 +35,7 @@ const UserBar = ({ ID_trip, ID_user }) => {
   }
 
   return (
-    <div>
+    <div className='mt-5'>
       <Flex gap='small' justify="center">
         {members.map(member => (
           <Card 
@@ -57,7 +59,40 @@ const UserBar = ({ ID_trip, ID_user }) => {
             </CardBody>
           </Card>
         ))}
+        <Card 
+        key={'pozvat'}
+        onPress={onOpen}
+        isPressable
+        >
+          <CardBody>
+            <Flex justify="center" >
+              <Avatar
+                className='justify-item-center'
+                key='pozvat'                  size="lg"
+                icon={<UsersInvite />}
+              />
+            </Flex>
+              <p className='text-center'>Pozvat další</p>
+          </CardBody>
+        </Card>
       </Flex>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+              <ModalBody>
+                
+              </ModalBody>
+              <ModalFooter>
+                <Button color="primary" onPress={onClose}>
+                  Zavřít
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

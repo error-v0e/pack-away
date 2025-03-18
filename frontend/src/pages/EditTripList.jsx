@@ -502,7 +502,7 @@ const EditTripList = () => {
     <div>
       <div className="flex justify-between items-center mb-5">
         <Button onPress={() => navigate('/cesta/'+ ID_trip)} className="float-left mb-2 me-5">
-          Zpět na cesty      
+          Zpět na seznam      
         </Button>
         <div>
         

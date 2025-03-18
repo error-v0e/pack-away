@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 
 const Friends = () => {
-  const [isFollowed, setIsFollowed] = useState(false);
   const [users, setUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [search, setSearch] = useState('');
