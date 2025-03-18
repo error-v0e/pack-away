@@ -23,7 +23,7 @@ const ViewTripList = ({ ID_trip, ID_user, tripDays }) => {
     fetchUsingListItems();
     const interval = setInterval(fetchUsingListItems, 500); 
     return () => clearInterval(interval); 
-  }, [ID_trip]);
+  }, [ID_user]);
 
   if (error) {
     return <div>{error}</div>;

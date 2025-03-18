@@ -282,6 +282,42 @@ app.get('/api/friends', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error fetching friends' });
   }
 });
+app.get('/api/not-member-friends', isAuthenticated, async (req, res) => {
+  const { id_user, ID_trip } = req.query;
+
+  try {
+    const friends = await Friend.findAll({
+      where: {
+        id_user_one: id_user
+      },
+      include: [{
+        model: User,
+        as: 'UserTwo',
+        attributes: ['id_user', 'username', 'picture']
+      }]
+    });
+
+    const friendIds = friends.map(friend => friend.UserTwo.id_user);
+
+    const tripMembers = await TripMember.findAll({
+      where: {
+        id_trip: ID_trip
+      },
+      attributes: ['id_user']
+    });
+
+    const tripMemberIds = tripMembers.map(member => member.id_user);
+
+    const notMemberFriends = friends
+      .filter(friend => !tripMemberIds.includes(friend.UserTwo.id_user))
+      .map(friend => friend.UserTwo);
+
+    res.json(notMemberFriends);
+  } catch (err) {
+    console.error('Error fetching not-member friends:', err);
+    res.status(500).json({ message: 'Error fetching not-member friends' });
+  }
+});
 app.delete('/api/remove_follow', isAuthenticated, async (req, res) => {
   const { id_user_one, id_user_two } = req.body;
   try {
@@ -323,6 +359,27 @@ app.post('/api/create_trip', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error creating trip:', err);
     res.status(500).json({ message: 'Error creating trip' });
+  }
+});
+app.post('/api/add-trip-member', isAuthenticated, async (req, res) => {
+  const { id_trip, invited_user } = req.body;
+
+  try {
+    await TripMember.create({ id_user: invited_user, id_trip, joined: false, owner: false });
+
+    const tripMembers = await TripMember.findAll({ where: { id_trip }, attributes: ['id_user'] });
+
+    for (const member of tripMembers) {
+      if (member.id_user !== invited_user) {
+        await TripMemberPermission.create({ id_user: invited_user, id_friend: member.id_user, id_trip, view: true, edit: false });
+        await TripMemberPermission.create({ id_user: member.id_user, id_friend: invited_user, id_trip, view: true, edit: false });
+      }
+    }
+
+    res.json({ message: 'User successfully added to the trip' });
+  } catch (error) {
+    console.error('Error adding user to trip:', error);
+    res.status(500).json({ message: 'Error adding user to trip' });
   }
 });
 app.get('/api/trips', isAuthenticated, async (req, res) => {
