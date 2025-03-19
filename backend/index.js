@@ -546,6 +546,15 @@ app.post('/api/decline_trip', isAuthenticated, async (req, res) => {
     await TripMember.destroy({
       where: { id_user, id_trip }
     });
+    await TripMemberPermission.destroy({
+      where: {
+        id_trip,
+        [Sequelize.Op.or]: [
+          { id_user: id_user },
+          { id_friend: id_user },
+        ],
+      },
+    });
     res.json({ message: 'Successfully declined the trip' });
   } catch (err) {
     console.error('Error declining trip:', err);

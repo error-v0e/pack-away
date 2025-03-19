@@ -298,7 +298,7 @@ const Home = () => {
         <Accordion defaultExpandedKeys={[defaultOpenKey]} 
         selectionMode="multiple" >
           {trips.invites.length > 0 && (
-            <AccordionItem key="1" aria-label="Pozvanky" title="Pozvanky">
+            <AccordionItem key="1" aria-label="Pozvanky" title="Pozvánky">
               <Flex wrap gap="small" justify="center">
                 {trips.invites.map(trip => (
                   <Card key={trip.id_trip} className="max-w-[340px]">
