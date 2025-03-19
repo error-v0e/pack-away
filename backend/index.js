@@ -382,6 +382,20 @@ app.post('/api/add-trip-member', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: 'Error adding user to trip' });
   }
 });
+app.post('/api/update-permissions', isAuthenticated, async (req, res) => {
+  const { id_trip, id_user, id_friend, view, edit } = req.body;
+
+  try {
+    await TripMemberPermission.update(
+      { view, edit },
+      { where: { id_trip, id_user, id_friend } }
+    );
+    res.json({ message: 'Permissions updated successfully' });
+  } catch (error) {
+    console.error('Error updating permissions:', error);
+    res.status(500).json({ message: 'Error updating permissions' });
+  }
+});
 app.get('/api/trips', isAuthenticated, async (req, res) => {
   const { id_user } = req.query;
 

@@ -12,6 +12,7 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
   const [error, setError] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+    const [isSameUser, setIsSameUser] = useState(false);
   const navigate = useNavigate();
 
   const fetchUsingListItems = async () => {
@@ -38,6 +39,10 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
 
   useEffect(() => {
     fetchUsingListItems();
+    const id_user = JSON.parse(localStorage.getItem('id_user'));
+    if (!ID_user) {
+      setIsSameUser(true);  
+    }
     const interval = setInterval(fetchUsingListItems, 500); 
     return () => clearInterval(interval); 
   }, [ID_trip]);
@@ -105,13 +110,16 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
   return (
     <div>
       <div className="flex justify-between">
-        <Button onPress={() => navigate('/')}>
-          Zpět na cesty       
-        </Button>
+      {isSameUser ? (
+        <><Button onPress={() => navigate('/')}>
+        Zpět na cesty       
+      </Button>
 
-        <Button onPress={() => navigate('/cesta/'+ID_trip+'/uprava-seznamu')}>
-            Upravit seznam
-        </Button>
+      <Button onPress={() => navigate('/cesta/'+ID_trip+'/uprava-seznamu')}>
+          Upravit seznam
+      </Button> </>
+      ) : null}
+        
       </div>
       <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
       <Flex wrap justify="center">

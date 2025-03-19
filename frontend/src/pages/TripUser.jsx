@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import TripList from "../components/TripList.jsx";
 import ViewTripList from "../components/ViewTripList.jsx";
-import UserBar from "../components/UserBar.jsx";
 
 const TripUser = () => {
   const { ID_trip, ID_user } = useParams();
@@ -69,10 +68,12 @@ const TripUser = () => {
           Zpět na svůj seznam       
         </Button>
       </div>
-      <UserBar ID_trip={ID_trip} ID_user={JSON.parse(localStorage.getItem('id_user'))} />
       {!isUser && <div>Uživatel není ve vybrané cestě.</div>}
-      {editUser && <TripList ID_trip={ID_trip} ID_user={ID_user} tripDays={tripDays} />}
-      {viewUser && <ViewTripList ID_trip={ID_trip} ID_user={ID_user} tripDays={tripDays} />}
+      {editUser ? (
+        <TripList ID_trip={ID_trip} ID_user={ID_user} tripDays={tripDays} />
+      ) : viewUser ? (
+        <ViewTripList ID_trip={ID_trip} ID_user={ID_user} tripDays={tripDays} />
+      ) : null}
     </div>
   );
 };
