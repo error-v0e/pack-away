@@ -1513,7 +1513,8 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
           tm.joined, 
           u.username, 
           u.picture, 
-          tmp.view
+          tmp.view,
+          tmp.edit
         FROM "TripMembers" tm  -- Opraveno
         LEFT JOIN "Users" u ON tm.id_user = u.id_user
         LEFT JOIN "TripMemberPermissions" tmp 
@@ -1533,7 +1534,8 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
       username: member.username,
       picture: member.picture,
       joined: member.joined,
-      view: member.view
+      view: member.view,
+      edit: member.edit
     }));
 
     res.json(members);

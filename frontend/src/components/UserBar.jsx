@@ -34,6 +34,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
     try {
       const response = await axios.get('/api/trip-members', { params: { id_user: ID_user, id_trip: ID_trip } });
       setMembers(response.data);
+      console.log(response.data);
 
     } catch (error) {
       console.error('Error fetching trip members:', error);
