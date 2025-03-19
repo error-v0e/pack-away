@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, DateRangePicker, Accordion, AccordionItem, useDisclosure, Avatar, Autocomplete, AutocompleteItem, CardHeader, Card } from "@heroui/react";
-import { Flex } from 'antd';
+import { Checkbox, Flex } from 'antd';
 import {I18nProvider} from "@react-aria/i18n";
 import { PackAwayLogo } from '../assets/PackAwayLogo';
 import { MissingInput } from '../assets/MissingInput';
 import { Users } from '../assets/Users';
 import { User } from '../assets/User';
+import { Cross } from '../assets/Cross';
+import { Check } from '../assets/Check';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -305,16 +307,16 @@ const Home = () => {
                         <PackAwayLogo />
                         <div className="flex flex-col gap-1 items-start justify-center">
                           <h5 className="text-small tracking-tight text-default-400">
-                            <span className='text-default-900'>{trip.owner}</span> vás zve na <span className='text-default-900'>{trip.name}</span> od <span className='text-default-900'>{trip.from_date}</span> do <span className='text-default-900'>{trip.to_date}</span>
+                            <span className='text-default-900'>{trip.owner}</span> založil <span className='text-default-900'>{trip.name}</span> od <span className='text-default-900'>{trip.from_date}</span> do <span className='text-default-900'>{trip.to_date}</span>
                           </h5>
                         </div>
                       </div>
                       <div className="flex gap-1 ms-2">
                         <Button isIconOnly onPress={() => handleJoinTrip(trip.id_trip)}>
-                          Y
+                          <Check width={18} height={20} />
                         </Button>
                         <Button isIconOnly color="danger" variant="flat" onPress={() => handleDeclineTrip(trip.id_trip)}>
-                          N
+                          <Cross />
                         </Button>
                       </div>
                     </CardHeader>
