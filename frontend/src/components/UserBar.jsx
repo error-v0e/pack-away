@@ -21,8 +21,8 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
     try {
       await axios.post('/api/update-permissions', {
         id_trip: ID_trip,
-        id_user: ID_user,
-        id_friend: id_user,
+        id_user: id_user,
+        id_friend: ID_user,
         view,
         edit,
       }, { withCredentials: true });
@@ -34,7 +34,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
     try {
       const response = await axios.get('/api/trip-members', { params: { id_user: ID_user, id_trip: ID_trip } });
       setMembers(response.data);
-      console.log(response.data);
+      console.log(members);
 
     } catch (error) {
       console.error('Error fetching trip members:', error);
@@ -184,7 +184,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                               aria-label="view"
                               onChange={async (checked) => {
                                 try {
-                                  if (!checked) {
+                                  if (checked) {
                                     // If view is set to false, also set edit to false
                                     await updatePermissions(member.id_user, false, false);
                                   } else {
@@ -205,7 +205,13 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                               isDisabled={!member.view} // Disable edit if view is false
                               onChange={async (checked) => {
                                 try {
-                                  await updatePermissions(member.id_user, true, true);
+                                  if (checked) {
+                                    // If view is set to false, also set edit to false
+                                    await updatePermissions(member.id_user, member.view, false);
+                                  } else {
+                                    // If view is set to true, retain the current edit state
+                                    await updatePermissions(member.id_user, member.view, true);
+                                  }
                                   fetchTripMembers(); // Refresh members to reflect changes
                                 } catch (error) {
                                   console.error('Error updating permissions:', error);

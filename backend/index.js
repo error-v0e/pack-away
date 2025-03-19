@@ -384,7 +384,7 @@ app.post('/api/add-trip-member', isAuthenticated, async (req, res) => {
 });
 app.post('/api/update-permissions', isAuthenticated, async (req, res) => {
   const { id_trip, id_user, id_friend, view, edit } = req.body;
-
+  console.log(req.body);
   try {
     await TripMemberPermission.update(
       { view, edit },
@@ -1518,7 +1518,7 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
         FROM "TripMembers" tm  -- Opraveno
         LEFT JOIN "Users" u ON tm.id_user = u.id_user
         LEFT JOIN "TripMemberPermissions" tmp 
-            ON tmp.id_friend = tm.id_user 
+            ON tmp.id_user = tm.id_user 
             AND tmp.id_trip = tm.id_trip 
             AND tmp.id_user = :id_user
         WHERE tm.id_trip = :id_trip 
@@ -1532,12 +1532,11 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
     const members = tripMembers.map(member => ({
       id_user: member.id_user,
       username: member.username,
-      picture: member.picture,
       joined: member.joined,
       view: member.view,
-      edit: member.edit
+      edit: member.edit,
+      picture: member.picture
     }));
-
     res.json(members);
   } catch (error) {
     console.error('Error fetching trip members:', error);
