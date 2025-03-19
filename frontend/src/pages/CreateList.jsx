@@ -5,6 +5,7 @@ import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomple
 import { Flex } from 'antd';
 import { Cross } from "../assets/Cross";
 import { Refresh } from "../assets/Refresh";
+import { Arrow } from "../assets/Arrow";
 
 const CreateList = () => {
   const [savedItems, setSavedItems] = useState([]);
@@ -480,8 +481,8 @@ const CreateList = () => {
   return (
     <div>
       <div>
-        <Button onPress={() => navigate('/seznamy')}>
-          Zpět na seznamy       
+        <Button isIconOnly color='none' onPress={() => navigate('/seznamy')}>
+          <Arrow />       
         </Button>
         <Popover>
           <PopoverTrigger>

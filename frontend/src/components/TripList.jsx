@@ -6,6 +6,7 @@ import { Flex } from 'antd';
 import { Check } from "../assets/Check";
 import { Dash } from "../assets/Dash";
 import UserBar from "../components/UserBar.jsx";
+import { Arrow } from "../assets/Arrow";
 
 const TripList = ({ ID_trip, ID_user, tripDays }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -111,8 +112,8 @@ const TripList = ({ ID_trip, ID_user, tripDays }) => {
     <div>
       <div className="flex justify-between">
       {isSameUser ? (
-        <><Button onPress={() => navigate('/')}>
-        Zpět na cesty       
+        <><Button isIconOnly color='none' onPress={() => navigate('/')}>
+        <Arrow />       
       </Button>
 
       <Button onPress={() => navigate('/cesta/'+ID_trip+'/uprava-seznamu')}>

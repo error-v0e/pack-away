@@ -463,8 +463,8 @@ const EditList = () => {
   return (
     <div>
       <div>
-              <Button onPress={() => navigate('/seznamy')}>
-                Zpět na seznamy       
+              <Button isIconOnly color='none' onPress={() => navigate('/seznamy')}>
+                <Arrow />        
               </Button>
               <Popover>
                 <PopoverTrigger>

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import TripList from "../components/TripList.jsx";
 import ViewTripList from "../components/ViewTripList.jsx";
+import { Arrow } from "../assets/Arrow";
 
 const TripUser = () => {
   const { ID_trip, ID_user } = useParams();
@@ -65,7 +66,7 @@ const TripUser = () => {
     <div>
       <div>
         <Button onPress={() => navigate('/cesta/'+ID_trip)}>
-          Zpět na svůj seznam       
+        <Arrow /> Zpět na svůj seznam       
         </Button>
       </div>
       {!isUser && <div>Uživatel není ve vybrané cestě.</div>}

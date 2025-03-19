@@ -5,6 +5,7 @@ import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, Autocomp
 import { Flex } from 'antd';
 import { Cross } from "../assets/Cross";
 import { Refresh } from "../assets/Refresh";
+import { Arrow } from "../assets/Arrow";
 
 const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -490,8 +491,8 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-5">
-        <Button onPress={() => navigate('/')}>
-          Zpět na cesty      
+        <Button isIconOnly color='none' onPress={() => navigate('/')}>
+        <Arrow />      
         </Button>
         <div>
         <Button onPress={onOpen}>Načíst ze seznamu</Button>
