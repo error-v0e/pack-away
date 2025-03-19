@@ -1508,21 +1508,27 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
 
   try {
     const tripMembers = await sequelize.query(
-        `SELECT 
+      `SELECT 
           tm.id_user, 
           tm.joined, 
           u.username, 
           u.picture, 
-          tmp.view,
-          tmp.edit
-        FROM "TripMembers" tm  -- Opraveno
-        LEFT JOIN "Users" u ON tm.id_user = u.id_user
-        LEFT JOIN "TripMemberPermissions" tmp 
-            ON tmp.id_user = tm.id_user 
-            AND tmp.id_trip = tm.id_trip 
-            AND tmp.id_user = :id_user
-        WHERE tm.id_trip = :id_trip 
-        AND tm.id_user != :id_user;`,
+          tmp.view AS view,
+          tmp.edit AS edit,
+          tmpr.view AS view2,
+          tmpr.edit AS edit2
+       FROM "TripMembers" tm
+       LEFT JOIN "Users" u ON tm.id_user = u.id_user
+       LEFT JOIN "TripMemberPermissions" tmp 
+           ON tmp.id_friend = tm.id_user 
+           AND tmp.id_trip = tm.id_trip 
+           AND tmp.id_user = :id_user
+       LEFT JOIN "TripMemberPermissions" tmpr 
+           ON tmpr.id_user = tm.id_user 
+           AND tmpr.id_trip = tm.id_trip 
+           AND tmpr.id_friend = :id_user
+       WHERE tm.id_trip = :id_trip 
+       AND tm.id_user != :id_user;`,
       {
         replacements: { id_trip, id_user },
         type: Sequelize.QueryTypes.SELECT
@@ -1535,7 +1541,9 @@ app.get('/api/trip-members', isAuthenticated, async (req, res) => {
       joined: member.joined,
       view: member.view,
       edit: member.edit,
-      picture: member.picture
+      picture: member.picture,
+      view2: member.view2,
+      edit2: member.edit2
     }));
     res.json(members);
   } catch (error) {

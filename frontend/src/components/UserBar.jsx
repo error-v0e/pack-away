@@ -180,15 +180,15 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                           <div className="flex gap-3 justify-between my-1 mt-3">
                             <span>Číst seznam</span>
                             <Switch
-                              defaultSelected={member.view}
-                              aria-label="view"
-                              onChange={async (checked) => {
+                              defaultSelected={member.view2}
+                              aria-label="view2"
+                              onValueChange={async (isSelected) => {
                                 try {
-                                  if (checked) {
-                                    // If view is set to false, also set edit to false
+                                  if (!isSelected) {
+                                    // If view2 is set to false, also set edit2 to false
                                     await updatePermissions(member.id_user, false, false);
                                   } else {
-                                    await updatePermissions(member.id_user, true, member.edit);
+                                    await updatePermissions(member.id_user, true, member.edit2);
                                   }
                                   fetchTripMembers(); // Refresh members to reflect changes
                                 } catch (error) {
@@ -200,17 +200,17 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                           <div className="flex gap-3 justify-between">
                             <span>Vyplňovat seznam</span>
                             <Switch
-                              defaultSelected={member.edit}
-                              aria-label="edit"
-                              isDisabled={!member.view} // Disable edit if view is false
-                              onChange={async (checked) => {
+                              defaultSelected={member.edit2}
+                              aria-label="edit2"
+                              isDisabled={!member.view2} // Disable edit2 if view2 is false
+                              onValueChange={async (isSelected) => {
                                 try {
-                                  if (checked) {
-                                    // If view is set to false, also set edit to false
-                                    await updatePermissions(member.id_user, member.view, false);
+                                  if (!isSelected) {
+                                    // If view2 is set to false, also set edit2 to false
+                                    await updatePermissions(member.id_user, member.view2, false);
                                   } else {
-                                    // If view is set to true, retain the current edit state
-                                    await updatePermissions(member.id_user, member.view, true);
+                                    // If view2 is set to true, retain the current edit2 state
+                                    await updatePermissions(member.id_user, member.view2, true);
                                   }
                                   fetchTripMembers(); // Refresh members to reflect changes
                                 } catch (error) {
