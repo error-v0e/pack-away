@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardHeader, CardBody, Input, Autocomplete, AutocompleteItem, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
-import { Dash } from "../assets/Dash";
+import { Cross } from "../assets/Cross";
+import { Refresh } from "../assets/Refresh";
 
 const CreateList = () => {
   const [savedItems, setSavedItems] = useState([]);
@@ -614,7 +615,7 @@ const CreateList = () => {
                         variant="light"
                         onPress={() => removeItem(item.id_item)}
                       >
-                        <Dash />
+                        <Cross />
                       </Button>
                     </div>
                   </div>
@@ -674,7 +675,7 @@ const CreateList = () => {
                         value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
                       }}
                       endContent={
-                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
+                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}><Refresh /></Button>
                       }
                     >
                       <AutocompleteSection title="Vaše uložené">

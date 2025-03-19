@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Input, Accordion, AccordionItem, Autocomplete, AutocompleteItem, AutocompleteSection, Card, CardBody, CardHeader, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter ,useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
+import { Save } from '../assets/Save';
+import { Bin } from '../assets/Bin';
+import { color } from 'framer-motion';
 
 const Items = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -405,13 +408,13 @@ const Items = () => {
                         ))}
                       </AutocompleteSection>
                     </Autocomplete>
-                    <Button isIconOnly className='h-15 mt-3' color="success" variant="flat" onPress={() => updateItem(item.id_item)}>
-                      U
+                    <Button isIconOnly className='h-15 mt-3' color="success" onPress={() => updateItem(item.id_item)}>
+                    <Save />
                     </Button>
                     <Popover placement="right">
                       <PopoverTrigger>
-                        <Button isIconOnly className='h-15 mt-3' color="danger" variant="flat">
-                          S
+                        <Button isIconOnly className='h-15 mt-3' color="danger">
+                        <Bin/>
                         </Button>
                         </PopoverTrigger>
                       <PopoverContent>

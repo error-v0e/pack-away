@@ -5,6 +5,8 @@ import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, Autocomp
 import { Flex } from 'antd';
 import { Check } from "../assets/Check.jsx";
 import { Dash } from "../assets/Dash.jsx";
+import { Cross } from "../assets/Cross";
+import { Refresh } from "../assets/Refresh";
 
 const EditTripList = () => {
   const { ID_trip } = useParams();
@@ -685,7 +687,7 @@ const EditTripList = () => {
                           variant="light"
                           onPress={() => removeItem(item.id_item)}
                         >
-                          <Dash />
+                          <Cross />
                         </Button>
                       </div>
                     </div>
@@ -745,7 +747,7 @@ const EditTripList = () => {
                           value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
                         }}
                         endContent={
-                          <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
+                          <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}><Refresh /></Button>
                         }
                       >
                         <AutocompleteSection title="Vaše uložené">

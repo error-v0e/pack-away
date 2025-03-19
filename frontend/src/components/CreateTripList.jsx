@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Accordion, AccordionItem, Card, CardBody, Input, Autocomplete, AutocompleteItem, CardHeader, AutocompleteSection, Button, Popover, PopoverTrigger, PopoverContent, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Flex } from 'antd';
-import { Dash } from "../assets/Dash";
+import { Cross } from "../assets/Cross";
+import { Refresh } from "../assets/Refresh";
 
 const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
   const [savedItems, setSavedItems] = useState([]);
@@ -652,7 +653,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                         variant="light"
                         onPress={() => removeItem(item.id_item)}
                       >
-                        <Dash />
+                        <Cross />
                       </Button>
                     </div>
                   </div>
@@ -712,7 +713,7 @@ const CreateTripList = ({ ID_trip, tripDays, setIsUsingList }) => {
                         value: categorySearchTerms[item.id_item] || item.categoryTerm || category.name || ''
                       }}
                       endContent={
-                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}></Button>
+                        <Button isIconOnly className='mt-1' onPress={() => handleCategorySelect({ name: categorySearchTerms[item.id_item] || item.categoryTerm || category.name }, item.id_item)}><Refresh /></Button>
                       }
                     >
                       <AutocompleteSection title="Vaše uložené">

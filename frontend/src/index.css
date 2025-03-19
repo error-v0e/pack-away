@@ -69,3 +69,11 @@ button:focus-visible {
   stroke-linejoin: round;
   stroke-width: 1.5px;
   }
+  
+  .cls-1w {
+    fill: none;          
+    stroke: #FFF;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5px;
+    }

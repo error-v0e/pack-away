@@ -5,6 +5,8 @@ import { Flex } from 'antd';
 import { SearchIcon } from "../assets/SearchIcon";
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
+import { User } from "../assets/User.jsx";
+
 
 const Friends = () => {
   const [users, setUsers] = useState([]);
@@ -125,7 +127,7 @@ const Friends = () => {
             <AutocompleteItem key={item.id_user} textValue={item.username}>
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
-                  <Avatar alt={item.username} className="flex-shrink-0" size="sm" src={item.picture} />
+                  <Avatar alt={item.username} className="flex-shrink-0" size="sm" src={item.picture}  icon={<User />}/>
                   <div className="flex flex-col">
                     <span className="text-small">{item.username}</span>
                   </div>
@@ -149,7 +151,7 @@ const Friends = () => {
           <Card key={friend.id_user} className="max-w-[340px] min-w-[300px]">
             <CardHeader className="justify-between">
               <div className="flex gap-5">
-                <Avatar radius="full" size="md" src={friend.picture} />
+                <Avatar radius="full" size="md" src={friend.picture} icon={<User />}/>
                 <div className="flex flex-col items-start justify-center mr-3">
                   <h4 className="text-small font-semibold leading-none text-default-600 ">{friend.username}</h4>
                 </div>

@@ -4,6 +4,8 @@ import { Avatar, AvatarIcon, Card, CardBody, Switch, Modal, ModalContent, ModalH
 import { Flex } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { UsersInvite } from "../assets/UsersInvite.jsx";
+import { UserPermission } from "../assets/UserPermission.jsx";
+import { User } from "../assets/User.jsx";
 
 const UserBar = ({ ID_trip, ID_user }) => {
   const [members, setMembers] = useState([]);
@@ -84,7 +86,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
               <Avatar
                 className='justify-item-center'
                 key='prava'                  size="lg"
-                icon={<UsersInvite />}
+                icon={<UserPermission />}
               />
             </Flex>
               <p className='text-center'>Oprávnění</p>
@@ -105,7 +107,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                   size="lg"
                   src={member.picture}
                   isDisabled={!member.joined || !member.view }
-                  icon={<AvatarIcon />}
+                  icon={<User />}
                 />
               </Flex>
                 <p className='text-center'>{member.username}</p>
@@ -139,7 +141,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                 <Card key={friend.id_user} className="w-full">
                   <CardHeader className="justify-between">
                     <div className="flex gap-5">
-                      <Avatar radius="full" size="md" src={friend.picture} />
+                      <Avatar radius="full" size="md" src={friend.picture}  icon={<User />}/>
                       <div className="flex flex-col items-start justify-center mr-3">
                         <h4 className="text-small font-semibold leading-none text-default-600 ">{friend.username}</h4>
                       </div>
@@ -171,7 +173,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
                     <Card key={member.id_user} className="w-full">
                       <CardHeader className="justify-between">
                         <div className="flex gap-5">
-                          <Avatar radius="full" size="md" src={member.picture} />
+                          <Avatar radius="full" size="md" src={member.picture} icon={<User />}/>
                           <div className="flex flex-col items-start justify-center mr-3">
                             <h4 className="text-small font-semibold leading-none text-default-600">{member.username}</h4>
                           </div>
