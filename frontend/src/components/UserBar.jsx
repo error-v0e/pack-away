@@ -160,7 +160,7 @@ const {isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2} = useDisclosure();
           )}
         </ModalContent>
       </Modal>
-      <Modal isOpen={isOpen2} onOpenChange={onClose2}>
+      <Modal isOpen={isOpen2} onOpenChange={onClose2} scrollBehavior="outside">
         <ModalContent>
           {(onOpen2) => (
             <>
